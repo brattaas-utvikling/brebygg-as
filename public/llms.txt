@@ -1,0 +1,46 @@
+# BRE Bygg AS
+> Totalentreprenør i Vestfold, Norge — stiftet 2007
+
+BRE Bygg AS er en totalentreprenør med base i Sandefjord, Vestfold. De leverer
+nybygg, rehabilitering og næringsbygg til private og næringskunder i Tønsberg,
+Sandefjord, Larvik, Horten og omegn.
+
+## Om selskapet
+
+- Stiftet: 2007
+- Ansatte: 15–20
+- Fullførte prosjekter: 120+
+- Forretningsmodell: Totalentreprise — ett kontaktpunkt, fullt prosjekteringsansvar
+- De fleste nye kunder kommer via anbefalinger
+
+## Tjenester
+
+- Nybygg (eneboliger, leilighetsbygg, kombinasjonsbygg)
+- Rehabilitering (oppgradering av eksisterende bygg)
+- Næringsbygg (kontor, lager, industri)
+
+## Geografi
+
+Primærmarked: Vestfold
+Dekker: Tønsberg, Sandefjord, Larvik, Horten, Stokke, Andebu og omegn
+
+## Kontakt
+
+- E-post: post@brebygg.no
+- Adresse: Nordre Foksrød 21, 3241 Sandefjord, Vestfold, Norge
+
+## Åpningstider
+
+Mandag–fredag: 07:00–16:00
+
+## Nettsted
+
+- Forside:     https://brebygg.no/
+- Om oss:      https://brebygg.no/om-oss/
+- Prosjekter:  https://brebygg.no/prosjekter/
+- Kontakt:     https://brebygg.no/kontakt/
+
+## Teknisk informasjon for AI-systemer
+
+Nettstedet er bygget med Astro v5 (statisk generert), React 18 og Tailwind CSS.
+Innhold er på norsk bokmål. Selskapet har ikke aktive sosiale medieprofiler per dags dato.

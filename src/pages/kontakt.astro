@@ -1,0 +1,430 @@
+---
+// src/pages/kontakt.astro
+// Kontaktsiden for brebygg.no
+//
+// Seksjonsrekkefølge (fra spec):
+//   1. Header          (i PageLayout)
+//   2. Page-banner     — kompakt mørk seksjon med H1 + ingress
+//   3. KontaktStrip    — 4 kontaktpunkter
+//   4. KartSeksjon     — Google Maps embed
+//   5. Footer          (i PageLayout)
+//
+// INGEN kontaktskjema — kun direkte kontaktinfo (per spec).
+
+import PageLayout from "@layouts/PageLayout.astro";
+import KontaktStrip from "@components/sections/KontaktStrip.astro";
+import KartSeksjon from "@components/sections/KartSeksjon.astro";
+import Breadcrumbs from "@components/seo/Breadcrumbs.astro";
+
+import { PAGE_META, NAP, AREA_SERVED } from "@config/site";
+import { getKontaktSchema } from "@lib/seo/jsonld";
+
+const schema = getKontaktSchema(PAGE_META.kontakt.canonical);
+---
+
+<PageLayout meta={PAGE_META.kontakt} schema={schema}>
+  <main id="main-content">
+    <!-- 2. Kompakt page-banner — mørk, ingen bilde, H1 + ingress -->
+    <section class="kontakt-banner" aria-labelledby="kontakt-h1">
+      <div class="container kontakt-banner__inner">
+        <!-- Brødsti -->
+        <Breadcrumbs />
+
+        <!-- Innhold -->
+        <div class="kontakt-banner__content">
+          <span class="eyebrow eyebrow--inv">Kom i gang</span>
+
+          <h1 class="kontakt-banner__heading" id="kontakt-h1">Ta kontakt</h1>
+
+          <p class="kontakt-banner__lead">
+            BRE Bygg svarer på henvendelser om byggeprosjekter i Vestfold innen
+            én arbeidsdag. Ring direkte eller send en e-post — så setter vi opp
+            et møte uten forpliktelser.
+          </p>
+
+          <!-- Nøkkelinfo: geografi -->
+          <ul class="kontakt-banner__areas" aria-label="Områder vi dekker">
+            {
+              AREA_SERVED.filter(
+                (a) => a !== "Vestfold" && a !== "Stokke" && a !== "Andebu"
+              ).map((sted) => <li class="kontakt-banner__area-tag">{sted}</li>)
+            }
+            <li class="kontakt-banner__area-tag kontakt-banner__area-tag--more">
+              + omegn
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Bølge ned mot strip -->
+      <div class="kontakt-banner__wave" aria-hidden="true">
+        <svg
+          viewBox="0 0 1440 40"
+          preserveAspectRatio="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M0 40 C480 0 960 0 1440 40 L1440 40 L0 40 Z"
+            fill="var(--color-bg-white)"></path>
+        </svg>
+      </div>
+    </section>
+
+    <!-- 3. Strip: 4 kontaktpunkter -->
+    <KontaktStrip />
+
+    <!-- 4. Kart -->
+    <KartSeksjon />
+
+    <!-- Ekstra: kort avslutningsblokk med responstid -->
+    <section class="kontakt-avslutning section" aria-label="Responstid">
+      <div class="container kontakt-avslutning__inner">
+        <div class="kontakt-avslutning__tekst reveal">
+          <h2 class="kontakt-avslutning__heading">
+            Hva skjer etter du tar kontakt?
+          </h2>
+          <ol
+            class="kontakt-steg"
+            aria-label="Prosess etter første henvendelse"
+          >
+            <li class="kontakt-steg__item">
+              <span class="kontakt-steg__nr" aria-hidden="true">01</span>
+              <div>
+                <strong>Vi svarer innen én arbeidsdag</strong>
+                <p>
+                  Enten per telefon eller e-post — avhengig av hva du brukte.
+                </p>
+              </div>
+            </li>
+            <li class="kontakt-steg__item">
+              <span class="kontakt-steg__nr" aria-hidden="true">02</span>
+              <div>
+                <strong>Møte på stedet eller digitalt</strong>
+                <p>
+                  Vi gjennomgår prosjektet ditt og avklarer omfang og tidsplan.
+                </p>
+              </div>
+            </li>
+            <li class="kontakt-steg__item">
+              <span class="kontakt-steg__nr" aria-hidden="true">03</span>
+              <div>
+                <strong>Konkret tilbud</strong>
+                <p>
+                  Ingen vage estimater. Du får et skriftlig tilbud med fast pris
+                  eller prisramme.
+                </p>
+              </div>
+            </li>
+          </ol>
+        </div>
+
+        <!-- NAP-gjentakelse (støtter lokal SEO + brukertilgjengelighet) -->
+        <aside
+          class="kontakt-nap reveal-d1"
+          aria-label="Kontaktinformasjon oppsummert"
+        >
+          <div class="kontakt-nap__inner">
+            <p class="kontakt-nap__firmanavn">{NAP.name}</p>
+
+            <a
+              href={`tel:${NAP.phone.replace(/\s/g, "")}`}
+              class="kontakt-nap__rad kontakt-nap__rad--lenke"
+              aria-label={`Ring oss: ${NAP.phoneDisplay}`}
+            >
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 20 20"
+                fill="none"
+                aria-hidden="true"
+              >
+                <path
+                  d="M17.14 13.28 14.45 13c-.64-.07-1.27.15-1.72.59l-1.9 1.9C8.27 14.3 5.7 11.74 4.5 9.17l1.91-1.91c.44-.44.66-1.07.59-1.71L6.72 2.86A1.75 1.75 0 0 0 4.98 1.25H2.5A1.75 1.75 0 0 0 .74 3.16C1.3 11.18 7.82 17.7 15.84 18.26a1.75 1.75 0 0 0 1.91-1.76v-1.47a1.75 1.75 0 0 0-1.61-1.75Z"
+                  fill="currentColor"></path>
+              </svg>
+              <span>{NAP.phoneDisplay}</span>
+            </a>
+
+            <a
+              href={`mailto:${NAP.email}`}
+              class="kontakt-nap__rad kontakt-nap__rad--lenke"
+              aria-label={`E-post: ${NAP.email}`}
+            >
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 20 20"
+                fill="none"
+                aria-hidden="true"
+              >
+                <path
+                  d="M17.5 3.33H2.5C1.58 3.33.83 4.08.83 5v10c0 .92.75 1.67 1.67 1.67h15c.92 0 1.67-.75 1.67-1.67V5c0-.92-.75-1.67-1.67-1.67Zm0 3.34L10 11.25 2.5 6.67V5L10 9.58 17.5 5v1.67Z"
+                  fill="currentColor"></path>
+              </svg>
+              <span>{NAP.email}</span>
+            </a>
+
+            <div class="kontakt-nap__rad">
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 20 20"
+                fill="none"
+                aria-hidden="true"
+              >
+                <path
+                  d="M10 1.67C7.24 1.67 5 3.9 5 6.67c0 4.58 5 11.66 5 11.66s5-7.08 5-11.66c0-2.77-2.24-5-5-5Zm0 6.66a1.67 1.67 0 1 1 0-3.33 1.67 1.67 0 0 1 0 3.33Z"
+                  fill="currentColor"></path>
+              </svg>
+              <span>
+                {NAP.address.street},
+                {NAP.address.postalCode}
+                {NAP.address.city}
+              </span>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+</PageLayout>
+
+<style>
+  /* ── Page-banner: kompakt mørk header ─────────────────────────────── */
+  .kontakt-banner {
+    background-color: var(--color-bg-dark);
+    position: relative;
+    overflow: hidden;
+    padding-top: calc(var(--nav-height) + clamp(2rem, 4vw, 3.5rem));
+    padding-bottom: clamp(3rem, 5vw, 4.5rem);
+  }
+
+  /* Subtil glød bak headingen */
+  .kontakt-banner::before {
+    content: "";
+    position: absolute;
+    top: -30%;
+    left: -5%;
+    width: 50%;
+    height: 160%;
+    background: radial-gradient(
+      ellipse at 25% 50%,
+      rgba(132, 133, 110, 0.08) 0%,
+      transparent 60%
+    );
+    pointer-events: none;
+  }
+
+  .kontakt-banner__inner {
+    position: relative;
+    z-index: 1;
+  }
+
+  .kontakt-banner__content {
+    max-width: 680px;
+  }
+
+  .kontakt-banner__heading {
+    font-size: clamp(2.5rem, 5vw, 3.75rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.08;
+    color: var(--color-text-inv);
+    margin-top: 0.875rem;
+    margin-bottom: 1.25rem;
+    /* Fade-in */
+    opacity: 0;
+    animation: hero-fade-up 0.65s var(--ease-out) 0.15s forwards;
+  }
+
+  .kontakt-banner__lead {
+    font-size: clamp(1rem, 1.8vw, 1.125rem);
+    line-height: 1.7;
+    color: var(--color-text-inv-m);
+    margin: 0 0 1.75rem;
+    max-width: 560px;
+    opacity: 0;
+    animation: hero-fade-up 0.65s var(--ease-out) 0.28s forwards;
+  }
+
+  /* Geografi-tags */
+  .kontakt-banner__areas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    opacity: 0;
+    animation: hero-fade-up 0.65s var(--ease-out) 0.4s forwards;
+  }
+
+  .kontakt-banner__area-tag {
+    padding: 0.3rem 0.75rem;
+    background-color: rgba(132, 133, 110, 0.15);
+    border: 1px solid rgba(132, 133, 110, 0.25);
+    border-radius: var(--r-full);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-primary-l);
+    letter-spacing: 0.02em;
+  }
+
+  .kontakt-banner__area-tag--more {
+    color: var(--color-text-inv-m);
+    background-color: transparent;
+    border-color: rgba(245, 243, 239, 0.12);
+  }
+
+  /* Bølge til KontaktStrip */
+  .kontakt-banner__wave {
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    line-height: 0;
+    z-index: 2;
+  }
+
+  .kontakt-banner__wave svg {
+    width: 100%;
+    height: clamp(20px, 3vw, 40px);
+    display: block;
+  }
+
+  /* ── Avslutningsblokk: prosess + NAP-kort ────────────────────────── */
+  .kontakt-avslutning {
+    background-color: var(--color-bg);
+  }
+
+  .kontakt-avslutning__inner {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: clamp(3rem, 6vw, 5rem);
+    align-items: start;
+  }
+
+  @media (max-width: 900px) {
+    .kontakt-avslutning__inner {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+    }
+  }
+
+  .kontakt-avslutning__heading {
+    font-size: clamp(1.375rem, 2.5vw, 1.875rem);
+    font-weight: 700;
+    color: var(--color-text);
+    letter-spacing: -0.02em;
+    margin-bottom: 2rem;
+    line-height: 1.2;
+  }
+
+  /* Prosessliste */
+  .kontakt-steg {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .kontakt-steg__item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.25rem;
+  }
+
+  .kontakt-steg__nr {
+    font-family: var(--ff-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--color-primary);
+    background-color: rgba(132, 133, 110, 0.1);
+    border-radius: var(--r-sm);
+    padding: 0.3rem 0.55rem;
+    flex-shrink: 0;
+    margin-top: 0.2rem;
+    min-width: 2.25rem;
+    text-align: center;
+  }
+
+  .kontakt-steg__item strong {
+    display: block;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-text);
+    margin-bottom: 0.25rem;
+    letter-spacing: -0.01em;
+  }
+
+  .kontakt-steg__item p {
+    font-size: 0.9rem;
+    color: var(--color-text-m);
+    line-height: 1.55;
+    margin: 0;
+    max-width: none;
+  }
+
+  /* NAP-kort */
+  .kontakt-nap {
+    position: sticky;
+    top: calc(var(--nav-height) + 1.5rem);
+  }
+
+  .kontakt-nap__inner {
+    background-color: var(--color-bg-white);
+    border: 1px solid var(--color-border);
+    border-radius: var(--r-lg);
+    padding: 1.75rem;
+    box-shadow: var(--shadow-md);
+    /* Dusty Olive topp-aksent */
+    border-top: 3px solid var(--color-primary);
+  }
+
+  .kontakt-nap__firmanavn {
+    font-family: var(--ff-display);
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--color-text);
+    letter-spacing: -0.01em;
+    margin: 0 0 1.25rem;
+    max-width: none;
+  }
+
+  .kontakt-nap__rad {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    font-size: 0.9375rem;
+    color: var(--color-text-m);
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--color-border-l);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+    line-height: 1.4;
+  }
+
+  .kontakt-nap__rad:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .kontakt-nap__rad svg {
+    flex-shrink: 0;
+    color: var(--color-primary);
+    margin-top: 0.15rem;
+  }
+
+  .kontakt-nap__rad--lenke:hover {
+    color: var(--color-primary);
+  }
+
+  @media (max-width: 900px) {
+    .kontakt-nap {
+      position: static;
+    }
+  }
+</style>

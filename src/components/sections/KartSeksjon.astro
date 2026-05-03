@@ -1,0 +1,102 @@
+---
+// src/components/sections/KartSeksjon.astro
+// Google Maps embed for BRE Bygg AS, Nordre Foksrød 21, Sandefjord.
+//
+// Implementasjon:
+//   - Privacy-enhanced embed (maps.google.com/maps, ikke Maps JS API)
+//   - loading="lazy" på iframe — laster ikke før scroll
+//   - referrerpolicy="no-referrer-when-downgrade" — standard sikker policy
+//   - Placeholder vises statisk til iframe er klar (CSS opacity-overgang)
+//   - Ingen cookies uten brukerinteraksjon (ingen Maps JS API-kall)
+//
+// VIKTIG: Erstatt embedUrl i site.ts med riktig URL fra Google Maps:
+//   1. Åpne maps.google.com og søk etter adressen
+//   2. Klikk Del → Bygg inn et kart
+//   3. Kopier src-URL fra <iframe>-koden
+
+import { NAP, MAPS } from "@config/site";
+
+// Bygger en Google Maps direktelenke for "Åpne i kart"-knappen
+const mapsDirectLink =
+  `https://maps.google.com/maps?q=${encodeURIComponent(
+    `${NAP.address.street}, ${NAP.address.postalCode} ${NAP.address.city}, ${NAP.address.countryFull}`
+  )}&hl=no`;
+---
+
+<section
+  class="kart-seksjon reveal"
+  aria-labelledby="kart-heading"
+>
+  <div class="container">
+
+    <!-- Header: kort introduksjon + lenke -->
+    <div class="kart-header">
+      <div class="kart-header__inner">
+        <div>
+          <span class="eyebrow">Finn oss</span>
+          <h2
+            class="section-title mt-2"
+            id="kart-heading"
+          >
+            Vi holder til i Sandefjord
+          </h2>
+        </div>
+        <a
+          href={mapsDirectLink}
+          class="btn btn--outline btn--sm kart-header__cta"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Åpne adressen i Google Maps (åpnes i ny fane)"
+        >
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <path d="M7 .58A5.25 5.25 0 0 0 1.75 5.83c0 3.5 5.25 7.58 5.25 7.58s5.25-4.08 5.25-7.58A5.25 5.25 0 0 0 7 .58Zm0 7.13a1.88 1.88 0 1 1 0-3.75 1.88 1.88 0 0 1 0 3.75Z"
+              fill="currentColor"/>
+          </svg>
+          Åpne i kart
+        </a>
+      </div>
+    </div>
+
+    <!-- Kartramme -->
+    <div class="kart-ramme" role="img" aria-label={`Kart som viser ${NAP.name}, ${NAP.address.street}, ${NAP.address.city}`}>
+
+      <!--
+        Privacy-enhanced embed:
+        Bruker maps.google.com/maps (ikke maps.googleapis.com) —
+        dette er Google Maps' innebygde embed uten samtykke-banner.
+        loading="lazy": iframe lastes ikke før den er nær viewport.
+        referrerpolicy: hindrer referrer-lekkasje.
+      -->
+      <iframe
+        src={MAPS.embedUrl}
+        title={`Kart: ${NAP.name} — ${NAP.address.street}, ${NAP.address.city}`}
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        allowfullscreen
+        aria-hidden="false"
+      ></iframe>
+    </div>
+
+    <!-- Under kartet: adresse + lenke -->
+    <div class="kart-under">
+      <address class="kart-adresse" aria-label="Besøksadresse">
+        <strong>{NAP.name}</strong>
+        {NAP.address.street}, {NAP.address.postalCode} {NAP.address.city}
+      </address>
+      <a
+        href={mapsDirectLink}
+        class="btn btn--outline btn--sm"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Få veibeskrivelse til BRE Bygg i Google Maps"
+      >
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M12.83 6.42 7.58 1.17a.83.83 0 0 0-1.17 0L1.17 6.42a.83.83 0 0 0 0 1.16l5.25 5.25a.83.83 0 0 0 1.17 0l5.24-5.25a.83.83 0 0 0 0-1.16ZM7.83 9.5V7.83H5.17V6.17h2.66V4.5L9.5 7l-1.67 2.5Z"
+            fill="currentColor"/>
+        </svg>
+        Veibeskrivelse
+      </a>
+    </div>
+
+  </div>
+</section>

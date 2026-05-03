@@ -1,0 +1,497 @@
+---
+// src/components/sections/VerdierSeksjon.astro
+// Fire verdier — diagonale kort med bilde til venstre og tekst til høyre.
+//
+// Design:
+//   Bildebredde = 38.2 % av kortet (det gylne snitt: 1/φ²)
+//   Diagonal clip-path: topp 100% → bunn 84% — ca. 16 % skrå
+//   Dusty Olive-linje langs diagonalkanten
+//   Hover: bilde zoomer lett inn
+//
+// Bilder:
+//   /public/images/verdier/ansvar.webp      — 600×400 px, maks 120 KB
+//   /public/images/verdier/risiko.webp
+//   /public/images/verdier/kunnskap.webp
+//   /public/images/verdier/fremdrift.webp
+
+import { VERDIER } from "@config/om-oss";
+---
+
+<section
+  class="verdier-seksjon section"
+  aria-labelledby="verdier-heading"
+>
+  <div class="container">
+
+    <!-- Seksjonsheader -->
+    <div class="section-header section-header--center text-inv reveal">
+      <span class="eyebrow">Hvordan vi jobber</span>
+      <h2 class="section-title mt-3" id="verdier-heading">
+        Det vi faktisk mener
+      </h2>
+      <div class="divider divider--center"></div>
+      <p class="section-desc" style="margin-inline: auto;">
+        Disse fire punktene er ikke plakater på veggen. De er beslutninger
+        vi tar daglig — og som kundene våre merker over tid.
+      </p>
+    </div>
+
+    <!-- Kortgrid -->
+    <div
+      class="vd-grid"
+      role="list"
+      aria-label="Verdier og arbeidsprinsipper"
+    >
+      {VERDIER.map((v, i) => (
+        <article
+          class={`vd-kort reveal-d${Math.min(i % 2, 1) as 0|1}`}
+          role="listitem"
+          aria-label={v.tittel}
+        >
+
+          <!-- Bilde — klippet med diagonal, gylne snitt-bredde -->
+          <div class="vd-bilde" aria-hidden="true">
+            <img
+              src={v.bilde}
+              alt={v.bildeAlt}
+              loading="lazy"
+              decoding="async"
+              width="600"
+              height="400"
+            />
+            <!-- Dusty Olive-strek langs diagonalkanten -->
+            <div class="vd-diagonal-linje" aria-hidden="true"></div>
+          </div>
+
+          <!-- Tekst -->
+          <div class="vd-tekst">
+            <p class="vd-nr-kategori">
+              <span class="vd-nr" aria-hidden="true">{v.nr}</span>
+              <span class="vd-kategori">{v.kategori}</span>
+            </p>
+            <h3 class="vd-tittel">{v.tittel}</h3>
+            <p class="vd-body">{v.tekst}</p>
+          </div>
+
+        </article>
+      ))}
+    </div>
+
+  </div>
+</section>
+
+
+<style>
+  /* ── Seksjon ─────────────────────────────────────────────────────── */
+  .verdier-seksjon {
+    background-color: var(--color-bg-dark);
+    position:         relative;
+    overflow:         hidden;
+  }
+
+  .verdier-seksjon::before {
+    content:    "";
+    position:   absolute;
+    top:        0;
+    left:       0;
+    right:      0;
+    height:     1px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      rgba(132, 133, 110, 0.25) 30%,
+      rgba(132, 133, 110, 0.25) 70%,
+      transparent
+    );
+  }
+
+  /* ── 2×2 kortgrid ────────────────────────────────────────────────── */
+  .vd-grid {
+    display:               grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap:                   10px;
+    margin-top:            clamp(2rem, 4vw, 3rem);
+  }
+
+  @media (max-width: 767px) {
+    .vd-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ── Enkelt kort ─────────────────────────────────────────────────── */
+  .vd-kort {
+    display:          flex;
+    height:           clamp(170px, 18vw, 220px);
+    border-radius:    var(--r-lg);
+    overflow:         hidden;
+    background-color: #243545;
+    border:           1px solid rgba(245, 243, 239, 0.07);
+    transition:
+      transform    var(--transition-base),
+      box-shadow   var(--transition-base),
+      border-color var(--transition-base);
+  }
+
+  .vd-kort:hover {
+    transform:    translateY(-3px);
+    box-shadow:   0 20px 48px rgba(0, 0, 0, 0.35);
+    border-color: rgba(132, 133, 110, 0.2);
+  }
+
+  @media (max-width: 767px) {
+    .vd-kort { height: clamp(160px, 45vw, 200px); }
+  }
+
+  /* ── Bildekolonne ────────────────────────────────────────────────── */
+  /*
+    Gylne snitt: φ = 1.618 → 1/φ² ≈ 38.2 %
+    Vi bruker 40% som praktisk avrunding for clip-path-matematikken.
+    clip-path: polygon(0 0, 100% 0, 84% 100%, 0 100%)
+      → Topp-høyre: 100 % av bildebredden
+      → Bunn-høyre: 84 % av bildebredden
+      → Skrå på ~16 % (ca. 9° ved 200px høyde)
+  */
+  .vd-bilde {
+    position:   relative;
+    flex-shrink: 0;
+    width:       40%;
+    clip-path:   polygon(0 0, 100% 0, 84% 100%, 0 100%);
+    overflow:    hidden;
+    z-index:     1;
+  }
+
+  .vd-bilde img {
+    width:            100%;
+    height:           100%;
+    object-fit:       cover;
+    object-position:  center;
+    display:          block;
+    transition:       transform 0.55s var(--ease-out);
+  }
+
+  .vd-kort:hover .vd-bilde img {
+    transform: scale(1.06);
+  }
+
+  /* Mørk gradient over bildet for kontrast */
+  .vd-bilde::before {
+    content:    "";
+    position:   absolute;
+    inset:      0;
+    z-index:    1;
+    background: linear-gradient(
+      to right,
+      transparent 50%,
+      rgba(30, 46, 58, 0.35) 100%
+    );
+    pointer-events: none;
+  }
+
+  /* Dusty Olive-strek langs diagonalkanten */
+  .vd-diagonal-linje {
+    position:   absolute;
+    top:        0;
+    right:      0;
+    bottom:     0;
+    width:      2px;
+    z-index:    2;
+    /* Gradient: tydelig øverst, fader ut nedover */
+    background: linear-gradient(
+      to bottom,
+      var(--color-primary),
+      rgba(132, 133, 110, 0.25)
+    );
+    /*
+      Matcher diagonalen:
+      Topp: clip-path høyre kant er ved 100% → translateX(0)
+      Bunn: clip-path høyre kant er ved 84% → vi skyver linjen 16% til venstre
+      Skew gjør dette med én transform.
+    */
+    transform-origin: top right;
+    transform:        skewX(-6.5deg) translateX(-1px);
+    pointer-events:   none;
+  }
+
+  /* ── Tekstkolonne ────────────────────────────────────────────────── */
+  .vd-tekst {
+    flex:            1;
+    padding:         clamp(1.25rem, 2.5vw, 1.75rem) clamp(1.25rem, 2vw, 1.625rem);
+    display:         flex;
+    flex-direction:  column;
+    justify-content: center;
+    min-width:       0; /* Hindrer overflow i flex-child */
+  }
+
+  /* Nr + kategori på én linje */
+  .vd-nr-kategori {
+    display:       flex;
+    align-items:   center;
+    gap:           0.5rem;
+    margin-bottom: 0.5rem;
+    max-width:     none;
+  }
+
+  .vd-nr {
+    font-family:    var(--ff-display);
+    font-size:      0.6875rem;
+    font-weight:    700;
+    color:          var(--color-primary);
+    letter-spacing: 0.08em;
+    opacity:        0.75;
+    flex-shrink:    0;
+  }
+
+  /* Liten vertikal separator */
+  .vd-nr-kategori .vd-nr::after {
+    content:      " —";
+    margin-left:  0.15em;
+    opacity:      0.4;
+  }
+
+  .vd-kategori {
+    font-size:      0.6875rem;
+    font-weight:    600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color:          rgba(245, 243, 239, 0.4);
+  }
+
+  /* Tittel */
+  .vd-tittel {
+    font-family:    var(--ff-display);
+    font-size:      clamp(0.9375rem, 1.5vw, 1.125rem);
+    font-weight:    700;
+    color:          var(--color-text-inv);
+    line-height:    1.25;
+    letter-spacing: -0.01em;
+    margin-bottom:  0.5rem;
+  }
+
+  /* Brødtekst */
+  .vd-body {
+    font-size:   clamp(0.8rem, 1.2vw, 0.875rem);
+    line-height: 1.65;
+    color:       var(--color-text-inv-m);
+    margin:      0;
+    max-width:   none;
+    /* Klem teksten hvis kortet er lavt */
+    display:            -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow:           hidden;
+  }
+
+  /* Mobil: litt mer plass til tekst */
+  @media (max-width: 767px) {
+    .vd-bilde { width: 38%; }
+    .vd-body  { -webkit-line-clamp: 4; }
+  }
+</style>
+
+<!-- 
+---
+// src/components/sections/VerdierSeksjon.astro
+// Selskapets fire verdier i 2×2-grid.
+// Mørk bakgrunn (Charcoal Blue) med Dusty Olive-aksenter.
+
+import { VERDIER } from "@config/om-oss";
+---
+
+<section
+  class="verdier-seksjon section"
+  aria-labelledby="verdier-heading"
+>
+  <div class="container">
+
+
+    <div class="section-header section-header--center text-inv reveal">
+      <span class="eyebrow">Hvordan vi jobber</span>
+      <h2 class="section-title mt-3" id="verdier-heading">
+        Det vi faktisk mener
+      </h2>
+      <div class="divider divider--center"></div>
+      <p class="section-desc" style="margin-inline: auto;">
+        Disse fire punktene er ikke plakater på veggen. De er beslutninger
+        vi tar daglig — og som kundene våre merker over tid.
+      </p>
+    </div>
+
+    <div
+      class="verdier-grid"
+      role="list"
+      aria-label="Verdier og arbeidsprinsipper"
+    >
+      {VERDIER.map((v, i) => (
+        <div
+          class={`verdi-kort reveal-d${i % 2 === 0 ? 0 : 1}`}
+          role="listitem"
+        >
+
+          <div class="verdi-ikon" aria-hidden="true">
+            <span class="verdi-ikon__tegn">{v.ikon}</span>
+
+            <div class="verdi-ikon__glød" aria-hidden="true"></div>
+          </div>
+
+
+          <div class="verdi-body">
+            <h3 class="verdi-tittel">{v.tittel}</h3>
+            <p class="verdi-tekst">{v.tekst}</p>
+          </div>
+
+        </div>
+      ))}
+    </div>
+
+  </div>
+</section>
+
+
+<style>
+  /* ── Seksjonsbakgrunn ─────────────────────────────────────────────── */
+  .verdier-seksjon {
+    background-color: var(--color-bg-dark);
+    position:         relative;
+    overflow:         hidden;
+  }
+
+  /* Subtil radial-lysning øverst */
+  .verdier-seksjon::before {
+    content:    "";
+    position:   absolute;
+    top:        -30%;
+    right:      -10%;
+    width:      60%;
+    height:     120%;
+    background: radial-gradient(
+      ellipse at 70% 30%,
+      rgba(132, 133, 110, 0.07) 0%,
+      transparent 65%
+    );
+    pointer-events: none;
+  }
+
+  /* ── Grid ──────────────────────────────────────────────────────────── */
+  .verdier-grid {
+    display:               grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap:                   1.25rem;
+    position:              relative;
+    z-index:               1;
+  }
+
+  @media (max-width: 767px) {
+    .verdier-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ── Verdikort ─────────────────────────────────────────────────────── */
+  .verdi-kort {
+    display:          flex;
+    gap:              1.375rem;
+    padding:          1.875rem;
+    background-color: rgba(255, 255, 255, 0.04);
+    border:           1px solid rgba(255, 255, 255, 0.07);
+    border-radius:    var(--r-lg);
+    transition:
+      background-color  var(--transition-base),
+      border-color      var(--transition-base),
+      transform         var(--transition-base);
+    position:         relative;
+    overflow:         hidden;
+  }
+
+  .verdi-kort::before {
+    content:    "";
+    position:   absolute;
+    top:        0;
+    left:       0;
+    right:      0;
+    height:     2px;
+    background: linear-gradient(
+      to right,
+      var(--color-primary) 0%,
+      transparent 70%
+    );
+    opacity: 0;
+    transition: opacity var(--transition-base);
+  }
+
+  .verdi-kort:hover {
+    background-color: rgba(132, 133, 110, 0.07);
+    border-color:     rgba(132, 133, 110, 0.2);
+    transform:        translateY(-2px);
+  }
+
+  .verdi-kort:hover::before {
+    opacity: 1;
+  }
+
+  /* ── Ikon ──────────────────────────────────────────────────────────── */
+  .verdi-ikon {
+    flex-shrink:     0;
+    position:        relative;
+    width:           3.25rem;
+    height:          3.25rem;
+    display:         flex;
+    align-items:     center;
+    justify-content: center;
+    background-color: rgba(132, 133, 110, 0.15);
+    border-radius:   var(--r-md);
+    margin-top:      0.125rem;
+  }
+
+  .verdi-ikon__tegn {
+    font-size:  1.375rem;
+    color:      var(--color-primary);
+    position:   relative;
+    z-index:    1;
+    line-height: 1;
+    /* Unicode-tegnene brukt som geometriske ikoner */
+    font-family: var(--ff-display);
+    font-weight: 700;
+  }
+
+  /* Subtil glød bak ikonet */
+  .verdi-ikon__glød {
+    position:   absolute;
+    inset:      0;
+    border-radius: inherit;
+    background: radial-gradient(
+      circle at 50% 50%,
+      rgba(132, 133, 110, 0.3) 0%,
+      transparent 70%
+    );
+    opacity: 0;
+    transition: opacity var(--transition-base);
+  }
+
+  .verdi-kort:hover .verdi-ikon__glød {
+    opacity: 1;
+  }
+
+  /* ── Tekst ─────────────────────────────────────────────────────────── */
+  .verdi-body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .verdi-tittel {
+    font-family:    var(--ff-display);
+    font-size:      1.0625rem;
+    font-weight:    700;
+    color:          var(--color-text-inv);
+    margin-bottom:  0.5rem;
+    letter-spacing: -0.01em;
+    line-height:    1.25;
+  }
+
+  .verdi-tekst {
+    font-size:   0.9375rem;
+    color:       var(--color-text-inv-m);
+    line-height: 1.65;
+    margin:      0;
+    max-width:   none;
+  }
+</style>
+-->

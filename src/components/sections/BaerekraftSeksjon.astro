@@ -1,0 +1,214 @@
+---
+// src/components/sections/BaerekraftSeksjon.astro
+// Variant A — Nummer / editorial
+//
+// Tre kolonner på mørk bakgrunn.
+// Store typografiske tall (01/02/03) erstatter emoji-ikoner.
+// Tynn Dusty Olive-strek skaper rytme uten dekorasjon.
+// Kortene deler én felles ramme — seamless grid, ikke tre løse bokser.
+
+const punkter = [
+  {
+    tittel: "Avfallshåndtering",
+    tekst:  "Vi rapporterer avfallsmengde per prosjekt og sorterer på byggeplass. Tall fra siste år deles med oppdragsgiver i sluttdokumentasjonen.",
+  },
+  {
+    tittel: "Materialvalg",
+    tekst:  "Bærekraftige alternativer diskuteres i prosjekteringsfasen — ikke som tillegg, men som del av ordinær planlegging. Noen ganger koster det litt mer, og det sier vi alltid tydelig.",
+  },
+  {
+    tittel: "Krav til underentreprenører",
+    tekst:  "Vi stiller HMS-krav og miljødokumentasjonskrav til alle vi leier inn. Det er vår plikt som totalentreprenør og byggherre.",
+  },
+] as const;
+---
+
+<section
+  class="baerekraft-seksjon section"
+  aria-labelledby="baerekraft-heading"
+>
+  <!-- Blueprint-grid-bakgrunn -->
+  <div class="baerekraft-grid-bg" aria-hidden="true"></div>
+
+  <div class="container baerekraft-inner">
+
+    <!-- Seksjonsheader -->
+    <div class="section-header text-inv reveal">
+      <span class="eyebrow">Ansvar</span>
+      <h2 class="section-title mt-3" id="baerekraft-heading">
+        Vi bygger fremtiden sammen med deg!
+      </h2>
+      <div class="divider"></div>
+      <p class="section-desc">
+        I BRE bygger vi ikke bare for i dag, men for framtiden. Bærekraft er en
+        naturlig del av alt vi gjør, og vi jobber aktivt for å minimere miljø
+        avtrykket vårt – uten å gå på kompromiss med kvalitet eller
+        funksjonalitet. Vi tror på smarte løsninger, ansvarlig bygging og en
+        grønnere bransje. Derfor sørger vi for å ligge i forkant av gjeldende
+        krav, bransjestandarder og forventningene til våre samarbeidspartnere.
+      </p>
+    </div>
+
+    <!-- Kortgrid -->
+    <div
+      class="ba-grid"
+      role="list"
+      aria-label="Tiltak for ansvarlig bygging"
+    >
+      {punkter.map((p, i) => (
+        <article
+          class={`ba-kort reveal-d${i as 0|1|2}`}
+          role="listitem"
+        >
+          <!-- Tall -->
+          <span class="ba-tall" aria-hidden="true">
+            {String(i + 1).padStart(2, "0")}
+          </span>
+
+          <!-- Dusty Olive-strek -->
+          <div class="ba-strek" aria-hidden="true"></div>
+
+          <!-- Tekst -->
+          <h3 class="ba-tittel">{p.tittel}</h3>
+          <p class="ba-tekst">{p.tekst}</p>
+        </article>
+      ))}
+    </div>
+
+  </div>
+</section>
+
+
+<style>
+  /* ── Seksjon ────────────────────────────────────────────────────────── */
+  .baerekraft-seksjon {
+    background-color: var(--color-bg-dark-2);
+    position:         relative;
+    overflow:         hidden;
+  }
+
+  /* Subtil toppstrek */
+  .baerekraft-seksjon::before {
+    content:    "";
+    position:   absolute;
+    top:        0;
+    left:       0;
+    right:      0;
+    height:     1px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      rgba(132, 133, 110, 0.3) 30%,
+      rgba(132, 133, 110, 0.3) 70%,
+      transparent
+    );
+  }
+
+  /* Blueprint-rutenett */
+  .baerekraft-grid-bg {
+    position:       absolute;
+    inset:          0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(132, 133, 110, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(132, 133, 110, 0.05) 1px, transparent 1px);
+    background-size: 40px 40px;
+    -webkit-mask-image: radial-gradient(ellipse at 50% 50%, black 20%, transparent 75%);
+            mask-image: radial-gradient(ellipse at 50% 50%, black 20%, transparent 75%);
+  }
+
+  .baerekraft-inner {
+    position: relative;
+    z-index:  1;
+  }
+
+  /* ── Grid — felles ramme rundt alle tre kort ────────────────────────── */
+  .ba-grid {
+    display:               grid;
+    grid-template-columns: repeat(3, 1fr);
+    /* 1px gap → bakgrunnens rgba-linje fungerer som skillelinje */
+    gap:                   1px;
+    background-color:      rgba(245, 243, 239, 0.07);
+    border:                1px solid rgba(245, 243, 239, 0.07);
+    border-radius:         var(--r-lg);
+    overflow:              hidden;
+    margin-top:            clamp(2rem, 4vw, 3rem);
+  }
+
+  @media (max-width: 1023px) {
+    .ba-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 599px) {
+    .ba-grid {
+      grid-template-columns: 1fr;
+      gap:                   1px;
+    }
+  }
+
+  /* ── Enkelt kort ────────────────────────────────────────────────────── */
+  .ba-kort {
+    background-color: var(--color-bg-dark-2);
+    padding:          clamp(1.75rem, 3vw, 2.5rem);
+    display:          flex;
+    flex-direction:   column;
+    transition:       background-color var(--transition-base);
+  }
+
+  .ba-kort:hover {
+    background-color: rgba(44, 66, 81, 0.85);
+  }
+
+  /* ── Stort typografisk tall ─────────────────────────────────────────── */
+  .ba-tall {
+    font-family:    var(--ff-display);
+    font-size:      clamp(2.75rem, 5vw, 4rem);
+    font-weight:    700;
+    line-height:    1;
+    letter-spacing: -0.04em;
+    color:          var(--color-primary);
+    opacity:        0.55;
+    margin-bottom:  1.25rem;
+    /* Hindrer at tallet tar med seg for mye luft */
+    display:        block;
+    user-select:    none;
+  }
+
+  /* ── Dusty Olive-strek ──────────────────────────────────────────────── */
+  .ba-strek {
+    width:            36px;
+    height:           2px;
+    background-color: var(--color-primary);
+    border-radius:    var(--r-full);
+    margin-bottom:    1.25rem;
+    /* Liten animasjon på hover */
+    transition:       width var(--transition-base);
+  }
+
+  .ba-kort:hover .ba-strek {
+    width: 56px;
+  }
+
+  /* ── Tittel ─────────────────────────────────────────────────────────── */
+  .ba-tittel {
+    font-family:    var(--ff-display);
+    font-size:      clamp(1rem, 1.75vw, 1.125rem);
+    font-weight:    700;
+    color:          var(--color-text-inv);
+    letter-spacing: -0.01em;
+    line-height:    1.25;
+    margin-bottom:  0.75rem;
+  }
+
+  /* ── Brødtekst ──────────────────────────────────────────────────────── */
+  .ba-tekst {
+    font-size:   0.9rem;
+    line-height: 1.7;
+    color:       var(--color-text-inv-m);
+    margin:      0;
+    max-width:   none;
+    /* Dytt tekst ned mot bunnen av kortet på desktop */
+    margin-top:  auto;
+    padding-top: 0.25rem;
+  }
+</style>

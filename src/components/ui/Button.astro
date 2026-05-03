@@ -1,0 +1,73 @@
+---
+// src/components/ui/Button.astro
+// Gjenbrukbar knapp som støtter alle .btn-varianter fra globals.css.
+// Rendres som <a> hvis href er satt, ellers <button>.
+
+type Variant = "primary" | "outline" | "outline-inv" | "dark";
+type Size    = "sm" | "md" | "lg";
+
+interface Props {
+  variant?:   Variant;
+  size?:      Size;
+  href?:      string;
+  type?:      "button" | "submit" | "reset";
+  disabled?:  boolean;
+  external?:  boolean;
+  class?:     string;
+  // Tilgjengelighetslabel (override synlig tekst)
+  ariaLabel?: string;
+  [key: string]: unknown;
+}
+
+const {
+  variant    = "primary",
+  size       = "md",
+  href,
+  type       = "button",
+  disabled   = false,
+  external   = false,
+  class: extra = "",
+  ariaLabel,
+  ...rest
+} = Astro.props;
+
+const variantClass: Record<Variant, string> = {
+  primary:      "btn--primary",
+  outline:      "btn--outline",
+  "outline-inv": "btn--outline-inv",
+  dark:         "btn--dark",
+};
+
+const sizeClass: Record<Size, string> = {
+  sm: "btn--sm",
+  md: "",
+  lg: "btn--lg",
+};
+
+const classes = [
+  "btn",
+  variantClass[variant],
+  sizeClass[size],
+  extra,
+].filter(Boolean).join(" ");
+
+const isLink = Boolean(href);
+const Tag    = isLink ? "a" : "button";
+
+const linkProps = isLink && external
+  ? { target: "_blank", rel: "noopener noreferrer" }
+  : {};
+---
+
+<Tag
+  class={classes}
+  href={href}
+  type={!isLink ? type : undefined}
+  disabled={!isLink && disabled}
+  aria-label={ariaLabel}
+  aria-disabled={disabled || undefined}
+  {...linkProps}
+  {...rest}
+>
+  <slot />
+</Tag>

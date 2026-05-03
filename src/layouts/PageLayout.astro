@@ -1,0 +1,70 @@
+---
+// src/layouts/PageLayout.astro
+// Standardoppsett for alle sider på brebygg.no.
+// Wrapper BaseLayout med Header og Footer.
+//
+// Bruk slik i en side:
+//
+//   import PageLayout from "@layouts/PageLayout.astro";
+//   import { PAGE_META }        from "@config/site";
+//   import { getKontaktSchema } from "@lib/seo/jsonld";
+//
+//   const schema = getKontaktSchema(PAGE_META.kontakt.canonical);
+//
+//   <PageLayout meta={PAGE_META.kontakt} schema={schema}>
+//     <main id="main-content">…</main>
+//   </PageLayout>
+
+import BaseLayout     from "@layouts/BaseLayout.astro";
+import Header         from "@components/layout/Header.astro";
+import Footer         from "@components/layout/Footer.astro";
+import type { PageMeta } from "@config/site";
+
+// --------------------------------------------------------------------------
+// Props
+// --------------------------------------------------------------------------
+
+interface Props {
+  // Påkrevd av BaseLayout
+  meta:       PageMeta;
+  schema:     Record<string, unknown>;
+
+  // LCP-optimalisering: send heroImage URL videre til BaseLayout for preload
+  heroImage?: string;
+
+  // Ekstra klasser på <body> (valgfritt)
+  bodyClass?: string;
+
+  // Skjul header eller footer (nyttig for enkle kampanjesider)
+  hideHeader?: boolean;
+  hideFooter?: boolean;
+}
+
+const {
+  meta,
+  schema,
+  heroImage,
+  bodyClass    = "",
+  hideHeader   = false,
+  hideFooter   = false,
+} = Astro.props;
+---
+
+<BaseLayout
+  meta={meta}
+  schema={schema}
+  heroImage={heroImage}
+  bodyClass={bodyClass}
+>
+  <!-- Ekstra <head>-innhold fra enkeltside (videresending av slot) -->
+  <slot name="head" slot="head" />
+
+  <!-- Header -->
+  {!hideHeader && <Header />}
+
+  <!-- Sideinnhold -->
+  <slot />
+
+  <!-- Footer -->
+  {!hideFooter && <Footer />}
+</BaseLayout>

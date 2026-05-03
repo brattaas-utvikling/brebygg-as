@@ -1,0 +1,491 @@
+---
+// src/pages/prosjekter/[slug].astro
+// Dynamisk casestudie-side for hvert prosjekt.
+//
+// Bygger statiske ruter for alle prosjekter i Content Collection.
+//
+// Seksjonslayout:
+//   1. Slug-hero   — bakgrunnsbilde, tittel, kategori-tag, meta
+//   2. Nøkkeltall  — horisontale tall (hvis prosjektet har nokkeltall)
+//   3. Casestudie  — to-kolonne: (prosa + UTF/LSN/RES + galleri) | sidebar
+//   4. Relaterte   — 3 prosjekter fra samme kategori
+//
+// Schema:
+//   Article + BreadcrumbList + LocalBusiness + WebSite
+
+import { getCollection, render }    from "astro:content";
+import type { CollectionEntry }     from "astro:content";
+import PageLayout                   from "@layouts/PageLayout.astro";
+import Breadcrumbs                  from "@components/seo/Breadcrumbs.astro";
+
+import { SITE_URL, PAGE_META, NAP } from "@config/site";
+import { getProsjektSlugSchema }    from "@lib/seo/jsonld";
+import type { Prosjekt } from "@content/config";
+
+// --------------------------------------------------------------------------
+// getStaticPaths — genererer én URL per prosjekt
+// --------------------------------------------------------------------------
+
+export async function getStaticPaths() {
+  // const entries = await getCollection("prosjekter");
+  const entries: CollectionEntry<"prosjekter">[] = await getCollection("prosjekter");
+  return entries.map(entry => ({
+    // params: { slug: entry.slug },
+    params: { slug: entry.slug! },
+    props:  { entry },
+  }));
+}
+
+// --------------------------------------------------------------------------
+// Props — én CollectionEntry per statisk rute
+// --------------------------------------------------------------------------
+
+type Props = {
+  entry: CollectionEntry<"prosjekter">;
+};
+
+const { entry } = Astro.props;
+const { data }  = entry;
+
+// Render Markdown-kroppen til HTML
+const { Content } = await render(entry);
+
+// --------------------------------------------------------------------------
+// Kategori-etiketter og styling
+// --------------------------------------------------------------------------
+
+const KATEGORI_LABEL: Record<typeof data.kategori, string> = {
+  nybygg:         "Nybygg",
+  rehabilitering: "Rehabilitering",
+  naeringsbygg:   "Næringsbygg",
+};
+
+const STATUS_LABEL: Record<typeof data.status, string> = {
+  ferdig:   "Ferdigstilt",
+  pagaende: "Pågående",
+};
+
+const erPågående = data.status === "pagaende";
+
+// --------------------------------------------------------------------------
+// SEO-data
+// --------------------------------------------------------------------------
+
+// const canonicalPath = `/prosjekter/${entry.slug}/`;
+const canonicalPath = `/prosjekter/${entry.slug!}/`;
+// const canonical     = `${SITE_URL}${canonicalPath}`;
+const canonical = `${SITE_URL ?? "https://brebygg.no"}${canonicalPath}`;
+
+// const seoTitle       = data.seoTitle       ?? `${data.title} — ${NAP.name}`;
+// const seoDescription = data.seoDescription ?? data.description;
+const seoTitle       = data.seoTitle       ?? `${data.title} — ${NAP.name}`;
+const seoDescription = data.seoDescription ?? data.description ?? "";
+// Article-schema trenger en dato — bruk 1. januar i prosjektåret
+const datePublished = `${data.aar}-01-01`;
+
+const schema = getProsjektSlugSchema(
+  {
+    title:         seoTitle,
+    description:   seoDescription,
+    canonical,
+    imageUrl:      `${SITE_URL}${data.heroImage.src}`,
+    datePublished,
+  },
+  data.title
+);
+
+const pageMeta = {
+  title:       seoTitle,
+  description: seoDescription,
+  canonical:   canonical as string,
+};
+
+// --------------------------------------------------------------------------
+// Relaterte prosjekter
+// --------------------------------------------------------------------------
+
+// const alleProsjekter = await getCollection("prosjekter");
+const alleProsjekter: CollectionEntry<"prosjekter">[] = await getCollection("prosjekter");
+
+const relaterte = alleProsjekter
+  .filter(p => p.slug !== entry.slug && p.data.kategori === data.kategori)
+  .sort((a, b) => b.data.aar - a.data.aar)
+  .slice(0, 3);
+
+// Fallback: hvis færre enn 3 i samme kategori, fyll opp med nyeste generelt
+const ekstraRelaterte =
+  relaterte.length < 3
+    ? alleProsjekter
+        .filter(p => p.slug !== entry.slug && !relaterte.some(r => r.slug === p.slug))
+        .sort((a, b) => b.data.aar - a.data.aar)
+        .slice(0, 3 - relaterte.length)
+    : [];
+
+const visRelaterte = [...relaterte, ...ekstraRelaterte];
+
+// --------------------------------------------------------------------------
+// Hjelpere
+// --------------------------------------------------------------------------
+
+// function kategoriLabel(k: typeof data.kategori): string {
+//   return KATEGORI_LABEL[k];
+// }
+function kategoriLabel(k: typeof data.kategori): string {
+  return KATEGORI_LABEL[k] ?? k;
+}
+
+const harNøkkeltall  = data.nokkeltall  && data.nokkeltall.length  > 0;
+const harGalleri     = data.galleri     && data.galleri.length     > 0;
+const harCasestudie  = data.utfordring  || data.losning  || data.resultat;
+---
+
+<PageLayout
+  meta={pageMeta}
+  schema={schema}
+  heroImage={data.heroImage.src}
+>
+  <main id="main-content">
+
+    <!-- ================================================================
+         1. SLUG-HERO
+         ================================================================ -->
+    <section class="slug-hero" aria-labelledby="prosjekt-heading">
+
+      <!-- Bakgrunnsbilde — preloadet via heroImage-prop i PageLayout -->
+      <div class="slug-hero__bg" aria-hidden="true">
+        <img
+          src={data.heroImage.src}
+          alt=""
+          width={data.heroImage.width  ?? 1600}
+          height={data.heroImage.height ?? 900}
+          fetchpriority="high"
+          decoding="async"
+        />
+      </div>
+
+      <!-- Gradient-overlay -->
+      <div class="slug-hero__overlay" aria-hidden="true"></div>
+
+      <!-- Innhold -->
+      <div class="slug-hero__content">
+        <div class="container">
+
+          <!-- Brødsti -->
+          <Breadcrumbs
+            customPath={canonicalPath}
+          />
+
+          <!-- Kategori/status-tag -->
+          <div
+            class={`slug-hero__tag ${erPågående ? "slug-hero__tag--pågående" : ""}`}
+            aria-label={erPågående ? "Pågående prosjekt" : `Kategori: ${kategoriLabel(data.kategori)}`}
+          >
+            <span class="slug-hero__tag-dot" aria-hidden="true"></span>
+            {erPågående ? "Pågående" : kategoriLabel(data.kategori)}
+          </div>
+
+          <!-- H1 -->
+          <h1 class="slug-hero__heading" id="prosjekt-heading">
+            {data.title}
+          </h1>
+
+          <!-- Meta-rad: sted · år · varighet -->
+          <div class="slug-hero__meta" role="list" aria-label="Prosjektinfo">
+            <span role="listitem">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true" style="display:inline;vertical-align:-1px;margin-right:3px">
+                <path d="M6 .5C4.07.5 2.5 2.07 2.5 4c0 2.63 3.5 7 3.5 7S9.5 6.63 9.5 4C9.5 2.07 7.93.5 6 .5Zm0 4.75a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5Z" fill="currentColor"/>
+              </svg>
+              {data.location}
+            </span>
+            <span class="slug-hero__meta-sep" aria-hidden="true"></span>
+            <span role="listitem">{data.aar}</span>
+            {data.varighet && (
+              <>
+                <span class="slug-hero__meta-sep" aria-hidden="true"></span>
+                <span role="listitem">{data.varighet}</span>
+              </>
+            )}
+            <span class="slug-hero__meta-sep" aria-hidden="true"></span>
+            <span role="listitem">{STATUS_LABEL[data.status] ?? data.status}</span>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================
+         2. NØKKELTALL-STRIP
+         ================================================================ -->
+         {/* {data.nokkeltall!.map(({ label, verdi }) => ( */}
+    {harNøkkeltall && (
+      <div class="nokkeltall-strip reveal" aria-label="Nøkkeltall for prosjektet">
+        <div class="container">
+          <dl class="nokkeltall-strip__grid">
+            {data.nokkeltall!.map(({ label, verdi }: { label: string; verdi: string }) => (
+              <div class="nokkeltall-item">
+                <dt class="nokkeltall-item__label">{label}</dt>
+                <dd class="nokkeltall-item__verdi">{verdi}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </div>
+    )}
+
+    <!-- ================================================================
+         3. CASESTUDIE — to-kolonne grid
+         ================================================================ -->
+    <section
+      class="section"
+      style="background-color: var(--color-bg);"
+      aria-label="Casestudie"
+    >
+      <div class="container">
+        <div class="casestudie-layout">
+
+          <!-- ── Venstre: prosa + kort + galleri ─────────────────────── -->
+          <div class="casestudie-main">
+
+            <!-- Ingress — description fra frontmatter -->
+            <p
+              class="casestudie-ingress reveal"
+              style="font-size: clamp(1.0625rem, 2vw, 1.2rem); line-height: 1.7; color: var(--color-text-m); margin-bottom: 2rem;"
+            >
+              {data.description}
+            </p>
+
+            <!-- UTF / LSN / RES — vises bare hvis ett eller flere er satt -->
+            {harCasestudie && (
+              <div
+                class="casestudie-kart-grid reveal"
+                aria-label="Utfordring, løsning og resultat"
+              >
+                {data.utfordring && (
+                  <div class="casestudie-kort casestudie-kort--utfordring">
+                    <p class="casestudie-kort__label">Utfordring</p>
+                    <p class="casestudie-kort__tekst">{data.utfordring}</p>
+                  </div>
+                )}
+                {data.losning && (
+                  <div class="casestudie-kort casestudie-kort--losning">
+                    <p class="casestudie-kort__label">Løsning</p>
+                    <p class="casestudie-kort__tekst">{data.losning}</p>
+                  </div>
+                )}
+                {data.resultat && (
+                  <div class="casestudie-kort casestudie-kort--resultat">
+                    <p class="casestudie-kort__label">Resultat</p>
+                    <p class="casestudie-kort__tekst">{data.resultat}</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <!-- Markdown-brødtekst -->
+            <div class="prose reveal">
+              <Content />
+            </div>
+
+            <!-- ── Bildegalleri ──────────────────────────────────────── -->
+            {harGalleri && (
+              <div
+                class="casestudie-galleri reveal"
+                aria-label={`Bildegalleri: ${data.galleri!.length} bilder fra ${data.title}`}
+              >
+                <h2 class="casestudie-galleri__heading">
+                  Bilder fra prosjektet
+                </h2>
+                <div class="casestudie-galleri__grid" role="list">
+                  {/* {data.galleri!.map(bilde => ( */}
+                  {data.galleri!.map((bilde: Prosjekt["galleri"][number]) => (
+                    <div
+                      class="casestudie-galleri__item"
+                      role="listitem"
+                    >
+                      <img
+                        src={bilde.src}
+                        alt={bilde.alt}
+                        loading="lazy"
+                        decoding="async"
+                        width="800"
+                        height="500"
+                      />
+                      {bilde.caption && (
+                        <div
+                          class="casestudie-galleri__caption"
+                          aria-label={bilde.caption}
+                        >
+                          {bilde.caption}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+          </div>
+
+          <!-- ── Høyre: meta-sidebar ──────────────────────────────────── -->
+          <aside
+            class="casestudie-sidebar"
+            aria-label="Prosjektdetaljer"
+          >
+            <!-- Tilbake-lenke -->
+            <a href="/prosjekter/" class="casestudie-sidebar__tilbake">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="1.75"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Alle prosjekter
+            </a>
+
+            <!-- Meta-kort -->
+            <div class="casestudie-meta-kort">
+              <div class="casestudie-meta-kort__header">
+                <p class="casestudie-meta-kort__tittel">Prosjektinfo</p>
+              </div>
+
+              <ul class="casestudie-meta-list" role="list">
+                <li class="casestudie-meta-list__item">
+                  <span class="casestudie-meta-list__key">Type</span>
+                  <span class="casestudie-meta-list__val">
+                    {kategoriLabel(data.kategori)}
+                  </span>
+                </li>
+                <li class="casestudie-meta-list__item">
+                  <span class="casestudie-meta-list__key">Sted</span>
+                  <span class="casestudie-meta-list__val">{data.location}</span>
+                </li>
+                <li class="casestudie-meta-list__item">
+                  <span class="casestudie-meta-list__key">År</span>
+                  <span class="casestudie-meta-list__val">{data.aar}</span>
+                </li>
+                {data.varighet && (
+                  <li class="casestudie-meta-list__item">
+                    <span class="casestudie-meta-list__key">Varighet</span>
+                    <span class="casestudie-meta-list__val">{data.varighet}</span>
+                  </li>
+                )}
+                <li class="casestudie-meta-list__item">
+                  <span class="casestudie-meta-list__key">Status</span>
+                  <span class="casestudie-meta-list__val">
+                    {erPågående ? (
+                      <span style="color: var(--color-primary); display: flex; align-items: center; gap: 0.3rem;">
+                        <span style="width:6px;height:6px;border-radius:50%;background:var(--color-primary);animation:pulse-dot 2s ease-in-out infinite;display:inline-block"></span>
+                        Pågående
+                      </span>
+                    ) : "Ferdigstilt"}
+                  </span>
+                </li>
+                {data.klient && (
+                  <li class="casestudie-meta-list__item">
+                    <span class="casestudie-meta-list__key">Oppdragsgiver</span>
+                    <span class="casestudie-meta-list__val">{data.klient}</span>
+                  </li>
+                )}
+              </ul>
+            </div>
+
+            <!-- CTA under meta-kort -->
+            <div
+              style="margin-top: 1.25rem; padding: 1.25rem; background: var(--color-bg-section); border-radius: var(--r-md); border: 1px solid var(--color-border);"
+            >
+              <p
+                style="font-size: 0.875rem; color: var(--color-text-m); margin: 0 0 0.875rem; line-height: 1.55; max-width: none;"
+              >
+                Lignende prosjekt i Vestfold?
+              </p>
+              <a href="/kontakt/" class="btn btn--primary" style="width: 100%; justify-content: center; font-size: 0.875rem; padding: 0.625rem 1rem;">
+                Ta kontakt
+              </a>
+            </div>
+
+          </aside>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================
+         4. RELATERTE PROSJEKTER
+         ================================================================ -->
+    {visRelaterte.length > 0 && (
+      <section
+        class="relaterte-seksjon"
+        aria-labelledby="relaterte-heading"
+      >
+        <div class="container">
+
+          <div class="section-header reveal">
+            <span class="eyebrow">
+              {relaterte.length > 0
+                ? `Flere ${kategoriLabel(data.kategori).toLowerCase()}-prosjekter`
+                : "Andre prosjekter"}
+            </span>
+            <h2
+              class="section-title mt-3"
+              id="relaterte-heading"
+            >
+              Relaterte prosjekter
+            </h2>
+            <div class="divider"></div>
+          </div>
+
+          <div class="relaterte-grid">
+            {visRelaterte.map((p, i) => (
+              <a
+                // href={`/prosjekter/${p.slug}/`}
+                href={`/prosjekter/${p.slug!}/`}
+                class={`prosjekt-card reveal-d${Math.min(i, 2) as 0|1|2}`}
+                aria-label={`${p.data.title}, ${p.data.location}, ${p.data.aar}`}
+              >
+                <div class="prosjekt-card__img">
+                  <img
+                    src={p.data.heroImage.src}
+                    alt={p.data.heroImage.alt}
+                    loading="lazy"
+                    decoding="async"
+                    width={p.data.heroImage.width  ?? 800}
+                    height={p.data.heroImage.height ?? 500}
+                  />
+                </div>
+                <div class="prosjekt-card__body">
+                  <span class="prosjekt-card__tag">
+                    {kategoriLabel(p.data.kategori)}
+                  </span>
+                  <h3 class="prosjekt-card__title">{p.data.title}</h3>
+                  <p class="prosjekt-card__meta">
+                    <svg width="11" height="11" viewBox="0 0 11 11" fill="none" aria-hidden="true">
+                      <path d="M5.5 0C3.57 0 2 1.57 2 3.5 2 6.13 5.5 11 5.5 11S9 6.13 9 3.5C9 1.57 7.43 0 5.5 0Zm0 4.75c-.69 0-1.25-.56-1.25-1.25S4.81 2.25 5.5 2.25s1.25.56 1.25 1.25-.56 1.25-1.25 1.25Z" fill="currentColor"/>
+                    </svg>
+                    {p.data.location}
+                    <span aria-hidden="true">·</span>
+                    {p.data.aar}
+                  </p>
+                </div>
+              </a>
+            ))}
+          </div>
+
+          <!-- Se alle lenke -->
+          <div
+            class="reveal"
+            style="text-align: center; margin-top: 2.5rem;"
+          >
+            <a href="/prosjekter/" class="btn btn--outline">
+              Se alle prosjekter
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path d="M2.5 7h9M8 3.5l3.5 3.5L8 10.5"
+                  stroke="currentColor" stroke-width="1.5"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+          </div>
+
+        </div>
+      </section>
+    )}
+
+  </main>
+</PageLayout>

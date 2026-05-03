@@ -1,0 +1,141 @@
+---
+// src/pages/prosjekter/index.astro
+// Prosjektoversikten for brebygg.no
+//
+// Seksjonsrekkefølge (fra spec):
+//   1. Header      (i PageLayout)
+//   2. HeroPage    — mørk page-header med eyebrow + H1
+//   3. OngoingBanner
+//   4. ProsjektGalleri (React island, client:visible)
+//   5. CtaSeksjon
+//   6. Footer      (i PageLayout)
+//
+// Datahåndtering:
+//   - getCollection('prosjekter') kjøres på byggetidspunkt
+//   - Data serialiseres til ProsjektKortData[] og sendes som props til React
+//   - Ingen runtime-fetching — React-islen mottar rene JS-objekter
+//
+// Filtrering:
+//   - URL-parameter: /prosjekter/?kategori=nybygg
+//   - React-islen leser og skriver URLSearchParams uten reload
+
+import PageLayout from "@layouts/PageLayout.astro";
+import HeroPage from "@components/sections/HeroPage.astro";
+import OngoingBanner from "@components/sections/OngoingBanner.astro";
+import CtaSeksjon from "@components/sections/CtaSeksjon.astro";
+import ProsjektGalleri, {
+  type ProsjektKortData,
+} from "@components/prosjekter/ProsjektGalleri";
+import { getCollection } from "astro:content";
+import { KATEGORIER } from "@content/config";
+import { PAGE_META } from "@config/site";
+import { getProsjekterSchema } from "@lib/seo/jsonld";
+
+// --------------------------------------------------------------------------
+// Data — hentes og serialiseres på byggetidspunkt
+// --------------------------------------------------------------------------
+
+const schema = getProsjekterSchema(PAGE_META.prosjekter.canonical);
+
+// Hent alle prosjekter
+const alleRaw = await getCollection("prosjekter");
+
+// Sorter: fremhevede øverst → pågående → nyeste år → sortOrder
+const sorterte = [...alleRaw].sort((a, b) => {
+  // 1. Fremhevede opp
+  if (a.data.fremhevet && !b.data.fremhevet) return -1;
+  if (!a.data.fremhevet && b.data.fremhevet) return 1;
+  // 2. Pågående over ferdig
+  if (a.data.status === "pagaende" && b.data.status !== "pagaende") return -1;
+  if (a.data.status !== "pagaende" && b.data.status === "pagaende") return 1;
+  // 3. Eksplisitt sortOrder
+  const soA = a.data.sortOrder ?? 999;
+  const soB = b.data.sortOrder ?? 999;
+  if (soA !== soB) return soA - soB;
+  // 4. Nyeste år
+  return b.data.aar - a.data.aar;
+});
+
+// Serialiser til flate objekter — kun feltene React trenger
+// Viktig: ingen Astro-spesifikke typer (CollectionEntry etc.) passeres til React
+const prosjekter: ProsjektKortData[] = sorterte.map((entry) => ({
+  slug: entry.slug,
+  title: entry.data.title,
+  description: entry.data.description,
+  location: entry.data.location,
+  kategori: entry.data.kategori,
+  status: entry.data.status,
+  aar: entry.data.aar,
+  heroImage: {
+    src: entry.data.heroImage.src,
+    alt: entry.data.heroImage.alt,
+    width: entry.data.heroImage.width,
+    height: entry.data.heroImage.height,
+  },
+  fremhevet: entry.data.fremhevet,
+}));
+
+// Finn pågående prosjekt for OngoingBanner (første pågående, eller ingen)
+const pågående = sorterte.find((p) => p.data.status === "pagaende");
+const harPågående = pågående !== undefined;
+
+// Statistikk for hero-stats
+const antallFerdig = sorterte.filter((p) => p.data.status === "ferdig").length;
+const antallTotalt = sorterte.length;
+const kommuner = [...new Set(sorterte.map((p) => p.data.location))].length;
+
+const heroStats = [
+  {
+    num: `${antallTotalt}`,
+    label: antallTotalt === 1 ? "Prosjekt" : "Prosjekter",
+  },
+  { num: `${kommuner}+`, label: "Byer og kommuner" },
+  { num: `${antallFerdig}`, label: "Ferdigstilte" },
+] as const;
+---
+
+<PageLayout meta={PAGE_META.prosjekter} schema={schema}>
+  <main id="main-content">
+    <!-- 2. Page-hero — mørk header -->
+    <HeroPage
+      eyebrow="Referanseprosjekter"
+      heading="Prosjekter<br />i Vestfold"
+      lead="Vi viser hva vi tok på oss, hva som var krevende og hva vi faktisk leverte. Ingen prosjekter er identiske — men arbeidsmåten er den samme."
+      imgSrc="/images/prosjekter-hero.webp"
+      imgAlt="Byggeplass i Vestfold med kran og stålkonstruksjon"
+      imgWidth={800}
+      imgHeight={960}
+      stats={[...heroStats]}
+    />
+
+    <!-- 3. Pågående-banner — kun hvis det finnes pågående prosjekter -->
+    {
+      harPågående && pågående && (
+        <OngoingBanner
+          projectName={pågående.data.title}
+          location={pågående.data.location}
+          progress={70}
+          dueLabel="2025"
+        />
+      )
+    }
+
+    <!-- 4. Prosjektgalleri — React island
+         client:visible: hydratiseres kun når synlig i viewport.
+         Garanterer at filterknappene er interaktive før brukeren scroller dit.
+         Fallback (ingen JS): alle prosjekter rendres som statisk HTML
+         (React server-render via Astro SSG). -->
+    <ProsjektGalleri
+      client:visible
+      prosjekter={prosjekter}
+      kategorier={KATEGORIER}
+    />
+
+    <!-- 5. CTA — lys variant -->
+    <CtaSeksjon
+      variant="light"
+      heading="Ser du noe du liker?"
+      sub="Ta kontakt for å høre om vi har ledig kapasitet til ditt prosjekt i Vestfold."
+    />
+  </main>
+</PageLayout>

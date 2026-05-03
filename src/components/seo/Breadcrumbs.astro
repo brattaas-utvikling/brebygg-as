@@ -1,0 +1,61 @@
+---
+// src/components/seo/Breadcrumbs.astro
+// Viser brødstis og genererer BreadcrumbList-schema.
+// Brukes på alle sider unntatt forside.
+
+import { SITE_URL } from "@config/site";
+import { buildBreadcrumbs } from "@config/navigation";
+
+interface Props {
+  // Automatisk fra Astro.url, eller kan overrides
+  customPath?: string;
+  // Skjul visuelt (bare schema-output)
+  visuallyHidden?: boolean;
+}
+
+const { customPath, visuallyHidden = false } = Astro.props;
+
+const path   = customPath ?? Astro.url.pathname;
+const crumbs = buildBreadcrumbs(path);
+---
+
+{!visuallyHidden && (
+  <nav
+    aria-label="Brødsti"
+    class="py-3 text-sm text-[var(--color-text-s)]"
+  >
+    <ol class="container flex flex-wrap items-center gap-1.5 list-none p-0 m-0">
+      {crumbs.map((crumb, index) => (
+        <li class="flex items-center gap-1.5">
+          {index > 0 && (
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 12 12"
+              fill="none"
+              aria-hidden="true"
+              class="opacity-40"
+            >
+              <path d="M4.5 2.5L7.5 6L4.5 9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          )}
+          {index < crumbs.length - 1 ? (
+            <a
+              href={crumb.href}
+              class="hover:text-[var(--color-text)] transition-colors duration-150"
+            >
+              {crumb.label}
+            </a>
+          ) : (
+            <span
+              aria-current="page"
+              class="text-[var(--color-text-m)] font-medium"
+            >
+              {crumb.label}
+            </span>
+          )}
+        </li>
+      ))}
+    </ol>
+  </nav>
+)}

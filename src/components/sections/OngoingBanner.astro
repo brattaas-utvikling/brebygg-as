@@ -1,0 +1,105 @@
+---
+// src/components/sections/OngoingBanner.astro
+// Viser ett pågående prosjekt med progress bar.
+// Progress-animasjon trigges av IntersectionObserver i BaseLayout.
+//
+// Props:
+//   projectName — navn på pågående prosjekt
+//   location    — sted (f.eks. "Sandefjord")
+//   progress    — 0–100, ferdigstillelsesprosent
+//   dueLabel    — tekst for forventet ferdigstilling (f.eks. "Q3 2025")
+
+interface Props {
+  projectName?: string;
+  location?:    string;
+  progress?:    number;
+  dueLabel?:    string;
+}
+
+const {
+  projectName = "Boligprosjekt",
+  location    = "Sandefjord",
+  progress    = 65,
+  dueLabel    = "Q3 2025",
+} = Astro.props;
+
+// Klem mellom 0 og 100
+const safeProgress = Math.max(0, Math.min(100, progress));
+---
+
+<div class="ongoing-banner" aria-label="Pågående prosjekt">
+  <div class="container">
+    <div class="ongoing-banner__inner">
+
+      <!-- Pulserende "live"-badge -->
+      <span class="badge-dot" aria-label="Pågående">Pågående</span>
+
+      <!-- Prosjektinfo -->
+      <p class="ongoing-banner__text">
+        <strong>{projectName}</strong>
+        {" "}i {location}
+        {dueLabel && (
+          <span class="ongoing-banner__due">
+            — ferdigstilles {dueLabel}
+          </span>
+        )}
+      </p>
+
+      <!-- Progress -->
+      <div
+        class="ongoing-banner__progress-wrap"
+        aria-label={`${safeProgress}% ferdigstilt`}
+      >
+        <span class="ongoing-banner__pct" aria-hidden="true">
+          {safeProgress}%
+        </span>
+        <div
+          class="progress-bar"
+          role="progressbar"
+          aria-valuenow={safeProgress}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        >
+          <!--
+            data-width brukes av BaseLayout-script for å animere bredden
+            inn i view (starter på 0, animerer til data-width ved scroll).
+          -->
+          <div
+            class="progress-bar__fill"
+            data-width={safeProgress}
+            style={`width: 0%; transition: width 1.4s cubic-bezier(0, 0, 0.2, 1)`}
+          ></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<style>
+  .ongoing-banner__due {
+    color: var(--color-text-s);
+    font-weight: 400;
+  }
+
+  .ongoing-banner__progress-wrap {
+    display:     flex;
+    align-items: center;
+    gap:         0.625rem;
+    flex-shrink: 0;
+  }
+
+  .ongoing-banner__pct {
+    font-size:   0.75rem;
+    font-weight: 600;
+    color:       var(--color-primary);
+    min-width:   2.5rem;
+    text-align:  right;
+  }
+
+  @media (max-width: 479px) {
+    .ongoing-banner__due      { display: none; }
+    .ongoing-banner__progress-wrap { display: none; }
+  }
+</style>

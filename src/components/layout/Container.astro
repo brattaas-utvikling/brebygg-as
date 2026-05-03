@@ -1,0 +1,25 @@
+---
+// src/components/layout/Container.astro
+// Sentrert innholdsbeholder med konsistent horisontal padding.
+// Respekterer --container-max og --container-padding fra globals.css.
+//
+// Props:
+//   as      — HTML-element å rendre som (default: "div")
+//   class   — ekstra Tailwind-klasser
+
+interface Props {
+  as?:    string;
+  class?: string;
+  [key: string]: unknown;
+}
+
+const {
+  as: Tag = "div",
+  class: className = "",
+  ...rest
+} = Astro.props;
+---
+
+<Tag class={`container ${className}`} {...rest}>
+  <slot />
+</Tag>

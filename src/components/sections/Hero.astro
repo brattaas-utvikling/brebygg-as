@@ -1,0 +1,250 @@
+---
+// src/components/sections/Hero.astro
+// Fullscreen hero-seksjon — LCP-kritisk komponent.
+//
+// Bilde:
+//   Plasser /public/images/hero-forside.webp (maks 200 KB, 1600×900px).
+//   BaseLayout preloader bildet via heroImage-prop satt i index.astro.
+//
+// Animasjoner:
+//   Heading, lead, knapper og stats bruker .fade-up med forsinkelse.
+//   CSS-only — ingen JS.
+
+import { COMPANY, NAP } from "@config/site";
+
+// Faste stat-verdier — hentet fra site.ts der mulig
+const heroStats = [
+  { num: `${COMPANY.projectsCompleted}+`, label: "Fullførte prosjekter" },
+  { num: `${COMPANY.yearsInBusiness}`, label: "År i bransjen" },
+  { num: "4", label: "Kommuner i Vestfold" },
+  { num: "1", label: "Kontaktpunkt hele veien" },
+] as const;
+---
+
+<section class="hero" aria-label="Introduksjon">
+  <!-- Bakgrunnsbilde — preloadet i BaseLayout via heroImage-prop -->
+  <div class="hero__bg" aria-hidden="true">
+    <img
+      src="/images/hero-forside.webp"
+      alt=""
+      fetchpriority="high"
+      decoding="async"
+      width="1600"
+      height="900"
+    />
+  </div>
+
+  <!-- Gradient-overlay -->
+  <div class="hero__overlay" aria-hidden="true"></div>
+
+  <!-- Innhold -->
+  <div class="hero__content">
+    <div class="container">
+      <!-- Eyebrow -->
+      <p class="hero__eyebrow" aria-hidden="false">
+        <span class="eyebrow-dot" aria-hidden="true"></span>
+        Totalentreprenør i Vestfold siden {COMPANY.foundingYear}
+      </p>
+
+      <!-- H1 -->
+      <h1 class="hero__heading">
+        Totalentreprenør<br />
+        i Vestfold
+      </h1>
+
+      <!-- Ingress -->
+      <p class="hero__lead">
+        BRE Bygg tar fullt ansvar for byggeprosessen — fra prosjektering til du
+        får nøklene. Enten det er nybygg i Tønsberg, rehabilitering i Sandefjord
+        eller næringsbygg i Larvik.
+      </p>
+
+      <!-- Handlingsknapper -->
+      <div class="hero__actions">
+        <a href="/prosjekter/" class="btn btn--primary btn--lg">
+          Se prosjekter
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M3 8h10M9 4l4 4-4 4"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+              stroke-linejoin="round"></path>
+          </svg>
+        </a>
+        <a
+          href={`tel:${NAP.phone.replace(/\s/g, "")}`}
+          class="btn btn--outline-inv btn--lg"
+          aria-label={`Ring oss: ${NAP.phoneDisplay}`}
+        >
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 13 13"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M11 8.8 9.2 8.6c-.45-.05-.9.1-1.2.4L6.65 10.3C4.72 9.34 3.14 7.76 2.18 5.83L3.5 4.5c.3-.3.45-.74.4-1.19L3.72 1.2A1.25 1.25 0 0 0 2.48.1H1.27A1.27 1.27 0 0 0 0 1.38C.38 7.32 5.18 12.12 11.12 12.5a1.27 1.27 0 0 0 1.38-1.27v-1.2A1.27 1.27 0 0 0 11 8.8Z"
+              fill="currentColor"></path>
+          </svg>
+          {NAP.phoneDisplay}
+        </a>
+      </div>
+
+      <!-- Hero-stats -->
+      <div class="hero__stats" role="list" aria-label="Nøkkeltall">
+        {
+          heroStats.map((stat) => (
+            <div class="hero-stat" role="listitem">
+              <div class="hero-stat__num">{stat.num}</div>
+              <div class="hero-stat__label">{stat.label}</div>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Scroll-indikator -->
+  <div class="hero__scroll-hint" aria-hidden="true">
+    <span class="hero__scroll-line"></span>
+  </div>
+</section>
+
+<style>
+  /* ── Eyebrow ──────────────────────────────────────────────────────── */
+  .hero__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--color-primary-l);
+    margin-bottom: 1.25rem;
+    /* Fade-in med forsinkelse 0 */
+    opacity: 0;
+    animation: hero-fade-up 0.7s var(--ease-out) 0.1s forwards;
+  }
+
+  .eyebrow-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--color-primary);
+    animation: pulse-dot 2.5s ease-in-out 1s infinite;
+  }
+
+  /* ── Heading, lead, actions, stats — staggered fade-up ─────────── */
+  .hero__heading {
+    opacity: 0;
+    animation: hero-fade-up 0.75s var(--ease-out) 0.2s forwards;
+  }
+
+  .hero__lead {
+    opacity: 0;
+    animation: hero-fade-up 0.7s var(--ease-out) 0.35s forwards;
+  }
+
+  .hero__actions {
+    opacity: 0;
+    animation: hero-fade-up 0.7s var(--ease-out) 0.48s forwards;
+  }
+
+  .hero__stats {
+    opacity: 0;
+    animation: hero-fade-up 0.7s var(--ease-out) 0.6s forwards;
+  }
+
+  /* ── Stat-separator ─────────────────────────────────────────────── */
+  .hero-stat {
+    position: relative;
+  }
+
+  .hero-stat + .hero-stat::before {
+    content: "";
+    position: absolute;
+    left: calc(-1 * clamp(0.75rem, 1.5vw, 1.25rem));
+    top: 10%;
+    height: 80%;
+    width: 1px;
+    background: rgba(245, 243, 239, 0.15);
+  }
+
+  @media (max-width: 479px) {
+    .hero-stat + .hero-stat::before {
+      display: none;
+    }
+  }
+
+  /* ── Scroll-indikator ───────────────────────────────────────────── */
+  .hero__scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    right: var(--container-padding);
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0;
+    animation: hero-fade-up 0.6s var(--ease-out) 1.1s forwards;
+  }
+
+  .hero__scroll-line {
+    display: block;
+    width: 1px;
+    height: 48px;
+    background: linear-gradient(
+      to bottom,
+      rgba(245, 243, 239, 0.5),
+      rgba(245, 243, 239, 0)
+    );
+    animation: scroll-line 2s ease-in-out 1.5s infinite;
+  }
+
+  @keyframes scroll-line {
+    0% {
+      transform: scaleY(0);
+      transform-origin: top;
+      opacity: 0;
+    }
+    30% {
+      transform: scaleY(1);
+      transform-origin: top;
+      opacity: 1;
+    }
+    70% {
+      transform: scaleY(1);
+      transform-origin: bottom;
+      opacity: 1;
+    }
+    100% {
+      transform: scaleY(0);
+      transform-origin: bottom;
+      opacity: 0;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .hero__scroll-hint {
+      display: none;
+    }
+  }
+
+  /* ── Respons: hero-heading linjeskift ───────────────────────────── */
+  @media (max-width: 479px) {
+    .hero__heading br {
+      display: none;
+    }
+  }
+</style>

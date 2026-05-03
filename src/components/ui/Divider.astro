@@ -1,0 +1,19 @@
+---
+// src/components/ui/Divider.astro
+// Kort horisontalt skillelinje i Dusty Olive.
+// Plasseres typisk under seksjonstittelen.
+
+interface Props {
+  centered?: boolean;
+  class?:    string;
+}
+
+const { centered = false, class: extra = "" } = Astro.props;
+---
+
+<div
+  class={`divider ${centered ? "divider--center" : ""} ${extra}`}
+  role="presentation"
+  aria-hidden="true"
+>
+</div>

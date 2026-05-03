@@ -1,0 +1,16 @@
+---
+// src/components/seo/JsonLd.astro
+// Injiserer JSON-LD schema server-side.
+// ALDRI bruk <script> med dynamisk innhold her — bruk set:html for SSG-sikkerhet.
+
+interface Props {
+  schema: Record<string, unknown> | Record<string, unknown>[];
+}
+
+const { schema } = Astro.props;
+
+// Serialiser én gang — unngå at samme data dukker opp flere ganger
+const schemaString = JSON.stringify(schema, null, 0);
+---
+
+<script type="application/ld+json" set:html={schemaString} />

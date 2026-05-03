@@ -1,0 +1,93 @@
+---
+// src/components/sections/StatsRow.astro
+// Fire nøkkeltall i hvit seksjon rett under hero.
+// Konkrete tall — ingen vage påstander.
+
+import { COMPANY } from "@config/site";
+
+type StatItem = {
+  num:    string;
+  suffix: string;
+  label:  string;
+  sub:    string;
+};
+
+const stats: StatItem[] = [
+  {
+    num:    String(COMPANY.projectsCompleted),
+    suffix: "+",
+    label:  "Fullførte prosjekter",
+    sub:    `siden ${COMPANY.foundingYear}`,
+  },
+  {
+    num:    String(COMPANY.yearsInBusiness),
+    suffix: " år",
+    label:  "Erfaring",
+    sub:    "som totalentreprenør i Vestfold",
+  },
+  {
+    num:    "4",
+    suffix: "",
+    label:  "Kommuner",
+    sub:    "Tønsberg, Sandefjord, Larvik, Horten",
+  },
+  {
+    num:    "1",
+    suffix: "",
+    label:  "Kontaktpunkt",
+    sub:    "gjennom hele prosjektet",
+  },
+] as const;
+---
+
+<section class="stats-row reveal" aria-label="Nøkkeltall">
+  <div class="container">
+    <div class="stats-row__grid">
+      {stats.map((stat, i) => (
+        <div class={`stat-item reveal-d${Math.min(i, 3) as 0 | 1 | 2 | 3}`}>
+          <div class="stat-item__num" aria-label={`${stat.num}${stat.suffix} ${stat.label}`}>
+            {stat.num}<span class="stat-item__suffix">{stat.suffix}</span>
+          </div>
+          <div class="stat-item__label">{stat.label}</div>
+          <div class="stat-item__sub">{stat.sub}</div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+
+<style>
+  .stat-item__suffix {
+    font-size:   0.65em;
+    font-weight: 700;
+    color:       var(--color-primary);
+    letter-spacing: 0;
+    margin-left: 0.05em;
+  }
+
+  .stat-item__sub {
+    font-size:  0.75rem;
+    color:      var(--color-text-s);
+    margin-top: 0.2rem;
+    line-height: 1.4;
+  }
+
+  /* Vertikal separator mellom stats */
+  .stat-item {
+    position:   relative;
+    padding:    0.5rem 0;
+  }
+
+  @media (min-width: 640px) {
+    .stat-item + .stat-item::before {
+      content:    "";
+      position:   absolute;
+      left:       -1rem;
+      top:        15%;
+      height:     70%;
+      width:      1px;
+      background: var(--color-border);
+    }
+  }
+</style>

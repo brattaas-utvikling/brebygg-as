@@ -1,0 +1,196 @@
+---
+// src/components/sections/ProsjektKarusell.astro
+// Horisontal scroll-karusell med prosjektkort.
+//
+// Henter fra Astro Content Collection 'prosjekter'.
+// Viser maks 8 fremhevede/nyeste prosjekter.
+// Drag-scroll aktiveres av BaseLayout-script (.karusell).
+//
+// Tom tilstand:
+//   Hvis ingen prosjekter finnes ennå, vises en placeholder-rad.
+
+// import { getCollection }  from "astro:content";
+import { getCollection, type CollectionEntry } from "astro:content";
+import type { Prosjekt }  from "@content/config";
+
+type ProsjektEntry = {
+  slug:  string;
+  data:  Prosjekt;
+};
+
+// Hent og sorter prosjekter — fremhevede først, deretter nyeste
+let prosjekter: ProsjektEntry[] = [];
+
+try {
+  // const raw = await getCollection("prosjekter");
+  const raw: CollectionEntry<"prosjekter">[] = await getCollection("prosjekter");
+  prosjekter = raw
+    .sort((a, b) => {
+      // Fremhevede prosjekter opp
+      if (a.data.fremhevet && !b.data.fremhevet) return -1;
+      if (!a.data.fremhevet && b.data.fremhevet)  return  1;
+      // Deretter nyeste år
+      return b.data.aar - a.data.aar;
+    })
+    .slice(0, 8)
+    .map(entry => ({ slug: entry.slug, data: entry.data }));
+} catch {
+  // Content collection ikke klar ennå — vis placeholders
+}
+
+// Kategori-etikett på norsk
+function kategoriLabel(k: Prosjekt["kategori"]): string {
+  const map: Record<Prosjekt["kategori"], string> = {
+    nybygg:          "Nybygg",
+    rehabilitering:  "Rehabilitering",
+    naeringsbygg:    "Næringsbygg",
+  };
+  return map[k];
+}
+
+const harProsjekter = prosjekter.length > 0;
+---
+
+<section
+  class="karusell-seksjon section"
+  aria-labelledby="karusell-heading"
+>
+  <!-- Seksjonsheader -->
+  <div class="container karusell-header reveal">
+    <div class="karusell-header__left">
+      <span class="eyebrow">Utvalgte prosjekter</span>
+      <h2 class="section-title mt-2" id="karusell-heading">
+        Hva vi har levert
+      </h2>
+    </div>
+    <a
+      href="/prosjekter/"
+      class="btn btn--outline karusell-header__cta"
+      aria-label="Se alle prosjekter"
+    >
+      Se alle prosjekter
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+        <path d="M2.5 7h9M8 3.5l3.5 3.5L8 10.5"
+          stroke="currentColor" stroke-width="1.5"
+          stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+  </div>
+
+  {harProsjekter ? (
+    <!-- Karusell -->
+    <div
+      class="karusell"
+      role="region"
+      aria-label="Prosjektkarusell — scroll horisontalt"
+      tabindex="0"
+    >
+      <div class="karusell__track">
+        {prosjekter.map((entry, i) => (
+          <div class={`karusell__item reveal-d${Math.min(i, 3) as 0|1|2|3}`}>
+            <a
+              href={`/prosjekter/${entry.slug}/`}
+              class="prosjekt-card"
+              aria-label={`${entry.data.title} — ${entry.data.location}`}
+            >
+              <!-- Bilde -->
+              <div class="prosjekt-card__img">
+                <img
+                  src={entry.data.heroImage.src}
+                  alt={entry.data.heroImage.alt}
+                  loading="lazy"
+                  decoding="async"
+                  width={entry.data.heroImage.width ?? 800}
+                  height={entry.data.heroImage.height ?? 500}
+                />
+              </div>
+
+              <!-- Kortinnhold -->
+              <div class="prosjekt-card__body">
+                <span class="prosjekt-card__tag">
+                  {kategoriLabel(entry.data.kategori)}
+                </span>
+
+                <h3 class="prosjekt-card__title">{entry.data.title}</h3>
+
+                <p class="prosjekt-card__meta">
+                  <svg width="11" height="11" viewBox="0 0 11 11" fill="none" aria-hidden="true">
+                    <path d="M5.5 0C3.57 0 2 1.57 2 3.5 2 6.13 5.5 11 5.5 11S9 6.13 9 3.5C9 1.57 7.43 0 5.5 0Zm0 4.75c-.69 0-1.25-.56-1.25-1.25S4.81 2.25 5.5 2.25s1.25.56 1.25 1.25-.56 1.25-1.25 1.25Z"
+                      fill="currentColor"/>
+                  </svg>
+                  {entry.data.location}
+                  <span aria-hidden="true">·</span>
+                  {entry.data.aar}
+                </p>
+              </div>
+            </a>
+          </div>
+        ))}
+      </div>
+    </div>
+  ) : (
+    <!-- Tom tilstand -->
+    <div class="container">
+      <div class="karusell-empty">
+        <p>Prosjekter legges inn fortløpende.</p>
+        <a href="/kontakt/" class="btn btn--outline btn--sm">Ta kontakt</a>
+      </div>
+    </div>
+  )}
+
+</section>
+
+
+<style>
+  /* ── Seksjonsheader med CTA til høyre ───────────────────────────── */
+  .karusell-header {
+    display:         flex;
+    align-items:     flex-end;
+    justify-content: space-between;
+    flex-wrap:       wrap;
+    gap:             1.5rem;
+    margin-bottom:   2.5rem;
+  }
+
+  .karusell-header__cta {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  /* ── Karusell-bakgrunn ───────────────────────────────────────────── */
+  .karusell-seksjon {
+    background-color: var(--color-bg);
+    overflow:         hidden;
+  }
+
+  /* ── Tom tilstand ────────────────────────────────────────────────── */
+  .karusell-empty {
+    display:          flex;
+    align-items:      center;
+    gap:              1.5rem;
+    padding:          2rem;
+    background-color: var(--color-bg-section);
+    border-radius:    var(--r-lg);
+    border:           1px dashed var(--color-border-m);
+  }
+
+  .karusell-empty p {
+    color:     var(--color-text-s);
+    font-size: 0.9375rem;
+    margin:    0;
+    max-width: none;
+  }
+
+  /* ── Keyboard-fokus på karusell ─────────────────────────────────── */
+  .karusell:focus-visible {
+    outline:        2px solid var(--color-primary);
+    outline-offset: 3px;
+    border-radius:  var(--r-sm);
+  }
+
+  /* ── Karusell høyde-hint ─────────────────────────────────────────── */
+  .karusell {
+    /* Hindrer at karusellen er for høy på mobil */
+    padding-bottom: 1rem;
+  }
+</style>

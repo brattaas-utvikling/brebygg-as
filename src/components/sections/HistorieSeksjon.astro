@@ -1,0 +1,241 @@
+---
+// src/components/sections/HistorieSeksjon.astro
+// Selskapets historikk som vertikal tidslinje.
+//
+// Layout:
+//   Sentrert vertikal linje.
+//   Odde milepæler: tekst venstre, år-boble høyre.
+//   Jevne milepæler: år-boble venstre, tekst høyre.
+//   På mobil: alt venstre-justert med linje til venstre.
+
+import { MILEPÆLER } from "@config/om-oss";
+---
+
+<section
+  class="historie-seksjon section"
+  aria-labelledby="historie-heading"
+>
+  <div class="container">
+
+    <!-- Header -->
+    <div class="section-header section-header--center reveal">
+      <span class="eyebrow">Historikk</span>
+      <h2 class="section-title mt-3" id="historie-heading">
+        Siden 2007
+      </h2>
+      <div class="divider divider--center"></div>
+      <p class="section-desc" style="margin-inline: auto;">
+        BRE Bygg startet som et lite rehabiliteringsselskap i Sandefjord.
+        Veksten har kommet gradvis — og nesten alltid via anbefalinger.
+      </p>
+    </div>
+
+    <!-- Tidslinje -->
+    <div class="tidslinje" role="list" aria-label="Historiske milepæler">
+      {MILEPÆLER.map((m, i) => {
+        const erHøyre = i % 2 === 0; // Jevne indekser: tekst høyre
+        return (
+          <div
+            class={`tidslinje__item ${erHøyre ? "tidslinje__item--høyre" : "tidslinje__item--venstre"} reveal`}
+            role="listitem"
+          >
+            <!-- År-boble (alltid midtstilt) -->
+            <div class="tidslinje__aar" aria-label={`År ${m.aar}`}>
+              {m.aar}
+            </div>
+
+            <!-- Innholdskort -->
+            <div class="tidslinje__kort">
+              <h3 class="tidslinje__tittel">{m.tittel}</h3>
+              <p class="tidslinje__tekst">{m.tekst}</p>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+
+  </div>
+</section>
+
+
+<style>
+  .historie-seksjon {
+    background-color: var(--color-bg);
+    overflow: hidden;
+  }
+
+  /* ── Tidslinje-container ──────────────────────────────────────────── */
+  .tidslinje {
+    position:   relative;
+    max-width:  720px;
+    margin:     0 auto;
+    padding:    2rem 0 1rem;
+  }
+
+  /* Vertikal midtlinje */
+  .tidslinje::before {
+    content:          "";
+    position:         absolute;
+    top:              0;
+    bottom:           0;
+    left:             50%;
+    transform:        translateX(-50%);
+    width:            2px;
+    background:       linear-gradient(
+      to bottom,
+      transparent,
+      var(--color-border) 8%,
+      var(--color-border) 92%,
+      transparent
+    );
+  }
+
+  @media (max-width: 639px) {
+    /* Mobil: linje til venstre */
+    .tidslinje::before {
+      left: 20px;
+      transform: none;
+    }
+  }
+
+  /* ── Hvert tidslinje-element ─────────────────────────────────────── */
+  .tidslinje__item {
+    position:       relative;
+    display:        grid;
+    /* 3 kolonner: [tekst/tom | boble | tekst/tom] */
+    grid-template-columns: 1fr 88px 1fr;
+    align-items:    start;
+    gap:            0 1rem;
+    margin-bottom:  2.5rem;
+  }
+
+  .tidslinje__item:last-child { margin-bottom: 0; }
+
+  /* Tekst venstre, boble midten (jevne indekser = "høyre" = tekst i col 3) */
+  .tidslinje__item--høyre .tidslinje__aar  { grid-column: 2; grid-row: 1; }
+  .tidslinje__item--høyre .tidslinje__kort { grid-column: 3; grid-row: 1; }
+
+  /* Tekst høyre for boble (odde indekser = "venstre" = tekst i col 1) */
+  .tidslinje__item--venstre .tidslinje__aar  { grid-column: 2; grid-row: 1; }
+  .tidslinje__item--venstre .tidslinje__kort {
+    grid-column: 1;
+    grid-row:    1;
+    text-align:  right;
+  }
+
+  /* Horisontal strek fra boble til kort */
+  .tidslinje__item::after {
+    content:    "";
+    position:   absolute;
+    top:        20px; /* Midten av år-boblen */
+    height:     1px;
+    width:      calc(50% - 44px - 1rem);
+    background: var(--color-border);
+  }
+
+  .tidslinje__item--høyre::after {
+    left: calc(50% + 44px + 0.5rem);
+  }
+
+  .tidslinje__item--venstre::after {
+    right: calc(50% + 44px + 0.5rem);
+  }
+
+  /* ── År-boble ─────────────────────────────────────────────────────── */
+  .tidslinje__aar {
+    width:            88px;
+    height:           40px;
+    display:          flex;
+    align-items:      center;
+    justify-content:  center;
+    background-color: var(--color-primary);
+    color:            #fff;
+    border-radius:    var(--r-full);
+    font-family:      var(--ff-display);
+    font-size:        0.875rem;
+    font-weight:      700;
+    letter-spacing:   0.02em;
+    box-shadow:       var(--shadow-sm);
+    position:         relative;
+    z-index:          1;
+  }
+
+  /* ── Innholdskort ─────────────────────────────────────────────────── */
+  .tidslinje__kort {
+    background-color: var(--color-bg-white);
+    border:           1px solid var(--color-border);
+    border-radius:    var(--r-md);
+    padding:          1.125rem 1.25rem;
+    box-shadow:       var(--shadow-sm);
+    transition:       box-shadow var(--transition-base), transform var(--transition-base);
+  }
+
+  .tidslinje__kort:hover {
+    box-shadow: var(--shadow-md);
+    transform:  translateY(-2px);
+  }
+
+  .tidslinje__tittel {
+    font-size:      1rem;
+    font-weight:    700;
+    color:          var(--color-text);
+    margin-bottom:  0.375rem;
+    letter-spacing: -0.01em;
+    line-height:    1.3;
+  }
+
+  .tidslinje__tekst {
+    font-size:   0.875rem;
+    color:       var(--color-text-m);
+    line-height: 1.6;
+    margin:      0;
+    max-width:   none;
+  }
+
+  /* ── Mobil: én kolonne ──────────────────────────────────────────── */
+  @media (max-width: 639px) {
+    .tidslinje__item,
+    .tidslinje__item--høyre,
+    .tidslinje__item--venstre {
+      grid-template-columns: 72px 1fr;
+      grid-template-rows:    auto;
+    }
+
+    .tidslinje__item--høyre .tidslinje__aar,
+    .tidslinje__item--venstre .tidslinje__aar {
+      grid-column: 1;
+      grid-row:    1;
+      width:       auto;
+      font-size:   0.8125rem;
+      height:      36px;
+      padding: 0 0.75rem;
+    }
+
+    .tidslinje__item--høyre .tidslinje__kort,
+    .tidslinje__item--venstre .tidslinje__kort {
+      grid-column: 2;
+      grid-row:    1;
+      text-align:  left;
+    }
+
+    /* Skjul horisontal strek */
+    .tidslinje__item::after { display: none; }
+
+    /* Koble boble til venstre-linje */
+    .tidslinje__aar {
+      margin-left: 8px; /* Linje er 2px bred, plassert på left:20px */
+      position:    relative;
+    }
+
+    .tidslinje__aar::before {
+      content:    "";
+      position:   absolute;
+      left:       -10px;
+      top:        50%;
+      transform:  translateY(-50%);
+      width:      8px;
+      height:     1px;
+      background: var(--color-border);
+    }
+  }
+</style>

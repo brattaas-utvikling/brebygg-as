@@ -1,0 +1,164 @@
+---
+// src/components/sections/CtaSeksjon.astro
+// Siste seksjon før footer: oppfordring til kontakt.
+//
+// To varianter:
+//   variant="light" — lys bakgrunn (var(--color-bg-section))
+//   variant="dark"  — mørk bakgrunn (var(--color-bg-dark))
+
+import { NAP } from "@config/site";
+
+interface Props {
+  variant?: "light" | "dark";
+  heading?: string;
+  sub?:     string;
+}
+
+const {
+  variant = "dark",
+  heading = "Har du et prosjekt i Vestfold?",
+  sub     = "Ring eller send en e-post. Vi svarer innen én arbeidsdag.",
+} = Astro.props;
+
+const isDark = variant === "dark";
+---
+
+<section
+  class={`cta-seksjon section ${isDark ? "cta-seksjon--dark" : "cta-seksjon--light"}`}
+  aria-labelledby="cta-heading"
+>
+  <div class="container">
+    <div class="cta-inner reveal">
+
+      <!-- Dekorativt element bak teksten -->
+      <div class="cta-bg-deco" aria-hidden="true"></div>
+
+      <!-- Tekst -->
+      <div class="cta-text">
+        <span class={`eyebrow ${isDark ? "" : ""}`}>Ta kontakt</span>
+        <h2
+          class={`cta-heading ${isDark ? "text-inv-heading" : ""}`}
+          id="cta-heading"
+        >
+          {heading}
+        </h2>
+        <p class={`cta-sub ${isDark ? "text-inv-sub" : ""}`}>
+          {sub}
+        </p>
+      </div>
+
+      <!-- Knapper -->
+      <div class="cta-actions">
+        <a href="/kontakt/" class="btn btn--primary btn--lg">
+          Ta kontakt
+        </a>
+        <a
+          href={`tel:${NAP.phone.replace(/\s/g, "")}`}
+          class={`btn ${isDark ? "btn--outline-inv" : "btn--outline"} btn--lg`}
+          aria-label={`Ring oss: ${NAP.phoneDisplay}`}
+        >
+          <svg width="15" height="15" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+            <path d="M11 8.8 9.2 8.6c-.45-.05-.9.1-1.2.4L6.65 10.3C4.72 9.34 3.14 7.76 2.18 5.83L3.5 4.5c.3-.3.45-.74.4-1.19L3.72 1.2A1.25 1.25 0 0 0 2.48.1H1.27A1.27 1.27 0 0 0 0 1.38C.38 7.32 5.18 12.12 11.12 12.5a1.27 1.27 0 0 0 1.38-1.27v-1.2A1.27 1.27 0 0 0 11 8.8Z"
+              fill="currentColor"/>
+          </svg>
+          {NAP.phoneDisplay}
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<style>
+  /* ── Lys variant ─────────────────────────────────────────────────── */
+  .cta-seksjon--light {
+    background-color: var(--color-bg-section);
+  }
+
+  /* ── Mørk variant ────────────────────────────────────────────────── */
+  .cta-seksjon--dark {
+    background-color: var(--color-bg-dark);
+    position:         relative;
+    overflow:         hidden;
+  }
+
+  /* ── Dekorativt bak-element ──────────────────────────────────────── */
+  .cta-bg-deco {
+    position:  absolute;
+    top:       -40%;
+    right:     -10%;
+    width:     500px;
+    height:    500px;
+    background: radial-gradient(
+      circle at center,
+      rgba(132, 133, 110, 0.12) 0%,
+      transparent 65%
+    );
+    pointer-events: none;
+  }
+
+  /* ── Indre layout ────────────────────────────────────────────────── */
+  .cta-inner {
+    position:        relative;
+    z-index:         1;
+    display:         flex;
+    align-items:     center;
+    justify-content: space-between;
+    flex-wrap:       wrap;
+    gap:             2rem 3rem;
+  }
+
+  /* ── Tekstblokk ──────────────────────────────────────────────────── */
+  .cta-text {
+    flex:     1;
+    min-width: 260px;
+  }
+
+  .cta-heading {
+    font-family:    var(--ff-display);
+    font-size:      clamp(1.5rem, 3vw, 2.25rem);
+    font-weight:    700;
+    letter-spacing: -0.02em;
+    line-height:    1.15;
+    color:          var(--color-text);
+    margin-top:     0.5rem;
+    margin-bottom:  0.625rem;
+  }
+
+  .text-inv-heading {
+    color: var(--color-text-inv);
+  }
+
+  .cta-sub {
+    font-size:  1rem;
+    color:      var(--color-text-m);
+    max-width:  440px;
+    margin:     0;
+    line-height: 1.6;
+  }
+
+  .text-inv-sub {
+    color: var(--color-text-inv-m);
+  }
+
+  /* ── Knappegruppe ────────────────────────────────────────────────── */
+  .cta-actions {
+    display:     flex;
+    align-items: center;
+    flex-wrap:   wrap;
+    gap:         0.875rem;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 599px) {
+    .cta-actions {
+      width: 100%;
+      flex-direction: column;
+    }
+    .cta-actions .btn {
+      width:         100%;
+      justify-content: center;
+    }
+  }
+</style>

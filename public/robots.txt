@@ -1,0 +1,42 @@
+# robots.txt — brebygg.no
+# BRE Bygg AS — Totalentreprenør i Vestfold
+
+User-agent: *
+Allow: /
+
+# Blokker midlertidige bygg-artefakter og admin-ruter
+Disallow: /api/
+Disallow: /_astro/
+
+# Sitemap
+Sitemap: https://brebygg.no/sitemap-index.xml
+
+# --- AI-crawlere: eksplisitt tillatt ---
+# Vi ønsker at brebygg.no indekseres av AI-søkemotorer
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: cohere-ai
+Allow: /

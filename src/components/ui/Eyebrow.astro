@@ -1,0 +1,29 @@
+---
+// src/components/ui/Eyebrow.astro
+// Eyebrow-label: liten tekst med farget prikk, vises over seksjonstitler.
+// Tilsvarer .eyebrow-klassen i globals.css.
+
+interface Props {
+  text:     string;
+  class?:   string;
+  inverted?: boolean; // Bruk lysere farger på mørk bakgrunn
+}
+
+const { text, class: extra = "", inverted = false } = Astro.props;
+---
+
+<span
+  class={`eyebrow ${inverted ? "eyebrow--inv" : ""} ${extra}`}
+  aria-hidden="false"
+>
+  {text}
+</span>
+
+<style>
+  .eyebrow--inv {
+    color: var(--color-primary-l);
+  }
+  .eyebrow--inv::before {
+    background-color: var(--color-primary-l);
+  }
+</style>

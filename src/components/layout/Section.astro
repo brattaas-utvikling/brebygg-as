@@ -1,0 +1,97 @@
+---
+// src/components/layout/Section.astro
+
+type Variant = "default" | "white" | "section" | "dark" | "dark-2" | "none";
+
+interface Props {
+  variant?: Variant;
+  id?: string;
+  class?: string;
+  noPadding?: boolean;
+  ariaLabel?: string;
+  ariaLabelledby?: string;
+}
+
+const {
+  variant = "default",
+  id,
+  class: extra = "",
+  noPadding = false,
+  ariaLabel,
+  ariaLabelledby,
+} = Astro.props;
+
+const bgMap: Record<Variant, string> = {
+  default: "bg-[var(--color-bg)]",
+  white: "bg-[var(--color-bg-white)]",
+  section: "bg-[var(--color-bg-section)]",
+  dark: "bg-[var(--color-bg-dark)] text-inv",
+  "dark-2": "bg-[var(--color-bg-dark-2)] text-inv",
+  none: "",
+};
+
+const paddingClass = noPadding ? "" : "section";
+---
+
+<section
+  id={id}
+  class={`${paddingClass} ${bgMap[variant]} ${extra}`.trim()}
+  aria-label={ariaLabel}
+  aria-labelledby={ariaLabelledby}
+>
+  <slot />
+</section>
+
+<!-- ---
+// src/components/layout/Section.astro
+// Seksjonsbeholder med bakgrunnsvarianter og konsistent vertikal padding.
+//
+// Props:
+//   as        — HTML-element (default: "section")
+//   variant   — bakgrunnsstil
+//   id        — for ankelenker (scroll-margin-top respekterer --nav-height)
+//   class     — ekstra klasser
+//   noPadding — fjern vertikal padding (for hero-seksjoner osv.)
+
+type Variant =
+  | "default" // var(--color-bg)          #F5F3EF
+  | "white" // var(--color-bg-white)     #FFFFFF
+  | "section" // var(--color-bg-section)   #ECEAE4
+  | "dark" // var(--color-bg-dark)      #2C4251
+  | "dark-2" // var(--color-bg-dark-2)    #1E2E3A
+  | "none"; // ingen bakgrunnsfarge — arver fra forelder
+
+interface Props {
+  as?: string;
+  variant?: Variant;
+  id?: string;
+  class?: string;
+  noPadding?: boolean;
+  [key: string]: unknown;
+}
+
+const {
+  as: Tag = "section",
+  variant = "default",
+  id,
+  class: extra = "",
+  noPadding = false,
+  ...rest
+} = Astro.props;
+
+// Bakgrunnsstiler per variant
+const bgMap: Record<Variant, string> = {
+  default: "bg-[var(--color-bg)]",
+  white: "bg-[var(--color-bg-white)]",
+  section: "bg-[var(--color-bg-section)]",
+  dark: "bg-[var(--color-bg-dark)] text-inv",
+  "dark-2": "bg-[var(--color-bg-dark-2)] text-inv",
+  none: "",
+};
+
+const paddingClass = noPadding ? "" : "section";
+---
+
+<Tag id={id} class={`${paddingClass} ${bgMap[variant]} ${extra}`} {...rest}>
+  <slot />
+</Tag> -->
