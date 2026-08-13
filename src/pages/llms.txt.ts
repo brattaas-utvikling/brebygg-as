@@ -13,7 +13,7 @@ import type { APIRoute } from "astro";
 import { getCollection } from "astro:content";
 import {
   SITE_URL, NAP, ADRESSE_EN_LINJE, AREA_SERVED, HOVEDKOMMUNER,
-  OPENING_HOURS, FAKTA_BEKREFTET, TJENESTER,
+  OPENING_HOURS, FAKTA_BEKREFTET, FAQ_ITEMS,
 } from "@config/site";
 import { TEAM } from "@config/om-oss";
 import { KATEGORI_LABEL } from "@/content.config";
@@ -21,6 +21,9 @@ import { KATEGORI_LABEL } from "@/content.config";
 export const GET: APIRoute = async () => {
   const prosjekter = (await getCollection("prosjekter")).sort(
     (a, b) => b.data.aar - a.data.aar
+  );
+  const tjenester = (await getCollection("tjenester")).sort(
+    (a, b) => a.data.sortOrder - b.data.sortOrder
   );
 
   const linjer = [
@@ -55,7 +58,18 @@ export const GET: APIRoute = async () => {
     ``,
     `## Tjenester`,
     ``,
-    ...TJENESTER.map((t) => `- [${t.title}](${SITE_URL}${t.slug}): ${t.description}`),
+    ...tjenester.map((t) =>
+      `- [${t.data.title}](${SITE_URL}/tjenester/${t.id}/): ${t.data.description}`
+    ),
+    ``,
+    `## Vanlige spørsmål`,
+    ``,
+    // Q/A-par er det formatet svarmotorer plukker opp lettest. Vi tar med
+    // både de generelle og de tjenestespesifikke.
+    ...FAQ_ITEMS.map((f) => `### ${f.question}\n${f.answer}\n`),
+    ...tjenester.flatMap((t) =>
+      t.data.faq.map((f) => `### ${f.sporsmaal}\n${f.svar}\n`)
+    ),
     ``,
     `## Geografi`,
     ``,

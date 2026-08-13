@@ -1,0 +1,66 @@
+---
+// src/pages/404.astro
+//
+// vercel.json har rutet /.* til /404.html hele tiden, men siden fantes ikke.
+// Ukjente URL-er fikk dermed Vercels standardside — uten header, footer eller
+// vei videre. For et nettsted som lever av at folk ringer, er det en blindvei.
+//
+// noindex: en 404-side skal aldri indekseres.
+
+import PageLayout from "@layouts/PageLayout.astro";
+import { SITE_URL, NAP, type PageMeta } from "@config/site";
+import { komponerGraf } from "@lib/seo/jsonld";
+
+const pageMeta: PageMeta = {
+  title:       "Siden finnes ikke — BRE Bygg",
+  description: "Vi fant ikke siden du lette etter.",
+  canonical:   `${SITE_URL}/404/`,
+  noindex:     true,
+};
+---
+
+<PageLayout meta={pageMeta} schema={komponerGraf()}>
+  <main id="main-content" class="section sek--lys">
+    <div class="container feilside">
+      <span class="eyebrow">404</span>
+      <h1 class="section-title mt-2">Denne siden finnes ikke</h1>
+      <p class="section-desc mt-3">
+        Lenken kan være utdatert, eller adressen kan være skrevet feil.
+        Prøv en av disse, eller ring oss — det går som regel raskere.
+      </p>
+
+      <ul class="feilside__lenker" role="list">
+        <li><a href="/tjenester/">Tjenester</a></li>
+        <li><a href="/prosjekter/">Prosjekter</a></li>
+        <li><a href="/om-oss/">Om oss</a></li>
+        <li><a href="/kontakt/">Kontakt</a></li>
+      </ul>
+
+      <div class="feilside__cta" data-kontaktkilde="404">
+        <a href={NAP.phoneHref} class="btn btn--primary">Ring {NAP.phoneDisplay}</a>
+        <a href={`mailto:${NAP.email}`} class="btn btn--outline">{NAP.email}</a>
+      </div>
+    </div>
+  </main>
+</PageLayout>
+
+<style>
+  .feilside { max-width: 640px; padding-block: clamp(3rem, 10vw, 7rem); }
+
+  .feilside__lenker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    list-style: none;
+    padding: 0;
+    margin: 2rem 0 0;
+  }
+  .feilside__lenker a { font-weight: 600; }
+
+  .feilside__cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+</style>

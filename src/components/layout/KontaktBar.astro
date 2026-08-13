@@ -1,0 +1,92 @@
+---
+// src/components/layout/KontaktBar.astro
+//
+// Sticky kontaktbar for mobil. Vises etter at brukeren har scrollet forbi
+// heroen, skjules igjen på topp.
+//
+// Bakgrunn: nettstedet har ingen kontaktskjema — det er et bevisst valg. Da er
+// tel: og mailto: de eneste konverteringspunktene som finnes, og de kan ikke
+// bare ligge i footeren. På mobil er en sticky bar forskjellen på at noen
+// ringer og at noen lukker fanen.
+//
+// Klikkene rapporteres til Vercel Analytics som custom events. Uten det har vi
+// ingen signal om hvilke sider som faktisk fører til en henvendelse, og da har
+// vi heller ikke grunnlag for å prioritere noe i fase 3 og utover.
+
+import { NAP } from "@config/site";
+---
+
+<div class="kontaktbar" data-kontaktbar aria-label="Kontakt BRE Bygg">
+  <a
+    href={NAP.phoneHref}
+    class="kontaktbar__knapp kontaktbar__knapp--primar"
+    data-kontakt="telefon"
+  >
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path
+        d="M14.5 11.3v2a1.3 1.3 0 0 1-1.5 1.3 13.2 13.2 0 0 1-5.8-2 13 13 0 0 1-4-4A13.2 13.2 0 0 1 1.2 2.9 1.3 1.3 0 0 1 2.5 1.5h2a1.3 1.3 0 0 1 1.3 1.1c.1.7.2 1.3.5 1.9a1.3 1.3 0 0 1-.3 1.4l-.8.8a10.7 10.7 0 0 0 4 4l.8-.8a1.3 1.3 0 0 1 1.4-.3c.6.2 1.2.4 1.9.5a1.3 1.3 0 0 1 1.2 1.2Z"
+        fill="currentColor"></path>
+    </svg>
+    Ring {NAP.phoneDisplay}
+  </a>
+
+  <a
+    href={`mailto:${NAP.email}`}
+    class="kontaktbar__knapp"
+    data-kontakt="epost"
+  >
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path
+        d="M2.7 2.7h10.6c.7 0 1.3.6 1.3 1.3v8c0 .7-.6 1.3-1.3 1.3H2.7c-.7 0-1.3-.6-1.3-1.3V4c0-.7.6-1.3 1.3-1.3Z"
+        stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"></path>
+      <path d="M14.6 4.7 8 9.3 1.4 4.7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"></path>
+    </svg>
+    Send e-post
+  </a>
+</div>
+
+<script>
+  const bar = document.querySelector<HTMLElement>("[data-kontaktbar]");
+
+  if (bar) {
+    // Vis baren når brukeren har passert omtrent én skjermhøyde. Terskelen er
+    // valgt så den ikke dekker heroens egne CTA-knapper — da ville vi bare
+    // flyttet klikk fra én knapp til en annen og lært ingenting.
+    const terskel = () => window.innerHeight * 0.9;
+    let ticking = false;
+
+    const oppdater = () => {
+      bar.classList.toggle("is-synlig", window.scrollY > terskel());
+      ticking = false;
+    };
+
+    window.addEventListener("scroll", () => {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(oppdater);
+    }, { passive: true });
+
+    oppdater();
+  }
+
+  // Rapporter alle kontaktklikk, ikke bare de i baren. Telefonlenken i
+  // headeren, knappene i heroen og kortene på /kontakt/ skal telles i samme
+  // rapport — ellers kan vi ikke sammenligne dem.
+  type Va = (event: "event", data: Record<string, unknown>) => void;
+
+  document.addEventListener("click", (e) => {
+    const lenke = (e.target as Element | null)?.closest?.<HTMLAnchorElement>("a[href^='tel:'], a[href^='mailto:']");
+    if (!lenke) return;
+
+    const va = (window as unknown as { va?: Va }).va;
+    if (typeof va !== "function") return;
+
+    va("event", {
+      name: lenke.href.startsWith("tel:") ? "kontakt_telefon" : "kontakt_epost",
+      // Hvor på siden klikket kom fra, og fra hvilken side. Det er dette som
+      // gjør tallene handlingsbare.
+      kilde: lenke.dataset.kontakt ?? lenke.closest("[data-kontaktkilde]")?.getAttribute("data-kontaktkilde") ?? "innhold",
+      side:  window.location.pathname,
+    });
+  });
+</script>

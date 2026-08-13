@@ -18,6 +18,7 @@
 import BaseLayout     from "@layouts/BaseLayout.astro";
 import Header         from "@components/layout/Header.astro";
 import Footer         from "@components/layout/Footer.astro";
+import KontaktBar     from "@components/layout/KontaktBar.astro";
 import type { PageMeta } from "@config/site";
 
 // --------------------------------------------------------------------------
@@ -67,4 +68,8 @@ const {
 
   {/* Footer */}
   {!hideFooter && <Footer />}
+
+  {/* Sticky kontaktbar — kun mobil. Uten kontaktskjema er tel: og mailto:
+      de eneste konverteringspunktene som finnes. */}
+  <KontaktBar />
 </BaseLayout>

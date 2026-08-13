@@ -203,43 +203,13 @@ export const MAPS = {
 } as const;
 
 // --------------------------------------------------------------------------
-// Tjenester
+// Tjenester bor i src/content/tjenester/ som en collection, ikke her.
 //
-// slug peker på ruter som bygges i fase 8. I v1 pekte de på sider som ikke
-// fantes — tre 404-lenker fra footeren på hver eneste side.
+// v1 hadde TJENESTER som en konstant i denne filen, med slugger som pekte på
+// sider som ikke fantes. Nå er siden og dataene samme kilde: legger klienten
+// til en tjeneste, får den automatisk en rute, en plass i bento-griden, en
+// linje i llms.txt og en Service-node i schema.
 // --------------------------------------------------------------------------
-
-export type Tjeneste = {
-  id:          string;
-  title:       string;
-  description: string;
-  slug:        string;
-  size:        "large" | "small" | "third";
-};
-
-export const TJENESTER: readonly Tjeneste[] = [
-  {
-    id:          "nybygg",
-    title:       "Nybygg",
-    description: "Fra tomt til overlevering. Vi håndterer prosjektering, koordinering og bygging — enten det er enebolig i Tønsberg eller leilighetsbygg i Sandefjord.",
-    slug:        "/tjenester/nybygg/",
-    size:        "large",
-  },
-  {
-    id:          "rehabilitering",
-    title:       "Rehabilitering",
-    description: "Oppgradering av eksisterende bygg uten unødvendig nedetid. Vi kjenner utfordringene som dukker opp bak vegger og under gulv.",
-    slug:        "/tjenester/rehabilitering/",
-    size:        "small",
-  },
-  {
-    id:          "naeringsbygg",
-    title:       "Næringsbygg",
-    description: "Kontor, lager, industri og kombinasjonsbygg i Vestfold. Budsjett og fremdrift følges opp ukentlig.",
-    slug:        "/tjenester/naeringsbygg/",
-    size:        "third",
-  },
-] as const;
 
 // --------------------------------------------------------------------------
 // FAQ — går inn i FAQPage-schema på landingssiden

@@ -121,12 +121,25 @@ export function buildWebSite() {
 // @graph — base for alle sider
 // --------------------------------------------------------------------------
 
-export function buildBaseGraph() {
+/**
+ * Setter sammen en JSON-LD-graf.
+ *
+ * LocalBusiness og WebSite er med på hver eneste side og legges til her, én
+ * gang. Før dette sto de gjentatt i alle seks get*Schema-funksjonene — seks
+ * steder å glemme å oppdatere når organisasjonsnoden endrer seg.
+ *
+ * `undefined` filtreres bort, slik at kallsteder kan skrive
+ * `faqs.length ? buildFaqPage(faqs) : undefined` uten et if.
+ */
+export function komponerGraf(
+  ...noder: Array<Record<string, unknown> | undefined>
+) {
   return {
     "@context": "https://schema.org",
     "@graph": [
       buildLocalBusiness(),
       buildWebSite(),
+      ...noder.filter((n): n is Record<string, unknown> => n !== undefined),
     ],
   };
 }
@@ -135,7 +148,7 @@ export function buildBaseGraph() {
 // FAQPage — kun landingssiden
 // --------------------------------------------------------------------------
 
-export function buildFaqPage(faqs: FaqItem[]) {
+export function buildFaqPage(faqs: readonly FaqItem[]) {
   return {
     "@type": "FAQPage",
     "@id":   `${SITE_URL}/#faq`,
@@ -159,7 +172,7 @@ export type BreadcrumbInput = {
   url:   string;
 };
 
-export function buildBreadcrumbList(items: BreadcrumbInput[]) {
+export function buildBreadcrumbList(items: readonly BreadcrumbInput[]) {
   return {
     "@type":           "BreadcrumbList",
     "itemListElement": items.map((item, index) => ({
@@ -260,75 +273,96 @@ export function buildContactPage(canonical: string) {
 // Disse funksjonene returnerer ferdig @graph-objekt klart for JSON.stringify
 // --------------------------------------------------------------------------
 
-export function getHomeSchema(faqs: FaqItem[]) {
-  return {
-    "@context": "https://schema.org",
-    "@graph": [
-      buildLocalBusiness(),
-      buildWebSite(),
-      buildFaqPage(faqs),
-    ],
-  };
+export function getHomeSchema(faqs: readonly FaqItem[]) {
+  return komponerGraf(buildFaqPage(faqs));
 }
 
 export function getOmOssSchema(canonical: string) {
-  return {
-    "@context": "https://schema.org",
-    "@graph": [
-      buildLocalBusiness(),
-      buildWebSite(),
-      buildAboutPage(canonical),
-      buildBreadcrumbList([
-        { label: "Hjem",    url: `${SITE_URL}/` },
-        { label: "Om oss",  url: canonical },
-      ]),
-    ],
-  };
+  return komponerGraf(
+    buildAboutPage(canonical),
+    buildBreadcrumbList([
+      { label: "Hjem",   url: `${SITE_URL}/` },
+      { label: "Om oss", url: canonical },
+    ]),
+  );
 }
 
 export function getProsjekterSchema(canonical: string) {
-  return {
-    "@context": "https://schema.org",
-    "@graph": [
-      buildLocalBusiness(),
-      buildWebSite(),
-      buildCollectionPage(canonical),
-      buildBreadcrumbList([
-        { label: "Hjem",       url: `${SITE_URL}/` },
-        { label: "Prosjekter", url: canonical },
-      ]),
-    ],
-  };
+  return komponerGraf(
+    buildCollectionPage(canonical),
+    buildBreadcrumbList([
+      { label: "Hjem",       url: `${SITE_URL}/` },
+      { label: "Prosjekter", url: canonical },
+    ]),
+  );
 }
 
 export function getProsjektSlugSchema(article: ArticleInput, projectTitle: string) {
-  const prosjekterUrl = `${SITE_URL}/prosjekter/`;
-  return {
-    "@context": "https://schema.org",
-    "@graph": [
-      buildLocalBusiness(),
-      buildWebSite(),
-      buildArticle(article),
-      buildBreadcrumbList([
-        { label: "Hjem",        url: `${SITE_URL}/` },
-        { label: "Prosjekter",  url: prosjekterUrl },
-        { label: projectTitle,  url: article.canonical },
-      ]),
-    ],
-  };
+  return komponerGraf(
+    buildArticle(article),
+    buildBreadcrumbList([
+      { label: "Hjem",       url: `${SITE_URL}/` },
+      { label: "Prosjekter", url: `${SITE_URL}/prosjekter/` },
+      { label: projectTitle, url: article.canonical },
+    ]),
+  );
 }
 
 export function getKontaktSchema(canonical: string) {
+  return komponerGraf(
+    buildContactPage(canonical),
+    buildBreadcrumbList([
+      { label: "Hjem",    url: `${SITE_URL}/` },
+      { label: "Kontakt", url: canonical },
+    ]),
+  );
+}
+
+// --------------------------------------------------------------------------
+// Service — tjenestesider
+//
+// Kobles til LocalBusiness via provider: { "@id": orgId() }. Uten det leddet
+// står Service-noden løsrevet, og Google ser ikke at det er BRE Bygg som
+// leverer tjenesten.
+// --------------------------------------------------------------------------
+
+type ServiceInput = {
+  navn:        string;
+  beskrivelse: string;
+  canonical:   string;
+  kategori:    string;
+};
+
+export function buildService(input: ServiceInput) {
   return {
-    "@context": "https://schema.org",
-    "@graph": [
-      buildLocalBusiness(),
-      buildWebSite(),
-      buildContactPage(canonical),
-      buildBreadcrumbList([
-        { label: "Hjem",    url: `${SITE_URL}/` },
-        { label: "Kontakt", url: canonical },
-      ]),
-    ],
+    "@type":       "Service",
+    "@id":         `${input.canonical}#service`,
+    "name":        input.navn,
+    "description": input.beskrivelse,
+    "serviceType": input.kategori,
+    "provider":    { "@id": orgId() },
+    "areaServed":  AREA_SERVED.map((navn) => ({ "@type": "City", "name": navn })),
+    "url":         input.canonical,
   };
+}
+
+/**
+ * Full graf for en tjenesteside.
+ *
+ * FAQPage emitteres kun når tjenesten faktisk har spørsmål, og de spørsmålene
+ * vises på siden. Schema som beskriver innhold brukeren ikke ser, er nettopp
+ * det Googles retningslinjer for strukturerte data slår ned på.
+ */
+export function getTjenesteSchema(
+  service: ServiceInput,
+  breadcrumbs: readonly BreadcrumbInput[],
+  faqs: readonly FaqItem[],
+) {
+  return komponerGraf(
+    buildService(service),
+    buildBreadcrumbList(breadcrumbs),
+    // FAQPage kun når spørsmålene faktisk vises på siden. Schema som beskriver
+    // innhold brukeren ikke ser, er det Googles retningslinjer slår ned på.
+    faqs.length > 0 ? buildFaqPage(faqs) : undefined,
+  );
 }

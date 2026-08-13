@@ -2387,3 +2387,249 @@ img {
 .brodsti--inv .brodsti__lenke:hover,
 .brodsti--inv .brodsti__navarende { color: #fff; }
 .brodsti--inv .brodsti__pil { opacity: 0.6; }
+
+/* ==========================================================================
+   TJENESTESIDER
+   ========================================================================== */
+
+.tjeneste-hero {
+  position: relative;
+  isolation: isolate;
+  min-height: clamp(420px, 55vh, 620px);
+  display: flex;
+  align-items: flex-end;
+  padding-block: clamp(3rem, 8vw, 6rem);
+  background-color: var(--color-bg-dark);
+}
+
+.tjeneste-hero__bg { position: absolute; inset: 0; z-index: -2; overflow: hidden; }
+.tjeneste-hero__bg img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Gradienten er tyngre nederst enn øverst. Brødsti og ingress ligger i det
+   nedre feltet, og det er der kontrasten må holde uansett hvilket bilde
+   klienten laster opp senere. */
+.tjeneste-hero__bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(44, 66, 81, 0.55) 0%,
+    rgba(44, 66, 81, 0.72) 45%,
+    rgba(38, 42, 16, 0.90) 100%
+  );
+}
+
+.tjeneste-hero__innhold { position: relative; z-index: 1; width: 100%; }
+
+.tjeneste-hero__tittel {
+  font-family: var(--ff-display);
+  font-weight: 700;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  color: var(--color-text-inv);
+  margin-top: 0.75rem;
+  text-wrap: balance;
+}
+
+.tjeneste-hero__ingress {
+  margin-top: 1.25rem;
+  max-width: var(--reading-width);
+  font-size: clamp(1rem, 1.4vw, 1.125rem);
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.tjeneste-hero__knapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+/* ── Todelt: liste + prosa ────────────────────────────────────────────── */
+.tjeneste-todelt { display: grid; gap: clamp(2rem, 5vw, 4rem); }
+@media (min-width: 900px) { .tjeneste-todelt { grid-template-columns: 5fr 6fr; } }
+
+.tjeneste-liste { list-style: none; padding: 0; margin: 1.75rem 0 0; }
+
+.tjeneste-liste__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding-block: 0.75rem;
+  border-top: 1px solid var(--color-border-l);
+  color: var(--color-text-m);
+  line-height: 1.6;
+}
+.tjeneste-liste__item:last-child { border-bottom: 1px solid var(--color-border-l); }
+.tjeneste-liste__item svg { color: var(--color-primary); margin-top: 0.3rem; }
+
+.tjeneste-prosa h2 {
+  font-family: var(--ff-display);
+  font-size: clamp(1.25rem, 2.2vw, 1.6rem);
+  font-weight: 600;
+  margin-top: 2rem;
+  color: var(--color-text);
+}
+.tjeneste-prosa h2:first-child { margin-top: 0; }
+.tjeneste-prosa p { margin-top: 0.9rem; line-height: 1.7; }
+
+/* ── Prosess ──────────────────────────────────────────────────────────── */
+.tjeneste-prosess {
+  list-style: none;
+  padding: 0;
+  margin: 2.5rem 0 0;
+  display: grid;
+  gap: 1.5rem;
+}
+@media (min-width: 720px)  { .tjeneste-prosess { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1100px) { .tjeneste-prosess { grid-template-columns: repeat(3, 1fr); } }
+
+.tjeneste-prosess__steg {
+  padding: 1.5rem;
+  background-color: var(--color-bg-white);
+  border: 1px solid var(--color-border-l);
+  border-radius: var(--r-lg);
+}
+
+.tjeneste-prosess__nr {
+  font-family: var(--ff-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--color-primary);
+}
+
+.tjeneste-prosess__tittel {
+  font-family: var(--ff-display);
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+  color: var(--color-text);
+}
+
+.tjeneste-prosess__tekst { margin-top: 0.5rem; font-size: 0.95rem; line-height: 1.65; }
+
+/* ── Toprad + relaterte ───────────────────────────────────────────────── */
+.tjeneste-toprad {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.tjeneste-relaterte {
+  margin-top: 2.5rem;
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+}
+
+/* ── FAQ ──────────────────────────────────────────────────────────────── */
+.tjeneste-faq__liste { margin-top: 2rem; max-width: 780px; }
+
+.tjeneste-faq__item {
+  border-top: 1px solid var(--color-border);
+}
+.tjeneste-faq__item:last-child { border-bottom: 1px solid var(--color-border); }
+
+.tjeneste-faq__sporsmaal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: 1.125rem;
+  font-family: var(--ff-display);
+  font-weight: 600;
+  color: var(--color-text);
+  cursor: pointer;
+  list-style: none;
+}
+.tjeneste-faq__sporsmaal::-webkit-details-marker { display: none; }
+
+.tjeneste-faq__sporsmaal::after {
+  content: "";
+  flex-shrink: 0;
+  width: 10px; height: 10px;
+  border-right: 2px solid var(--color-primary);
+  border-bottom: 2px solid var(--color-primary);
+  transform: rotate(45deg) translateY(-2px);
+  transition: transform var(--transition-fast);
+}
+.tjeneste-faq__item[open] .tjeneste-faq__sporsmaal::after {
+  transform: rotate(-135deg) translateY(-2px);
+}
+
+.tjeneste-faq__svar {
+  padding-bottom: 1.25rem;
+  line-height: 1.7;
+  color: var(--color-text-m);
+  max-width: var(--reading-width);
+}
+
+.tjeneste-faq__sporsmaal:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+
+/* ==========================================================================
+   STICKY KONTAKTBAR — kun mobil
+   Uten kontaktskjema er tel: og mailto: de eneste konverteringspunktene.
+   Da må de være tilgjengelige uansett hvor langt ned brukeren har scrollet.
+   ========================================================================== */
+
+.kontaktbar { display: none; }
+
+@media (max-width: 767px) {
+  .kontaktbar {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 90;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background-color: var(--color-border);
+    border-top: 1px solid var(--color-border);
+    padding-bottom: env(safe-area-inset-bottom);
+    transform: translateY(110%);
+    transition: transform 240ms var(--ease-out);
+  }
+
+  .kontaktbar.is-synlig { transform: translateY(0); }
+
+  .kontaktbar__knapp {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    /* 52px er over 44px-minimumet for touch-mål, med luft til tommelen. */
+    min-height: 52px;
+    background-color: var(--color-bg-white);
+    color: var(--color-text);
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+  }
+
+  .kontaktbar__knapp--primar {
+    background-color: var(--color-primary);
+    color: #fff;
+  }
+
+  .kontaktbar__knapp:focus-visible {
+    outline: 2px solid var(--color-text);
+    outline-offset: -4px;
+  }
+
+  /* Gjør plass til baren så den ikke dekker footeren. */
+  body:has(.kontaktbar.is-synlig) { padding-bottom: 52px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kontaktbar { transition: none; }
+}

@@ -1,0 +1,239 @@
+---
+// src/pages/tjenester/[slug].astro
+//
+// Tjenestesider. Fjerner de tre 404-lenkene som har stått i footeren på hver
+// eneste side, og gir samtidig de naturlige landingssidene for «totalentreprenør
+// Tønsberg», «rehabilitering Vestfold» og «næringsbygg Vestfold».
+//
+// Intern lenking er halve poenget: hver tjeneste peker på relaterte prosjekter,
+// og hvert prosjekt får en vei tilbake til tjenesten sin. Uten det henger
+// prosjektsidene i løse lufta, som de har gjort til nå.
+
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import PageLayout   from "@layouts/PageLayout.astro";
+import Breadcrumbs  from "@components/seo/Breadcrumbs.astro";
+import CtaSeksjon   from "@components/sections/CtaSeksjon.astro";
+import { SITE_URL, NAP, HOVEDKOMMUNER, type PageMeta } from "@config/site";
+import { getTjenesteSchema } from "@lib/seo/jsonld";
+import { KATEGORI_LABEL } from "@/content.config";
+
+export async function getStaticPaths() {
+  const tjenester  = await getCollection("tjenester");
+  const prosjekter = await getCollection("prosjekter");
+
+  return tjenester
+    .sort((a, b) => a.data.sortOrder - b.data.sortOrder)
+    .map((entry) => {
+      // Valider relaterteProsjekter mot faktiske slugger ved bygg. Zod kan ikke
+      // gjøre dette — den kjenner ikke de andre collection-ene. En feilstavet
+      // slug ville ellers blitt en stille tom liste i produksjon.
+      const treff = entry.data.relaterteProsjekter
+        .map((slug) => {
+          const p = prosjekter.find((x) => x.id === slug);
+          if (!p) {
+            throw new Error(
+              `[tjenester/${entry.id}] relaterteProsjekter viser til "${slug}", ` +
+              `som ikke finnes i prosjekter-collection. ` +
+              `Tilgjengelige: ${prosjekter.map((x) => x.id).join(", ")}`
+            );
+          }
+          return p;
+        });
+
+      return {
+        params: { slug: entry.id },
+        props:  { entry, relaterte: treff },
+      };
+    });
+}
+
+interface Props {
+  entry:     CollectionEntry<"tjenester">;
+  relaterte: CollectionEntry<"prosjekter">[];
+}
+
+const { entry, relaterte } = Astro.props;
+const { data } = entry;
+const { Content } = await render(entry);
+
+const canonicalPath = `/tjenester/${entry.id}/`;
+const canonical     = `${SITE_URL}${canonicalPath}`;
+
+const pageMeta: PageMeta = {
+  title:       data.seoTitle       ?? `${data.title} — ${NAP.name}`,
+  description: data.seoDescription ?? data.description,
+  canonical,
+  ogImage:     `${SITE_URL}${data.heroImage.src}`,
+};
+
+const schema = getTjenesteSchema(
+  {
+    navn:        data.title,
+    beskrivelse: data.description,
+    canonical,
+    kategori:    KATEGORI_LABEL[data.kategori],
+  },
+  [
+    { label: "Hjem",      url: `${SITE_URL}/` },
+    { label: "Tjenester", url: `${SITE_URL}/tjenester/` },
+    { label: data.title,  url: canonical },
+  ],
+  data.faq.map((f) => ({ question: f.sporsmaal, answer: f.svar })),
+);
+---
+
+<PageLayout meta={pageMeta} schema={schema} heroImage={data.heroImage.src}>
+  <main id="main-content">
+
+    {/* Hero */}
+    <section class="tjeneste-hero" aria-labelledby="tjeneste-tittel">
+      <div class="tjeneste-hero__bg" aria-hidden="true">
+        <img
+          src={data.heroImage.src}
+          alt=""
+          width={data.heroImage.width ?? 1600}
+          height={data.heroImage.height ?? 900}
+          fetchpriority="high"
+          decoding="async"
+        />
+      </div>
+
+      <div class="tjeneste-hero__innhold">
+        <div class="container">
+          <Breadcrumbs
+            customPath={canonicalPath}
+            labels={{ [entry.id]: data.title }}
+            variant="inv"
+          />
+          <h1 class="tjeneste-hero__tittel" id="tjeneste-tittel">{data.title}</h1>
+          <p class="tjeneste-hero__ingress">{data.ingress}</p>
+
+          <div class="tjeneste-hero__knapper">
+            <a href={NAP.phoneHref} class="btn btn--primary">
+              Ring {NAP.phoneDisplay}
+            </a>
+            <a href={`/prosjekter/?kategori=${data.kategori}`} class="btn btn--ghost-inv">
+              Se {KATEGORI_LABEL[data.kategori].toLowerCase()}-prosjekter
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {/* Hva som inngår */}
+    <section class="section sek--hvit" aria-labelledby="inkludert-tittel">
+      <div class="container tjeneste-todelt">
+        <div>
+          <span class="eyebrow">Dette inngår</span>
+          <h2 class="section-title mt-2" id="inkludert-tittel">
+            Hva du får når vi tar totalentreprisen
+          </h2>
+          <ul class="tjeneste-liste">
+            {data.inkludert.map((punkt) => (
+              <li class="tjeneste-liste__item">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" class="flex-shrink-0">
+                  <path d="M3.5 8.5L6.5 11.5L12.5 4.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+                <span>{punkt}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div class="tjeneste-prosa">
+          <Content />
+        </div>
+      </div>
+    </section>
+
+    {/* Prosess */}
+    <section class="section sek--seksjon" aria-labelledby="prosess-tittel">
+      <div class="container">
+        <span class="eyebrow">Slik går vi fram</span>
+        <h2 class="section-title mt-2" id="prosess-tittel">Fra første befaring til overlevering</h2>
+
+        <ol class="tjeneste-prosess">
+          {data.prosess.map((steg, i) => (
+            <li class="tjeneste-prosess__steg">
+              <span class="tjeneste-prosess__nr" aria-hidden="true">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <h3 class="tjeneste-prosess__tittel">{steg.tittel}</h3>
+              <p class="tjeneste-prosess__tekst">{steg.tekst}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+
+    {/* Relaterte prosjekter */}
+    {relaterte.length > 0 && (
+      <section class="section sek--hvit" aria-labelledby="relaterte-tittel">
+        <div class="container">
+          <div class="tjeneste-toprad">
+            <div>
+              <span class="eyebrow">Fra arkivet</span>
+              <h2 class="section-title mt-2" id="relaterte-tittel">
+                {data.kortTittel ?? data.title} vi har levert
+              </h2>
+            </div>
+            <a href={`/prosjekter/?kategori=${data.kategori}`} class="btn btn--outline btn--sm">
+              Alle prosjekter
+            </a>
+          </div>
+
+          <div class="tjeneste-relaterte" role="list">
+            {relaterte.map((p) => (
+              <a href={`/prosjekter/${p.id}/`} class="prosjekt-card" role="listitem">
+                <div class="prosjekt-card__img">
+                  <img
+                    src={p.data.heroImage.src}
+                    alt={p.data.heroImage.alt}
+                    loading="lazy"
+                    decoding="async"
+                    width={p.data.heroImage.width ?? 800}
+                    height={p.data.heroImage.height ?? 500}
+                  />
+                </div>
+                <div class="prosjekt-card__body">
+                  <span class="prosjekt-card__tag">{KATEGORI_LABEL[p.data.kategori]}</span>
+                  <h3 class="prosjekt-card__title">{p.data.title}</h3>
+                  <p class="prosjekt-card__meta">
+                    {p.data.location}<span aria-hidden="true"> · </span>{p.data.aar}
+                  </p>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+    )}
+
+    {/* FAQ */}
+    {data.faq.length > 0 && (
+      <section class="section sek--seksjon" aria-labelledby="faq-tittel">
+        <div class="container tjeneste-faq">
+          <span class="eyebrow">Vanlige spørsmål</span>
+          <h2 class="section-title mt-2" id="faq-tittel">
+            Om {(data.kortTittel ?? data.title).toLowerCase()}
+          </h2>
+
+          <div class="tjeneste-faq__liste">
+            {data.faq.map((f) => (
+              <details class="tjeneste-faq__item">
+                <summary class="tjeneste-faq__sporsmaal">{f.sporsmaal}</summary>
+                <p class="tjeneste-faq__svar">{f.svar}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+    )}
+
+    <CtaSeksjon
+      variant="dark"
+      heading={`Skal du bygge i ${HOVEDKOMMUNER.slice(0, 3).join(", ")} eller Horten?`}
+      sub="Ring for en uforpliktende befaring. Vi sier fra med én gang hvis vi ikke er riktig entreprenør for jobben."
+    />
+  </main>
+</PageLayout>

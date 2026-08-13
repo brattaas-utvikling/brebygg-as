@@ -1,4 +1,4 @@
-// src/content/config.ts
+// src/content.config.ts
 // Astro Content Collections — Zod-skjemaer for type-trygg innholdshåndtering.
 // Prosjekter kan komme fra lokale MD-filer eller Sanity (via loader).
 
@@ -80,6 +80,63 @@ const prosjektSkjema = z.object({
 export type Prosjekt = z.infer<typeof prosjektSkjema>;
 
 // --------------------------------------------------------------------------
+// Tjeneste-skjema
+//
+// Speiler `tjeneste`-dokumentet som kommer i Sanity (fase 5), slik at
+// migreringsskriptet blir en ren feltmapping og ikke en omskriving.
+//
+// Erstatter TJENESTER-konstanten i site.ts, som bare hadde tittel, beskrivelse
+// og en slug som pekte på en side som ikke fantes.
+// --------------------------------------------------------------------------
+
+const tjenesteSkjema = z.object({
+  title:       z.string().min(3).max(80),
+  /** Kort variant til bento-grid og meny. */
+  kortTittel:  z.string().max(40).optional(),
+  description: z.string().min(30).max(200),
+  /** Første avsnitt på siden. Slår fast hva vi gjør, for hvem og hvor. */
+  ingress:     z.string().min(60),
+
+  heroImage: z.object({
+    src:    z.string(),
+    alt:    z.string(),
+    width:  z.number().optional(),
+    height: z.number().optional(),
+  }),
+
+  /** Styrer bento-cellens størrelse på forsiden. */
+  bentoStorrelse: z.enum(["large", "small", "third"]).default("small"),
+
+  /** Hva som inngår. Konkret, ikke verdiløfter. */
+  inkludert: z.array(z.string()).min(3),
+
+  /** Prosessen, steg for steg. */
+  prosess: z.array(z.object({
+    tittel: z.string(),
+    tekst:  z.string(),
+  })).min(3),
+
+  /** Tjenestespesifikk FAQ. Går inn i FAQPage-schema for denne siden alene. */
+  faq: z.array(z.object({
+    sporsmaal: z.string(),
+    svar:      z.string(),
+  })).default([]),
+
+  /** Kobler tjenesten til prosjekter. Sluggene valideres mot collection ved bygg. */
+  relaterteProsjekter: z.array(z.string()).default([]),
+
+  /** Prosjektkategorien tjenesten svarer til. Brukes til «se alle»-lenken. */
+  kategori: z.enum(["nybygg", "rehabilitering", "naeringsbygg"]),
+
+  seoTitle:       z.string().max(60).optional(),
+  seoDescription: z.string().max(160).optional(),
+
+  sortOrder: z.number().default(0),
+});
+
+export type Tjeneste = z.infer<typeof tjenesteSkjema>;
+
+// --------------------------------------------------------------------------
 // Collections
 // --------------------------------------------------------------------------
 
@@ -88,8 +145,14 @@ const prosjekter = defineCollection({
   schema: prosjektSkjema,
 });
 
+const tjenester = defineCollection({
+  loader: glob({ pattern: "**/[^_]*.md", base: "./src/content/tjenester" }),
+  schema: tjenesteSkjema,
+});
+
 export const collections = {
   prosjekter,
+  tjenester,
 };
 
 // --------------------------------------------------------------------------
