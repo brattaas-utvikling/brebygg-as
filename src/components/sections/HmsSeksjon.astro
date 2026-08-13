@@ -5,7 +5,7 @@
 // Venstre: introduksjon + HMS-punktliste (hva vi faktisk gjør)
 // Høyre:   sertifiseringsbadges + nedlastingslenke til HMS-egenerklæring
 
-import { SERTIFISERINGER, HMS_PUNKTER } from "@config/om-oss";
+import { HMS_PUNKTER } from "@config/om-oss";
 ---
 
 <section
@@ -15,7 +15,7 @@ import { SERTIFISERINGER, HMS_PUNKTER } from "@config/om-oss";
   <div class="container">
     <div class="hms-grid">
 
-      <!-- Venstre: HMS-innhold -->
+      {/* Venstre: HMS-innhold */}
       <div class="hms-tekst reveal">
 
         <span class="eyebrow">HMS</span>
@@ -35,7 +35,7 @@ import { SERTIFISERINGER, HMS_PUNKTER } from "@config/om-oss";
           spør om — det er et vilkår for å jobbe med oss.
         </p>
 
-        <!-- HMS-punkter -->
+        {/* HMS-punkter */}
         <ul class="hms-liste" aria-label="HMS-tiltak">
           {HMS_PUNKTER.map(punkt => (
             <li class="hms-liste__item">
@@ -57,44 +57,21 @@ import { SERTIFISERINGER, HMS_PUNKTER } from "@config/om-oss";
 
       </div>
 
-      <!-- Høyre: sertifiseringer -->
+      {/* Høyre: sertifiseringer
+           MIDLERTIDIG UTE. Blokken viste «Mesterbrev», «Sentral godkjenning —
+           Tiltaksklasse 2» og «Godkjent lærebedrift» uten at noen av dem var
+           verifisert. Det er lovregulerte påstander, ikke markedsføring.
+           Sett inn igjen når SERTIFISERINGER er bekreftet i om-oss.ts. */}
       <div class="hms-sertifiseringer reveal-d1">
 
         <div class="sert-header">
-          <h3 class="sert-tittel">Godkjenninger og sertifiseringer</h3>
+          <h3 class="sert-tittel">Slik jobber vi med sikkerhet</h3>
           <p class="sert-sub">
-            Dokumentasjon er tilgjengelig på forespørsel.
+            Dokumentasjon på godkjenninger sendes på forespørsel.
           </p>
         </div>
 
-        <!-- Badge-grid -->
-        <ul class="sert-grid" role="list" aria-label="Sertifiseringer">
-          {SERTIFISERINGER.map(s => (
-            <li class="sert-badge" role="listitem">
-              <!-- Sjekkmerke-ikon -->
-              <div class="sert-badge__ikon" aria-hidden="true">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <circle cx="8" cy="8" r="7.5" stroke="var(--color-primary)" stroke-width="1"/>
-                  <path
-                    d="M4.5 8.5L6.5 10.5L11.5 5.5"
-                    stroke="var(--color-primary)"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </div>
-              <div class="sert-badge__tekst">
-                <span class="sert-badge__navn">{s.navn}</span>
-                {s.info && (
-                  <span class="sert-badge__info">{s.info}</span>
-                )}
-              </div>
-            </li>
-          ))}
-        </ul>
-
-        <!-- Kontaktoppfordring for HMS-dokumentasjon -->
+        {/* Kontaktoppfordring for HMS-dokumentasjon */}
         <div class="sert-forespørsel">
           <p>
             Trenger du HMS-egenerklæring eller sentralgodkjenningsbevis

@@ -47,7 +47,7 @@ const cards = [
 >
   <div class="container">
 
-    <!-- Seksjonsheader -->
+    {/* Seksjonsheader */}
     <div class="section-header text-inv reveal">
       <span class="eyebrow">Hva vi gjør</span>
       <h2 class="section-title mt-3" id="tjenester-heading">
@@ -61,7 +61,7 @@ const cards = [
       </p>
     </div>
 
-    <!-- Bento-grid -->
+    {/* Bento-grid */}
     <div class="tjeneste-grid" role="list" aria-label="Tjenester">
       {cards.map((card, i) => (
         <article
@@ -69,7 +69,7 @@ const cards = [
           role="listitem"
           aria-label={card.title}
         >
-          <!-- Bakgrunnsbilde med parallax-hint -->
+          {/* Bakgrunnsbilde med parallax-hint */}
           <div class="tjeneste-card__img-wrap" aria-hidden="true">
             <img
               src={card.imgSrc}
@@ -81,24 +81,24 @@ const cards = [
             />
           </div>
 
-          <!-- Gradient-overlay -->
+          {/* Gradient-overlay */}
           <div class="tjeneste-card__overlay" aria-hidden="true"></div>
 
-          <!-- Kortinnhold -->
+          {/* Kortinnhold */}
           <div class="tjeneste-card__body">
 
-            <!-- Kategori-tag -->
+            {/* Kategori-tag */}
             <span class="tjeneste-card__tag" aria-hidden="true">
               {card.title}
             </span>
 
-            <!-- Tittel — alltid synlig -->
+            {/* Tittel — alltid synlig */}
             <h3 class="tjeneste-card__title">{card.title}</h3>
 
-            <!-- Beskrivelse — avdukes ved hover -->
+            {/* Beskrivelse — avdukes ved hover */}
             <p class="tjeneste-card__desc">{card.description}</p>
 
-            <!-- Lenke — avdukes ved hover -->
+            {/* Lenke — avdukes ved hover */}
             <a
               href={card.slug}
               class="tjeneste-card__link"

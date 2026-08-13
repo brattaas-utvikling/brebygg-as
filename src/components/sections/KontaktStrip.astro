@@ -18,12 +18,12 @@ import { NAP, OPENING_HOURS } from "@config/site";
   itemscope
   itemtype="https://schema.org/LocalBusiness"
 >
-  <!-- Skjulte microdata-felt -->
+  {/* Skjulte microdata-felt */}
   <meta itemprop="name" content={NAP.name} />
   <meta itemprop="url" content="https://brebygg.no" />
 
   <div class="strip__grid container">
-    <!-- 1. Telefon -->
+    {/* 1. Telefon */}
     <div class="strip__item">
       <div class="strip__icon-wrap" aria-hidden="true">
         <svg
@@ -53,7 +53,7 @@ import { NAP, OPENING_HOURS } from "@config/site";
       </div>
     </div>
 
-    <!-- 2. E-post -->
+    {/* 2. E-post */}
     <div class="strip__item">
       <div class="strip__icon-wrap" aria-hidden="true">
         <svg
@@ -83,7 +83,7 @@ import { NAP, OPENING_HOURS } from "@config/site";
       </div>
     </div>
 
-    <!-- 3. Adresse -->
+    {/* 3. Adresse */}
     <div class="strip__item">
       <div class="strip__icon-wrap" aria-hidden="true">
         <svg
@@ -120,7 +120,7 @@ import { NAP, OPENING_HOURS } from "@config/site";
       </div>
     </div>
 
-    <!-- 4. Åpningstider -->
+    {/* 4. Åpningstider */}
     <div class="strip__item">
       <div class="strip__icon-wrap" aria-hidden="true">
         <svg
@@ -145,14 +145,14 @@ import { NAP, OPENING_HOURS } from "@config/site";
         >
           Man–fre
         </p>
-        <!-- <p
+        {/* <p
           class="strip__value strip__value--small"
           style="display: block; text-decoration: none;"
           itemprop="openingHours"
           content="Mo-Fr 07:00-16:00"
         >
           Man–fre
-        </p> -->
+        </p> */}
         <p class="strip__sub">
           {OPENING_HOURS.display.replace("Man–fre: ", "")}
         </p>

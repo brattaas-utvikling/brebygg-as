@@ -17,7 +17,7 @@ import { MILEPÆLER } from "@config/om-oss";
 >
   <div class="container">
 
-    <!-- Header -->
+    {/* Header */}
     <div class="section-header section-header--center reveal">
       <span class="eyebrow">Historikk</span>
       <h2 class="section-title mt-3" id="historie-heading">
@@ -30,7 +30,7 @@ import { MILEPÆLER } from "@config/om-oss";
       </p>
     </div>
 
-    <!-- Tidslinje -->
+    {/* Tidslinje */}
     <div class="tidslinje" role="list" aria-label="Historiske milepæler">
       {MILEPÆLER.map((m, i) => {
         const erHøyre = i % 2 === 0; // Jevne indekser: tekst høyre
@@ -39,12 +39,12 @@ import { MILEPÆLER } from "@config/om-oss";
             class={`tidslinje__item ${erHøyre ? "tidslinje__item--høyre" : "tidslinje__item--venstre"} reveal`}
             role="listitem"
           >
-            <!-- År-boble (alltid midtstilt) -->
+            {/* År-boble (alltid midtstilt) */}
             <div class="tidslinje__aar" aria-label={`År ${m.aar}`}>
               {m.aar}
             </div>
 
-            <!-- Innholdskort -->
+            {/* Innholdskort */}
             <div class="tidslinje__kort">
               <h3 class="tidslinje__tittel">{m.tittel}</h3>
               <p class="tidslinje__tekst">{m.tekst}</p>

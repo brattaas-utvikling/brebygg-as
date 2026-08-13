@@ -56,15 +56,15 @@ const {
   heroImage={heroImage}
   bodyClass={bodyClass}
 >
-  <!-- Ekstra <head>-innhold fra enkeltside (videresending av slot) -->
+  {/* Ekstra <head>-innhold fra enkeltside (videresending av slot) */}
   <slot name="head" slot="head" />
 
-  <!-- Header -->
+  {/* Header */}
   {!hideHeader && <Header />}
 
-  <!-- Sideinnhold -->
+  {/* Sideinnhold */}
   <slot />
 
-  <!-- Footer -->
+  {/* Footer */}
   {!hideFooter && <Footer />}
 </BaseLayout>

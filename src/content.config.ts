@@ -2,7 +2,9 @@
 // Astro Content Collections — Zod-skjemaer for type-trygg innholdshåndtering.
 // Prosjekter kan komme fra lokale MD-filer eller Sanity (via loader).
 
-import { defineCollection, z } from "astro:content";
+import { defineCollection } from "astro:content";
+import { z } from "astro/zod";
+import { glob } from "astro/loaders";
 
 // --------------------------------------------------------------------------
 // Prosjekt-skjema
@@ -82,7 +84,7 @@ export type Prosjekt = z.infer<typeof prosjektSkjema>;
 // --------------------------------------------------------------------------
 
 const prosjekter = defineCollection({
-  type:   "content",
+  loader: glob({ pattern: "**/[^_]*.md", base: "./src/content/prosjekter" }),
   schema: prosjektSkjema,
 });
 
@@ -102,3 +104,15 @@ export const KATEGORIER = [
 ] as const;
 
 export type KategoriId = (typeof KATEGORIER)[number]["id"];
+
+/** Visningsnavn per kategori. Ett sted — v1 hadde denne duplisert i tre filer. */
+export const KATEGORI_LABEL: Record<Prosjekt["kategori"], string> = {
+  nybygg:         "Nybygg",
+  rehabilitering: "Rehabilitering",
+  naeringsbygg:   "Næringsbygg",
+};
+
+export const STATUS_LABEL: Record<Prosjekt["status"], string> = {
+  ferdig:   "Ferdigstilt",
+  pagaende: "Pågående",
+};

@@ -24,13 +24,13 @@ const schema = getKontaktSchema(PAGE_META.kontakt.canonical);
 
 <PageLayout meta={PAGE_META.kontakt} schema={schema}>
   <main id="main-content">
-    <!-- 2. Kompakt page-banner — mørk, ingen bilde, H1 + ingress -->
+    {/* 2. Kompakt page-banner — mørk, ingen bilde, H1 + ingress */}
     <section class="kontakt-banner" aria-labelledby="kontakt-h1">
       <div class="container kontakt-banner__inner">
-        <!-- Brødsti -->
-        <Breadcrumbs />
+        {/* Brødsti */}
+        <Breadcrumbs variant="inv" />
 
-        <!-- Innhold -->
+        {/* Innhold */}
         <div class="kontakt-banner__content">
           <span class="eyebrow eyebrow--inv">Kom i gang</span>
 
@@ -42,7 +42,7 @@ const schema = getKontaktSchema(PAGE_META.kontakt.canonical);
             et møte uten forpliktelser.
           </p>
 
-          <!-- Nøkkelinfo: geografi -->
+          {/* Nøkkelinfo: geografi */}
           <ul class="kontakt-banner__areas" aria-label="Områder vi dekker">
             {
               AREA_SERVED.filter(
@@ -56,7 +56,7 @@ const schema = getKontaktSchema(PAGE_META.kontakt.canonical);
         </div>
       </div>
 
-      <!-- Bølge ned mot strip -->
+      {/* Bølge ned mot strip */}
       <div class="kontakt-banner__wave" aria-hidden="true">
         <svg
           viewBox="0 0 1440 40"
@@ -70,13 +70,13 @@ const schema = getKontaktSchema(PAGE_META.kontakt.canonical);
       </div>
     </section>
 
-    <!-- 3. Strip: 4 kontaktpunkter -->
+    {/* 3. Strip: 4 kontaktpunkter */}
     <KontaktStrip />
 
-    <!-- 4. Kart -->
+    {/* 4. Kart */}
     <KartSeksjon />
 
-    <!-- Ekstra: kort avslutningsblokk med responstid -->
+    {/* Ekstra: kort avslutningsblokk med responstid */}
     <section class="kontakt-avslutning section" aria-label="Responstid">
       <div class="container kontakt-avslutning__inner">
         <div class="kontakt-avslutning__tekst reveal">
@@ -118,7 +118,7 @@ const schema = getKontaktSchema(PAGE_META.kontakt.canonical);
           </ol>
         </div>
 
-        <!-- NAP-gjentakelse (støtter lokal SEO + brukertilgjengelighet) -->
+        {/* NAP-gjentakelse (støtter lokal SEO + brukertilgjengelighet) */}
         <aside
           class="kontakt-nap reveal-d1"
           aria-label="Kontaktinformasjon oppsummert"

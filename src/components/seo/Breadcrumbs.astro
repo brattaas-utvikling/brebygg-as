@@ -1,58 +1,50 @@
 ---
 // src/components/seo/Breadcrumbs.astro
-// Viser brødstis og genererer BreadcrumbList-schema.
-// Brukes på alle sider unntatt forside.
+// Brødsti + BreadcrumbList-schema. Brukes på alle sider unntatt forside.
+//
+// Endringer:
+//   - Tailwind-klassene er byttet mot .brodsti-* i globals.css. De arbitrære
+//     verdiene (text-[var(--color-text-s)]) forsvant med Tailwind, og
+//     brødstien arvet farge fra forelderen — på mørk hero ble den uleselig.
+//   - Ny `labels`-prop. Uten den viste siste ledd rå slug, f.eks.
+//     «tonsberg-tomannsbolig-nybygg» i stedet for prosjekttittelen.
+//   - Ny `variant`-prop for lys tekst på mørk bakgrunn.
 
-import { SITE_URL } from "@config/site";
 import { buildBreadcrumbs } from "@config/navigation";
 
 interface Props {
-  // Automatisk fra Astro.url, eller kan overrides
-  customPath?: string;
-  // Skjul visuelt (bare schema-output)
+  customPath?:     string;
+  /** Overstyrer label for et gitt segment, f.eks. { "tonsberg-tomannsbolig-nybygg": "Tomannsbolig i Tønsberg" } */
+  labels?:         Record<string, string>;
+  variant?:        "default" | "inv";
   visuallyHidden?: boolean;
 }
 
-const { customPath, visuallyHidden = false } = Astro.props;
+const {
+  customPath,
+  labels = {},
+  variant = "default",
+  visuallyHidden = false,
+} = Astro.props;
 
 const path   = customPath ?? Astro.url.pathname;
-const crumbs = buildBreadcrumbs(path);
+const crumbs = buildBreadcrumbs(path, labels);
 ---
 
 {!visuallyHidden && (
-  <nav
-    aria-label="Brødsti"
-    class="py-3 text-sm text-[var(--color-text-s)]"
-  >
-    <ol class="container flex flex-wrap items-center gap-1.5 list-none p-0 m-0">
+  <nav aria-label="Brødsti" class:list={["brodsti", variant === "inv" && "brodsti--inv"]}>
+    <ol class="brodsti__liste container">
       {crumbs.map((crumb, index) => (
-        <li class="flex items-center gap-1.5">
+        <li class="brodsti__item">
           {index > 0 && (
-            <svg
-              width="12"
-              height="12"
-              viewBox="0 0 12 12"
-              fill="none"
-              aria-hidden="true"
-              class="opacity-40"
-            >
-              <path d="M4.5 2.5L7.5 6L4.5 9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true" class="brodsti__pil">
+              <path d="M4.5 2.5L7.5 6L4.5 9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
             </svg>
           )}
           {index < crumbs.length - 1 ? (
-            <a
-              href={crumb.href}
-              class="hover:text-[var(--color-text)] transition-colors duration-150"
-            >
-              {crumb.label}
-            </a>
+            <a href={crumb.href} class="brodsti__lenke">{crumb.label}</a>
           ) : (
-            <span
-              aria-current="page"
-              class="text-[var(--color-text-m)] font-medium"
-            >
-              {crumb.label}
-            </span>
+            <span class="brodsti__navarende" aria-current="page">{crumb.label}</span>
           )}
         </li>
       ))}

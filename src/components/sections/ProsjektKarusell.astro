@@ -11,7 +11,7 @@
 
 // import { getCollection }  from "astro:content";
 import { getCollection, type CollectionEntry } from "astro:content";
-import type { Prosjekt }  from "@content/config";
+import type { Prosjekt }  from "@/content.config";
 
 type ProsjektEntry = {
   slug:  string;
@@ -33,7 +33,7 @@ try {
       return b.data.aar - a.data.aar;
     })
     .slice(0, 8)
-    .map(entry => ({ slug: entry.slug, data: entry.data }));
+    .map(entry => ({ slug: entry.id, data: entry.data }));
 } catch {
   // Content collection ikke klar ennå — vis placeholders
 }
@@ -55,7 +55,7 @@ const harProsjekter = prosjekter.length > 0;
   class="karusell-seksjon section"
   aria-labelledby="karusell-heading"
 >
-  <!-- Seksjonsheader -->
+  {/* Seksjonsheader */}
   <div class="container karusell-header reveal">
     <div class="karusell-header__left">
       <span class="eyebrow">Utvalgte prosjekter</span>
@@ -78,7 +78,6 @@ const harProsjekter = prosjekter.length > 0;
   </div>
 
   {harProsjekter ? (
-    <!-- Karusell -->
     <div
       class="karusell"
       role="region"
@@ -89,11 +88,11 @@ const harProsjekter = prosjekter.length > 0;
         {prosjekter.map((entry, i) => (
           <div class={`karusell__item reveal-d${Math.min(i, 3) as 0|1|2|3}`}>
             <a
-              href={`/prosjekter/${entry.slug}/`}
+              href={`/prosjekter/${entry.id}/`}
               class="prosjekt-card"
               aria-label={`${entry.data.title} — ${entry.data.location}`}
             >
-              <!-- Bilde -->
+              {/* Bilde */}
               <div class="prosjekt-card__img">
                 <img
                   src={entry.data.heroImage.src}
@@ -105,7 +104,7 @@ const harProsjekter = prosjekter.length > 0;
                 />
               </div>
 
-              <!-- Kortinnhold -->
+              {/* Kortinnhold */}
               <div class="prosjekt-card__body">
                 <span class="prosjekt-card__tag">
                   {kategoriLabel(entry.data.kategori)}
@@ -129,7 +128,6 @@ const harProsjekter = prosjekter.length > 0;
       </div>
     </div>
   ) : (
-    <!-- Tom tilstand -->
     <div class="container">
       <div class="karusell-empty">
         <p>Prosjekter legges inn fortløpende.</p>
@@ -194,3 +192,36 @@ const harProsjekter = prosjekter.length > 0;
     padding-bottom: 1rem;
   }
 </style>
+
+<script>
+  // Drag-scroll med mus. Flyttet hit fra BaseLayout.
+  // Touch og tastatur håndteres allerede av native scroll + tabindex="0",
+  // så dette er kun en bekvemmelighet for pekerenheter.
+  document.querySelectorAll<HTMLElement>(".karusell").forEach((el) => {
+    let nede = false;
+    let startX = 0;
+    let startScroll = 0;
+
+    el.addEventListener("pointerdown", (e: PointerEvent) => {
+      if (e.pointerType !== "mouse") return;
+      nede = true;
+      startX = e.clientX;
+      startScroll = el.scrollLeft;
+      el.classList.add("is-dragging");
+    });
+
+    const slipp = () => {
+      if (!nede) return;
+      nede = false;
+      el.classList.remove("is-dragging");
+    };
+    document.addEventListener("pointerup", slipp);
+    document.addEventListener("pointercancel", slipp);
+
+    el.addEventListener("pointermove", (e: PointerEvent) => {
+      if (!nede) return;
+      e.preventDefault();
+      el.scrollLeft = startScroll - (e.clientX - startX) * 1.5;
+    });
+  });
+</script>

@@ -11,9 +11,9 @@ const currentYear = new Date().getFullYear();
 
 <footer class="footer" role="contentinfo" aria-label="Sidefot">
   <div class="container">
-    <!-- Øvre grid: merkevare + navigasjonskolonner -->
+    {/* Øvre grid: merkevare + navigasjonskolonner */}
     <div class="footer__grid">
-      <!-- Kolonne 1: Merkevare og kontaktinfo -->
+      {/* Kolonne 1: Merkevare og kontaktinfo */}
       <div class="footer__brand">
         <a
           href="/"
@@ -37,7 +37,7 @@ const currentYear = new Date().getFullYear();
           og omegn.
         </p>
 
-        <!-- NAP-data med schema.org microdata som backup -->
+        {/* NAP-data med schema.org microdata som backup */}
         <address
           class="not-italic mt-5 space-y-1"
           itemscope
@@ -143,7 +143,7 @@ const currentYear = new Date().getFullYear();
         </address>
       </div>
 
-      <!-- Navigasjonskolonner -->
+      {/* Navigasjonskolonner */}
       {
         FOOTER_NAV.map((group) => (
           <nav aria-label={group.heading}>
@@ -167,7 +167,7 @@ const currentYear = new Date().getFullYear();
       }
     </div>
 
-    <!-- Bunnlinje -->
+    {/* Bunnlinje */}
     <div class="footer__bottom">
       <span>
         &copy; {currentYear}

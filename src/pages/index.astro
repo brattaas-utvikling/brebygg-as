@@ -37,20 +37,18 @@ const schema = getHomeSchema(FAQ_ITEMS);
   heroImage="/images/hero-forside.webp"
 >
   <main id="main-content">
-    <!-- 2. Hero — fullscreen, LCP-kritisk -->
+    {/* 2. Hero — fullscreen, LCP-kritisk */}
     <Hero />
 
-    <!-- 3. Stats-rad — 4 nøkkeltall i hvit seksjon -->
-    <!-- <StatsRow /> -->
+    {/* 3. Stats-rad — 4 nøkkeltall i hvit seksjon */}
+    {/* <StatsRow /> */}
 
-    <!-- 4. Pågående-banner — viser ett aktivt prosjekt -->
-    <!--
-      Oppdater disse verdiene når et nytt prosjekt starter:
+    {/* 4. Pågående-banner — viser ett aktivt prosjekt */}
+    {/* Oppdater disse verdiene når et nytt prosjekt starter:
         projectName: navn på bygget
         location:    sted i Vestfold
         progress:    0–100 (%)
-        dueLabel:    "Q3 2025" e.l.
-    -->
+        dueLabel:    "Q3 2025" e.l. */}
     <OngoingBanner
       projectName="Boligprosjekt"
       location="Sandefjord"
@@ -58,19 +56,19 @@ const schema = getHomeSchema(FAQ_ITEMS);
       dueLabel="Q3 2025"
     />
 
-    <!-- 5. Tjenester — bento-grid på mørk bakgrunn -->
+    {/* 5. Tjenester — bento-grid på mørk bakgrunn */}
     <TjenesterBento />
 
-    <!-- 6. Prosjektkarusell — drag-scroll, fra content collection -->
+    {/* 6. Prosjektkarusell — drag-scroll, fra content collection */}
     <ProsjektKarusell />
 
-    <!-- 7. Om oss teaser — split-layout på grå bakgrunn -->
+    {/* 7. Om oss teaser — split-layout på grå bakgrunn */}
     <OmOssTeaser />
 
-    <!-- 8. Bærekraft — blueprint-seksjon på mørk bakgrunn -->
+    {/* 8. Bærekraft — blueprint-seksjon på mørk bakgrunn */}
     <BaerekraftSeksjon />
 
-    <!-- 9. CTA — kontaktoppfordring, mørk variant -->
+    {/* 9. CTA — kontaktoppfordring, mørk variant */}
     <CtaSeksjon variant="dark" />
   </main>
 </PageLayout>

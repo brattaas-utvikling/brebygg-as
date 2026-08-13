@@ -4,10 +4,15 @@
    Oversatt fra styles-nordic.css til Charcoal Blue + Dusty Olive + Dark Khaki
    ========================================================================== */
 
-@import "tailwindcss";
-
-/* Importer Plus Jakarta Sans fra Google Fonts */
-@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
+/* Ingen @import her.
+   v1 hadde to:
+     1) @import "tailwindcss"  — Tailwind er fjernet. Preflight var uansett
+        overflødig; denne filen har sin egen reset på linje ~90.
+     2) @import url(Google Fonts) — plassert etter regler, og dermed ugyldig
+        CSS. Lightning CSS kastet den i produksjonsbygget uten at noe feilet,
+        så fonten lastet kun via en deferred <link> og ga FOUT på hver side.
+        Fonten selvhostes nå via fonts[] i astro.config.mjs og eksponeres som
+        --font-jakarta. */
 
 /* --------------------------------------------------------------------------
       1. DESIGN TOKENS — CSS CUSTOM PROPERTIES
@@ -43,8 +48,8 @@
   --color-border-l: #e8e4dc; /* Lys: subtile inndelinger */
 
   /* --- Typografi --- */
-  --ff-display: "Plus Jakarta Sans", sans-serif;
-  --ff-body: "Plus Jakarta Sans", sans-serif;
+  --ff-display: var(--font-jakarta), system-ui, sans-serif;
+  --ff-body: var(--font-jakarta), system-ui, sans-serif;
 
   /* --- Avrunding --- */
   --r-sm: 8px;
@@ -2250,3 +2255,135 @@ img {
     transform: translateY(0);
   }
 }
+
+
+/* ==========================================================================
+   UTILITIES
+   Erstatter de 28 Tailwind-klassene som faktisk var i bruk. Tailwind leverte
+   ~47 KB CSS per side for disse. Alt annet i prosjektet er BEM + CSS-variabler,
+   så avhengigheten ga tre stylingsystemer uten tilsvarende gevinst.
+   ========================================================================== */
+
+.antialiased      { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+.scroll-smooth    { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { .scroll-smooth { scroll-behavior: auto; } }
+
+.flex             { display: flex; }
+.flex-wrap        { flex-wrap: wrap; }
+.flex-shrink-0    { flex-shrink: 0; }
+.items-center     { align-items: center; }
+.items-start      { align-items: flex-start; }
+.gap-1\.5        { gap: 0.375rem; }
+.gap-2            { gap: 0.5rem; }
+
+.m-0              { margin: 0; }
+.mt-0\.5         { margin-top: 0.125rem; }
+.mt-1             { margin-top: 0.25rem; }
+.mt-2             { margin-top: 0.5rem; }
+.mt-3             { margin-top: 0.75rem; }
+.mt-4             { margin-top: 1rem; }
+.mt-5             { margin-top: 1.25rem; }
+.mt-6             { margin-top: 1.5rem; }
+.p-0              { padding: 0; }
+.py-3             { padding-block: 0.75rem; }
+
+.list-none        { list-style: none; }
+.font-medium      { font-weight: 500; }
+.text-sm          { font-size: 0.875rem; line-height: 1.6; }
+.opacity-40       { opacity: 0.4; }
+.transition-colors{ transition-property: color, background-color, border-color; transition-timing-function: var(--ease-out); }
+.duration-150     { transition-duration: 150ms; }
+.hover\:text-white:hover { color: #fff; }
+
+/* Skip-link. Erstatter sr-only + focus:not-sr-only-kjeden fra Tailwind. */
+.skip-link {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.skip-link:focus-visible {
+  position: fixed;
+  top: 1rem; left: 1rem;
+  z-index: 200;
+  width: auto; height: auto;
+  margin: 0;
+  padding: 0.5rem 1rem;
+  overflow: visible;
+  clip-path: none;
+  background-color: var(--color-primary);
+  color: #fff;
+  border-radius: var(--r-sm);
+  font-weight: 600;
+  font-size: 0.875rem;
+  box-shadow: var(--shadow-lg);
+}
+
+
+/* ==========================================================================
+   SEKSJONSTEMAER
+   Fem tillatte kombinasjoner av bakgrunn og tekstfarge. Alle består WCAG AA.
+   Klienten får velge mellom disse fra en dropdown i Sanity (fase 7) og kan
+   ikke sette farger fritt — da kan ingen ulovlig kombinasjon oppstå.
+   ========================================================================== */
+
+.sek--lys     { background-color: var(--color-bg); }
+.sek--hvit    { background-color: var(--color-bg-white); }
+.sek--seksjon { background-color: var(--color-bg-section); }
+
+.sek--mork,
+.sek--khaki {
+  color: var(--color-text-inv);
+}
+.sek--mork  { background-color: var(--color-bg-dark); }
+.sek--khaki { background-color: var(--color-bg-dark-2); }
+
+.sek--mork  h1, .sek--mork  h2, .sek--mork  h3,
+.sek--khaki h1, .sek--khaki h2, .sek--khaki h3 { color: var(--color-text-inv); }
+
+.sek--mork  p, .sek--khaki p { color: var(--color-text-inv-m); }
+
+/* ==========================================================================
+   BRØDSTI
+   Erstatter Tailwind-kjeden i Breadcrumbs.astro. text-[var(--color-text-s)]
+   var en arbitrary value og forsvant med Tailwind — brødstien sto igjen uten
+   egen farge og arvet fra forelderen. På den mørke prosjekt-heroen ga det
+   nesten usynlig tekst.
+   ========================================================================== */
+
+.brodsti {
+  padding-block: 0.75rem;
+  font-size: 0.875rem;
+  color: var(--color-text-s);
+}
+
+.brodsti__liste {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.brodsti__item { display: flex; align-items: center; gap: 0.375rem; }
+.brodsti__pil  { opacity: 0.5; flex-shrink: 0; }
+
+.brodsti__lenke {
+  color: inherit;
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+.brodsti__lenke:hover { color: var(--color-text); }
+
+.brodsti__navarende { color: var(--color-text); font-weight: 500; }
+
+/* På mørk bakgrunn — f.eks. prosjekt-heroen. Kontrasten her var det som ga
+   den uleselige brødstien i skjermbildet. */
+.brodsti--inv               { color: rgba(255, 255, 255, 0.75); }
+.brodsti--inv .brodsti__lenke:hover,
+.brodsti--inv .brodsti__navarende { color: #fff; }
+.brodsti--inv .brodsti__pil { opacity: 0.6; }

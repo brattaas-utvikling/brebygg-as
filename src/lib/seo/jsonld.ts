@@ -8,9 +8,13 @@ import {
   NAP,
   OPENING_HOURS,
   AREA_SERVED,
-  COMPANY,
+  HOVEDKOMMUNER,
+  FAKTA_BEKREFTET,
+  SOCIAL,
+  MAPS,
   type FaqItem,
 } from "@config/site";
+import { TEAM } from "@config/om-oss";
 
 // --------------------------------------------------------------------------
 // Hjelpefunksjoner
@@ -30,19 +34,23 @@ function websiteId(): string {
 
 export function buildLocalBusiness() {
   return {
-    "@type":       "LocalBusiness",
+    "@type":       ["LocalBusiness", "GeneralContractor"],
     "@id":         orgId(),
     "name":        NAP.name,
     "url":         SITE_URL,
-    "description": `Totalentreprenør i Vestfold. Nybygg, rehabilitering og næringsbygg i ${AREA_SERVED.slice(0, 4).join(", ")} og omegn.`,
+    "description": `Totalentreprenør i Vestfold. Nybygg, rehabilitering og næringsbygg i ${HOVEDKOMMUNER.join(", ")} og omegn.`,
     "telephone":   NAP.phone,
     "email":       NAP.email,
-    "foundingDate": String(COMPANY.foundingYear),
+    "vatID":       `NO${NAP.orgNumber.replace(/\s/g, "")}MVA`,
+    "numberOfEmployees": {
+      "@type": "QuantitativeValue",
+      "value": FAKTA_BEKREFTET.ansatte,
+    },
     "address": {
-      "@type":         "PostalAddress",
-      "streetAddress":  NAP.address.street,
-      "addressLocality": NAP.address.city,
+      "@type":           "PostalAddress",
+      "streetAddress":   NAP.address.street,
       "postalCode":      NAP.address.postalCode,
+      "addressLocality": NAP.address.city,
       "addressRegion":   NAP.address.region,
       "addressCountry":  NAP.address.country,
     },
@@ -51,18 +59,47 @@ export function buildLocalBusiness() {
       "latitude":  NAP.geo.latitude,
       "longitude": NAP.geo.longitude,
     },
-    "areaServed": AREA_SERVED,
+    "areaServed": AREA_SERVED.map((navn) => ({ "@type": "City", "name": navn })),
     "openingHoursSpecification": OPENING_HOURS.schema,
-    "priceRange": "Kontakt for tilbud",
-    "hasMap": `https://maps.google.com/?q=${encodeURIComponent(
-      `${NAP.address.street}, ${NAP.address.postalCode} ${NAP.address.city}`
-    )}`,
-"sameAs": [
-  "https://www.facebook.com/p/BRE-Bygg-61573773851023/",
-  "https://www.instagram.com/brebyggas/",
-  "https://www.linkedin.com/company/bre-bygg-as/"
-],
+    "hasMap":     MAPS.directUrl,
+    "sameAs":     [SOCIAL.facebook, SOCIAL.instagram, SOCIAL.linkedin],
+
+    // Kontaktpunkt på organisasjonsnivå. Rollebasert med vilje: en sitering som
+    // peker på en persons adresse brekker den dagen personen bytter rolle, og
+    // NAP-konsistens er en av de få målbare faktorene i lokalt søk.
+    "contactPoint": [
+      {
+        "@type":             "ContactPoint",
+        "contactType":       "customer service",
+        "email":             NAP.email,
+        "telephone":         NAP.phone,
+        "areaServed":        "NO",
+        "availableLanguage": "Norwegian",
+      },
+    ],
+
+    // De navngitte personene ligger som employee. Det er dette som gir uttelling
+    // for AEO: «hvem er daglig leder i BRE Bygg» er et spørsmål en språkmodell
+    // kan svare på og sitere. Et påstått prosjekttall er det ikke.
+    "employee": TEAM.map((m) => ({
+      "@type":     "Person",
+      "@id":       `${SITE_URL}/om-oss/#${slugifiser(m.navn)}`,
+      "name":      m.navn,
+      "jobTitle":  m.rolle,
+      "worksFor":  { "@id": orgId() },
+      ...(m.epost ? { "email": m.epost } : {}),
+      ...(m.tlf   ? { "telephone": m.tlf.replace(/\s/g, "") } : {}),
+    })),
   };
+}
+
+/** Stabil ankerid for Person-noder. Brukes også som id på /om-oss/-kortene. */
+export function slugifiser(navn: string): string {
+  return navn
+    .toLowerCase()
+    .replace(/æ/g, "ae").replace(/ø/g, "oe").replace(/å/g, "aa")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
 }
 
 // --------------------------------------------------------------------------
@@ -143,8 +180,8 @@ export function buildAboutPage(canonical: string) {
     "@type":     "AboutPage",
     "@id":       `${canonical}#webpage`,
     "url":        canonical,
-    "name":      `Om BRE Bygg — Totalentreprenør i Vestfold siden ${COMPANY.foundingYear}`,
-    "description": `BRE Bygg har bygget i Vestfold siden ${COMPANY.foundingYear}. Møt menneskene bak prosjektene.`,
+    "name":      "Om BRE Bygg — Totalentreprenør i Vestfold",
+    "description": "Tre personer, én kontaktflate. Møt menneskene bak prosjektene i Vestfold.",
     "inLanguage": "nb-NO",
     "isPartOf":  { "@id": websiteId() },
     "about":     { "@id": orgId() },

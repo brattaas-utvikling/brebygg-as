@@ -1,0 +1,194 @@
+---
+// src/components/prosjekter/ProsjektGalleri.astro
+//
+// Erstatter ProsjektGalleri.tsx (React-øy, client:visible).
+// Målt i v1: 179,7 KB react-dom + 30,7 KB komponent = ~210 KB JavaScript for å
+// filtrere seks kort. Denne versjonen sender ~1 KB.
+//
+// Designvalg:
+//   - Alle kort rendres server-side og ligger alltid i DOM. Filtrering skjer med
+//     hidden-attributtet, ikke ved å bygge om lista. Det gir null layout-arbeid
+//     utover repaint, og alle kort er synlige for crawlere uansett filter.
+//   - Filteret leses fra URL synkront i et modulskript i <head>-rekkefølge, ikke
+//     i en useEffect etter hydrering. Det fjerner glimtet av «Alle» som v1 hadde
+//     før riktig filter ble satt.
+//   - Uten JavaScript vises alle prosjekter og filterlinja skjules. Det er en
+//     gyldig sluttilstand, ikke en ødelagt en.
+//   - aria-pressed på knappene, role="status" + aria-live på telleren. Samme
+//     tilgjengelighetskontrakt som React-versjonen.
+
+import type { CollectionEntry } from "astro:content";
+import { KATEGORIER, KATEGORI_LABEL } from "@/content.config";
+
+interface Props {
+  prosjekter: CollectionEntry<"prosjekter">[];
+}
+
+const { prosjekter } = Astro.props;
+
+function antall(id: string): number {
+  if (id === "alle") return prosjekter.length;
+  return prosjekter.filter((p) => p.data.kategori === id).length;
+}
+---
+
+<section class="section galleri" aria-labelledby="galleri-heading">
+  <div class="container">
+
+    <div class="galleri-toprad">
+      <h2 class="section-title" id="galleri-heading">Prosjekter i Vestfold</h2>
+
+      <div
+        class="filter-bar"
+        role="group"
+        aria-label="Filtrer prosjekter etter kategori"
+        data-filter-bar
+        hidden
+      >
+        {KATEGORIER.map((k) => (
+          <button
+            type="button"
+            class:list={["filter-btn", k.id === "alle" && "filter-btn--aktiv"]}
+            aria-pressed={k.id === "alle" ? "true" : "false"}
+            data-filter={k.id}
+          >
+            {k.label}
+            <span class="filter-btn__count" aria-hidden="true">{antall(k.id)}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+
+    <p class="galleri-teller" role="status" aria-live="polite" aria-atomic="true" data-teller>
+      Viser alle {prosjekter.length} prosjekter
+    </p>
+
+    <div class="galleri-grid" role="list" aria-label="Prosjekter" data-grid>
+      {prosjekter.map((entry) => (
+        <div role="listitem" data-kategori={entry.data.kategori}>
+          <a href={`/prosjekter/${entry.id}/`} class="prosjekt-card">
+            <div class="prosjekt-card__img">
+              <img
+                src={entry.data.heroImage.src}
+                alt={entry.data.heroImage.alt}
+                loading="lazy"
+                decoding="async"
+                width={entry.data.heroImage.width ?? 800}
+                height={entry.data.heroImage.height ?? 500}
+              />
+            </div>
+
+            <div class="prosjekt-card__body">
+              {entry.data.status === "pagaende" && (
+                <div class="prosjekt-card__pagaende">Pågående</div>
+              )}
+
+              <span class="prosjekt-card__tag">
+                {KATEGORI_LABEL[entry.data.kategori]}
+              </span>
+
+              <h3 class="prosjekt-card__title">{entry.data.title}</h3>
+              <p class="prosjekt-card__desc">{entry.data.description}</p>
+
+              <p class="prosjekt-card__meta">
+                <svg width="11" height="11" viewBox="0 0 11 11" fill="none" aria-hidden="true" class="flex-shrink-0">
+                  <path
+                    d="M5.5 0C3.57 0 2 1.57 2 3.5 2 6.13 5.5 11 5.5 11S9 6.13 9 3.5C9 1.57 7.43 0 5.5 0Zm0 4.75c-.69 0-1.25-.56-1.25-1.25S4.81 2.25 5.5 2.25s1.25.56 1.25 1.25-.56 1.25-1.25 1.25Z"
+                    fill="currentColor"
+                  ></path>
+                </svg>
+                {entry.data.location}
+                <span aria-hidden="true">·</span>
+                {entry.data.aar}
+              </p>
+            </div>
+          </a>
+        </div>
+      ))}
+    </div>
+
+    <div class="galleri-tom" role="status" hidden data-tom>
+      <p>Ingen prosjekter i denne kategorien ennå.</p>
+      <button type="button" class="btn btn--outline btn--sm" data-filter="alle">
+        Vis alle prosjekter
+      </button>
+    </div>
+
+  </div>
+</section>
+
+<script>
+  // Kjøres som modul, altså deferred. DOM er ferdig parset når dette kjører,
+  // så vi trenger ingen DOMContentLoaded-lytter.
+  type Etikett = { id: string; label: string };
+
+  const bar    = document.querySelector<HTMLElement>("[data-filter-bar]");
+  const grid   = document.querySelector<HTMLElement>("[data-grid]");
+  const teller = document.querySelector<HTMLElement>("[data-teller]");
+  const tom    = document.querySelector<HTMLElement>("[data-tom]");
+
+  if (bar && grid && teller && tom) {
+    // Filterlinja er hidden i markup. Vi viser den først her, slik at brukere
+    // uten JavaScript aldri ser knapper som ikke gjør noe.
+    bar.hidden = false;
+
+    const knapper = Array.from(
+      document.querySelectorAll<HTMLButtonElement>("[data-filter]")
+    );
+    const kort = Array.from(
+      grid.querySelectorAll<HTMLElement>("[data-kategori]")
+    );
+
+    const etiketter: Etikett[] = knapper
+      .filter((k) => k.closest("[data-filter-bar]"))
+      .map((k) => ({
+        id:    k.dataset.filter ?? "alle",
+        label: (k.childNodes[0]?.textContent ?? "").trim(),
+      }));
+
+    const gyldig = new Set(etiketter.map((e) => e.id));
+
+    function bruk(id: string, skrivTilUrl: boolean): void {
+      const valgt = gyldig.has(id) ? id : "alle";
+      let synlige = 0;
+
+      for (const el of kort) {
+        const treff = valgt === "alle" || el.dataset.kategori === valgt;
+        el.hidden = !treff;
+        if (treff) synlige++;
+      }
+
+      for (const k of knapper) {
+        if (!k.closest("[data-filter-bar]")) continue;
+        const aktiv = k.dataset.filter === valgt;
+        k.classList.toggle("filter-btn--aktiv", aktiv);
+        k.setAttribute("aria-pressed", String(aktiv));
+      }
+
+      const label = etiketter.find((e) => e.id === valgt)?.label ?? valgt;
+      teller!.textContent =
+        valgt === "alle"
+          ? `Viser alle ${synlige} ${synlige === 1 ? "prosjekt" : "prosjekter"}`
+          : `${synlige} ${synlige === 1 ? "prosjekt" : "prosjekter"} — ${label}`;
+
+      grid!.hidden = synlige === 0;
+      tom!.hidden  = synlige !== 0;
+
+      if (skrivTilUrl) {
+        const url = new URL(window.location.href);
+        if (valgt === "alle") url.searchParams.delete("kategori");
+        else                  url.searchParams.set("kategori", valgt);
+        window.history.replaceState({}, "", url.toString());
+      }
+    }
+
+    for (const k of knapper) {
+      k.addEventListener("click", () => bruk(k.dataset.filter ?? "alle", true));
+    }
+
+    // Initialtilstand fra URL. Skjer før første paint fordi skriptet er
+    // deferred og kjører rett etter parsing — ingen synlig omstokking.
+    const fraUrl = new URLSearchParams(window.location.search).get("kategori");
+    if (fraUrl && gyldig.has(fraUrl) && fraUrl !== "alle") bruk(fraUrl, false);
+  }
+</script>
