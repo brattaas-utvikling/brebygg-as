@@ -20,18 +20,38 @@
  */
 
 import { createClient } from "@sanity/client";
+import { loadEnv } from "vite";
 import { readFile, readdir } from "node:fs/promises";
 import { basename, join } from "node:path";
 import matter from "gray-matter";
 
 const TORRKJOR = process.argv.includes("--torrkjor");
 
-const projectId = process.env.PUBLIC_SANITY_PROJECT_ID;
-const dataset   = process.env.PUBLIC_SANITY_DATASET ?? "production";
-const token     = process.env.SANITY_API_WRITE_TOKEN;
+// Skriptet kjøres av tsx, altså utenfor Astro og Vite. Da leser Node ingen
+// .env-fil av seg selv, og process.env inneholder bare det skallet har satt.
+// loadEnv henter fila på samme måte som astro.config.mjs gjør.
+//
+// process.env har forrang, så du fortsatt kan overstyre inline:
+//   SANITY_API_WRITE_TOKEN=sk... npm run migrer
+const env = { ...loadEnv("development", process.cwd(), ""), ...process.env };
 
-if (!projectId) throw new Error("PUBLIC_SANITY_PROJECT_ID mangler.");
-if (!token && !TORRKJOR) throw new Error("SANITY_API_WRITE_TOKEN mangler. Kjør med --torrkjor for å teste uten å skrive.");
+const projectId = env.PUBLIC_SANITY_PROJECT_ID;
+const dataset   = env.PUBLIC_SANITY_DATASET ?? "production";
+const token     = env.SANITY_API_WRITE_TOKEN;
+
+if (!projectId) {
+  throw new Error(
+    "PUBLIC_SANITY_PROJECT_ID mangler.\n" +
+    "Sett den i .env (ikke .env.example), eller inline foran kommandoen."
+  );
+}
+if (!token && !TORRKJOR) {
+  throw new Error(
+    "SANITY_API_WRITE_TOKEN mangler. Den krever rollen Editor — " +
+    "SANITY_API_READ_TOKEN er ikke nok.\n" +
+    "Kjør med --torrkjor for å teste uten å skrive."
+  );
+}
 
 const klient = createClient({ projectId, dataset, token, apiVersion: "2026-08-01", useCdn: false });
 

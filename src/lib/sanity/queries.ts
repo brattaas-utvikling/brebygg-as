@@ -62,28 +62,51 @@ export const Q_FORSIDE = `*[_type == "forside"][0]{
   ${SEO}
 }`;
 
-export const Q_PROSJEKTER = `*[_type == "prosjekt"] | order(aar desc, sortering asc) {
-  "id": slug.current,
-  tittel, ingress, sted, aar, varighet, kategori, status, fremdrift,
-  klient, fremhevet, sortering,
-  nokkeltall[]{ label, verdi },
+/**
+ * Feltene aliases til de engelske navnene Zod-skjemaet bruker.
+ *
+ * Dokumentmodellen i Sanity er på norsk fordi klienten leser den. Skjemaene i
+ * content.config.ts er på engelsk fordi de kom fra markdown-frontmatteren.
+ * GROQ er riktig sted å oversette mellom dem — da slipper vi å endre 40
+ * komponenter, og markdown-fallbacken fungerer fortsatt.
+ *
+ * Uten aliasene feilet parseData på hvert eneste dokument og begge
+ * collections ble tomme, uten at bygget stoppet.
+ */
+export const Q_PROSJEKTER = `*[_type == "prosjekt" && defined(slug.current)] | order(aar desc, sortering asc) {
+  "id":             slug.current,
+  "title":          tittel,
+  "description":    ingress,
+  "location":       sted,
+  aar, varighet, kategori, status, fremdrift, klient,
+  "fremhevet":      coalesce(fremhevet, false),
+  "sortOrder":      coalesce(sortering, 0),
+  "nokkeltall":     coalesce(nokkeltall[]{ label, verdi }, []),
   utfordring, losning, resultat,
-  heroBilde ${BILDE},
-  galleri[] ${BILDE},
+  "heroImage":      heroBilde ${BILDE},
+  "galleri":        coalesce(galleri[] ${BILDE}, []),
   prosjektleder->{ navn, rolle, epost, telefon },
-  "tjeneste": tjeneste->slug.current,
-  ${SEO}
+  "tjeneste":       tjeneste->slug.current,
+  "seoTitle":       seo.tittel,
+  "seoDescription": seo.beskrivelse,
+  "noindex":        coalesce(seo.skjulFraSok, false)
 }`;
 
-export const Q_TJENESTER = `*[_type == "tjeneste"] | order(sortering asc) {
-  "id": slug.current,
-  tittel, kortTittel, beskrivelse, ingress, bentoStorrelse, kategori, sortering,
-  inkludert, brodtekst,
-  prosess[]{ tittel, tekst },
-  faq[]{ sporsmaal, svar },
-  heroBilde ${BILDE},
-  "relaterteProsjekter": relaterteProsjekter[]->slug.current,
-  ${SEO}
+export const Q_TJENESTER = `*[_type == "tjeneste" && defined(slug.current)] | order(sortering asc) {
+  "id":             slug.current,
+  "title":          tittel,
+  kortTittel,
+  "description":    beskrivelse,
+  ingress, kategori, brodtekst,
+  "bentoStorrelse": coalesce(bentoStorrelse, "small"),
+  "sortOrder":      coalesce(sortering, 0),
+  "inkludert":      coalesce(inkludert, []),
+  "prosess":        coalesce(prosess[]{ tittel, tekst }, []),
+  "faq":            coalesce(faq[]{ sporsmaal, svar }, []),
+  "heroImage":      heroBilde ${BILDE},
+  "relaterteProsjekter": coalesce(relaterteProsjekter[]->slug.current, []),
+  "seoTitle":       seo.tittel,
+  "seoDescription": seo.beskrivelse
 }`;
 
 export const Q_TEAM = `*[_type == "teamMedlem"] | order(sortering asc) {

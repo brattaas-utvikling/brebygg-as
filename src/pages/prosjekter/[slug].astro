@@ -20,7 +20,7 @@ import Breadcrumbs                  from "@components/seo/Breadcrumbs.astro";
 
 import { SITE_URL, NAP, type PageMeta } from "@config/site";
 import { getProsjektSlugSchema }    from "@lib/seo/jsonld";
-import { KATEGORI_LABEL, STATUS_LABEL, type Prosjekt, bildeSrc, bildeTekst } from "@/content.config";
+import { KATEGORI_LABEL, STATUS_LABEL, bildeSrc, bildeTekst, tilTekst } from "@/content.config";
 import Bilde from "@components/sanity/Bilde.astro";
 
 // --------------------------------------------------------------------------
@@ -244,19 +244,19 @@ const harCasestudie  = data.utfordring  || data.losning  || data.resultat;
                 {data.utfordring && (
                   <div class="casestudie-kort casestudie-kort--utfordring">
                     <p class="casestudie-kort__label">Utfordring</p>
-                    <p class="casestudie-kort__tekst">{data.utfordring}</p>
+                    <p class="casestudie-kort__tekst">{tilTekst(data.utfordring)}</p>
                   </div>
                 )}
                 {data.losning && (
                   <div class="casestudie-kort casestudie-kort--losning">
                     <p class="casestudie-kort__label">Løsning</p>
-                    <p class="casestudie-kort__tekst">{data.losning}</p>
+                    <p class="casestudie-kort__tekst">{tilTekst(data.losning)}</p>
                   </div>
                 )}
                 {data.resultat && (
                   <div class="casestudie-kort casestudie-kort--resultat">
                     <p class="casestudie-kort__label">Resultat</p>
-                    <p class="casestudie-kort__tekst">{data.resultat}</p>
+                    <p class="casestudie-kort__tekst">{tilTekst(data.resultat)}</p>
                   </div>
                 )}
               </div>
@@ -277,8 +277,7 @@ const harCasestudie  = data.utfordring  || data.losning  || data.resultat;
                   Bilder fra prosjektet
                 </h2>
                 <div class="casestudie-galleri__grid" role="list">
-                  {/* {data.galleri!.map(bilde => ( */}
-                  {data.galleri!.map((bilde: Prosjekt["galleri"][number]) => (
+                  {(data.galleri ?? []).map((bilde) => (
                     <div
                       class="casestudie-galleri__item"
                       role="listitem"

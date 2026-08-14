@@ -33,7 +33,7 @@ const ctaItem = MAIN_NAV.find((item) => item.cta);
         src="/favicon.svg"
         alt={NAP.name}
         class="nav__logo-img"
-        width="120"
+        width="71"
         height="48"
         loading="eager"
         decoding="async"
@@ -136,12 +136,14 @@ const ctaItem = MAIN_NAV.find((item) => item.cta);
   </div>
 </header>
 
-{/* ─────────────────────────────────────────────────────────────────────
+{
+  /* ─────────────────────────────────────────────────────────────────────
      SCROLL-HIDE (portert fra KIL-prosjektet)
      Mobil: header glir opp ved scroll ned, dukker opp ved scroll opp.
      Desktop: alltid synlig.
      Bruker requestAnimationFrame + ticking for å unngå scroll-jank.
-     ───────────────────────────────────────────────────────────────── */}
+     ───────────────────────────────────────────────────────────────── */
+}
 <script>
   (function () {
     const header = document.getElementById("site-header");
@@ -196,6 +198,9 @@ const ctaItem = MAIN_NAV.find((item) => item.cta);
 
   /* Logo-bilde: smooth scale på hover (fra KIL) */
   .nav__logo-img {
+    height: clamp(40px, 4vw, 72px);
+    width: auto;
+    max-width: none;
     transition:
       transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
       opacity 0.2s ease;
@@ -339,8 +344,8 @@ const ctaItem = MAIN_NAV.find((item) => item.cta);
   // Mobilmeny. Flyttet hit fra BaseLayout, der den lastet på alle sider
   // uavhengig av om Header var med i treet.
   const burger = document.querySelector<HTMLElement>(".nav-burger");
-  const links  = document.querySelector<HTMLElement>(".nav__links");
-  const nav    = document.querySelector<HTMLElement>(".nav");
+  const links = document.querySelector<HTMLElement>(".nav__links");
+  const nav = document.querySelector<HTMLElement>(".nav");
 
   if (burger && links) {
     const lukk = () => {
@@ -358,7 +363,9 @@ const ctaItem = MAIN_NAV.find((item) => item.cta);
       links.classList.contains("is-open") ? lukk() : apne();
     });
 
-    links.querySelectorAll("a").forEach((a) => a.addEventListener("click", lukk));
+    links
+      .querySelectorAll("a")
+      .forEach((a) => a.addEventListener("click", lukk));
 
     document.addEventListener("click", (e) => {
       if (nav && !nav.contains(e.target as Node)) lukk();
