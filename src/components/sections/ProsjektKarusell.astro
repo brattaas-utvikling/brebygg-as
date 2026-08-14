@@ -91,7 +91,7 @@ const harProsjekter = prosjekter.length > 0;
     >
       <div class="karusell__track">
         {prosjekter.map((entry, i) => (
-          <div class={`karusell__item reveal-d${Math.min(i, 3) as 0|1|2|3}`}>
+          <div class={`karusell__item reveal${i === 0 ? "" : `-d${Math.min(i, 3)}`}`}>
             <a
               href={`/prosjekter/${entry.id}/`}
               class="prosjekt-card"

@@ -81,7 +81,7 @@ const { skjulTopp = false } = Astro.props;
     <div class="tjeneste-grid" role="list" aria-label="Tjenester">
       {cards.map((card, i) => (
         <article
-          class={`tjeneste-card ${card.cardClass} reveal-d${Math.min(i, 2) as 0|1|2}`}
+          class={`tjeneste-card ${card.cardClass} reveal${i === 0 ? "" : `-d${Math.min(i, 2)}`}`}
           role="listitem"
           aria-label={card.title}
         >

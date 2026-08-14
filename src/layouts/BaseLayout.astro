@@ -122,10 +122,23 @@ const ogImageUrl   = absoluteUrl(resolved.ogImage);
     <slot />
 
     <script>
-      // Scroll-reveal.
-      // Bruker animation-timeline: view() der nettleseren støtter det, og faller
-      // tilbake til IntersectionObserver ellers.
-      if (!(typeof CSS !== "undefined" && CSS.supports("animation-timeline", "view()"))) {
+      // Scroll-reveal, med sikkerhetsnett.
+      //
+      // Reveal-klassene starter på opacity: 0 og settes til 1 av en
+      // scroll-drevet animasjon. Går animasjonen aldri i gang, blir innholdet
+      // stående usynlig — og det har skjedd: seksjoner forsvant fra forsiden
+      // uten at noe feilet, fordi `animation-range: entry` aldri ble passert.
+      //
+      // Regelen her er at innhold vinner over bevegelse. Er et element
+      // fortsatt usynlig etter at siden har lastet, fjernes reveal-klassen og
+      // elementet vises. Da kan en dekorativ effekt aldri skjule noe.
+
+      const REVEAL = ".reveal, .reveal-d1, .reveal-d2, .reveal-d3";
+
+      const harScrollTimeline =
+        typeof CSS !== "undefined" && CSS.supports("animation-timeline", "view()");
+
+      if (!harScrollTimeline) {
         const observer = new IntersectionObserver(
           (entries) => {
             for (const entry of entries) {
@@ -136,11 +149,30 @@ const ogImageUrl   = absoluteUrl(resolved.ogImage);
           },
           { threshold: 0.08, rootMargin: "0px 0px -48px 0px" }
         );
-
-        document
-          .querySelectorAll(".reveal, .reveal-d1, .reveal-d2, .reveal-d3")
-          .forEach((el) => observer.observe(el));
+        document.querySelectorAll(REVEAL).forEach((el) => observer.observe(el));
       }
+
+      // Sikkerhetsnettet. Kjøres etter load, og én gang til ved første scroll
+      // i tilfelle noe var midt i en animasjon på første måling.
+      function tvingSynlig() {
+        for (const el of document.querySelectorAll<HTMLElement>(REVEAL)) {
+          if (parseFloat(getComputedStyle(el).opacity) > 0.05) continue;
+          el.classList.remove("reveal", "reveal-d1", "reveal-d2", "reveal-d3");
+          el.classList.add("is-visible");
+          el.style.opacity = "1";
+          el.style.transform = "none";
+        }
+      }
+
+      window.addEventListener("load", () => {
+        // To bilder: rett etter load, og etter at eventuelle
+        // entry-animasjoner har hatt tid til å fullføre.
+        setTimeout(tvingSynlig, 400);
+        window.addEventListener("scroll", () => setTimeout(tvingSynlig, 600), {
+          once: true,
+          passive: true,
+        });
+      });
     </script>
 
     <script>
