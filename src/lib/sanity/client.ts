@@ -33,10 +33,25 @@ export function sanityKlient(): SanityClient {
     projectId:  SANITY_PROJECT_ID,
     dataset:    SANITY_DATASET,
     apiVersion: "2026-08-01",
+
     // CDN av ved bygg: vi vil ha nyeste innhold umiddelbart etter publisering,
     // ikke det som lå i kanten for fem minutter siden.
-    useCdn:     false,
-    ...(SANITY_TOKEN ? { token: SANITY_TOKEN, perspective: "published" as const } : {}),
+    useCdn: false,
+
+    // ALLTID published, uavhengig av token.
+    //
+    // Dette sto tidligere inne i token-betingelsen, og det ga en feil som bare
+    // viste seg i produksjon: for apiVersion fra 2025 og senere er API-ets
+    // standardperspektiv `drafts`. Uten token er utkast ikke lesbare, så
+    // spørringen returnerte tomt i stedet for å feile.
+    //
+    // Lokalt fantes tokenet og alt virket. På Vercel gjorde det ikke, og
+    // bygget deployet et nettsted uten prosjekter og tjenester — grønt.
+    perspective: "published",
+
+    // Kun nødvendig for private datasett, eller for å lese utkast i
+    // forhåndsvisning. Skal ikke være påkrevd for et vanlig bygg.
+    ...(SANITY_TOKEN ? { token: SANITY_TOKEN } : {}),
   });
   return klient;
 }

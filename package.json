@@ -1,6 +1,6 @@
 {
   "name": "brebygg-no",
-  "version": "2.0.6",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
   "engines": {
@@ -16,7 +16,8 @@
     "migrer": "tsx scripts/migrer-innhold.ts",
     "migrer:torr": "tsx scripts/migrer-innhold.ts --torrkjor",
     "studio": "sanity dev",
-    "test:skjema": "tsx scripts/test-skjema.ts"
+    "test:skjema": "tsx scripts/test-skjema.ts",
+    "sjekk:sanity": "tsx scripts/sjekk-sanity.ts"
   },
   "dependencies": {
     "@astrojs/react": "^6.0.2",

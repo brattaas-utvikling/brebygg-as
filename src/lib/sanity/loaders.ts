@@ -27,6 +27,27 @@ function sanityLoader(navn: string, query: string): Loader {
       logger.info(`Henter ${navn} fra Sanity…`);
       const rader = await sanityKlient().fetch<Rad[]>(query);
 
+      // Null dokumenter er alltid feil når Sanity er konfigurert.
+      //
+      // Uten dette rapporterte bygget «Complete!» med 7 sider i stedet for 16,
+      // og deployet et nettsted uten prosjekter og tjenester. Astro logger en
+      // advarsel om tomme collections, men lar bygget passere.
+      //
+      // Et tomt datasett er en feilkonfigurasjon. Et datasett som ikke er tomt
+      // og likevel svarer tomt, er et tilgangs- eller perspektivproblem.
+      // Begge skal stoppe deployen, ikke gå ut som grønt.
+      if (rader.length === 0) {
+        throw new Error(
+          `Sanity returnerte 0 ${navn}.\n\n` +
+          `Sjekk i rekkefølge:\n` +
+          `  1. Er dokumentene PUBLISERT i Studio, ikke bare lagret som utkast?\n` +
+          `  2. Stemmer PUBLIC_SANITY_DATASET? Den skal være datasettnavnet ` +
+          `(f.eks. "production"), ikke projectId.\n` +
+          `  3. Er datasettet privat? Da kreves SANITY_API_READ_TOKEN, også i Vercel.\n\n` +
+          `Verifiser med:  npm run sjekk:sanity`
+        );
+      }
+
       store.clear();
 
       for (const rad of rader) {
