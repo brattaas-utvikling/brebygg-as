@@ -30,7 +30,17 @@ const lokaltBilde = z.object({
 });
 
 const sanityBilde = z.object({
-  _type: z.literal("image").optional(),
+  // _type er IKKE en literal.
+  //
+  // Sanity-typen heter «bilde», så Studio skriver _type: "bilde" på hvert
+  // bilde kunden laster opp. Migreringsskriptet skrev "image". Migrerte bilder
+  // validerte derfor, mens det første bildet kunden lastet opp selv brakk
+  // bygget.
+  //
+  // Det er `asset` som avgjør om bildet kommer fra Sanity — se erSanityBilde().
+  // _type sier bare hvilket skjemanavn feltet har, og det kan endres i Studio
+  // uten at formen på dataene endres.
+  _type: z.string().optional(),
   alt:   z.string(),
   bildetekst: z.string().nullish(),
   asset: z.object({

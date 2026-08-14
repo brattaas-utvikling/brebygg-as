@@ -25,8 +25,10 @@ import { prosjektSkjema, tjenesteSkjema } from "../src/content/skjema";
 // Byggeklosser
 // ---------------------------------------------------------------------------
 
+// _type: "bilde" — det Studio faktisk skriver. Testen brukte "image", som
+// migreringen skrev, og fanget derfor ikke at nye opplastinger brakk bygget.
 const sanityBilde = {
-  _type: "image",
+  _type: "bilde",
   alt: "Nybygg under oppføring i Tønsberg",
   bildetekst: "Fasaden mot sør",
   asset: {
@@ -76,7 +78,8 @@ const tilfeller = [
       losning: portableText,
       resultat: portableText,
       heroImage: sanityBilde,
-      galleri: [sanityBilde, sanityBilde],
+      // Blandet: ett migrert bilde med _type "image", ett opplastet med "bilde".
+      galleri: [sanityBilde, { ...sanityBilde, _type: "image" }],
       seoTitle: "Tomannsbolig i Tønsberg — BRE Bygg",
       seoDescription: "Nybygg av tomannsbolig i Tønsberg, levert som totalentreprise.",
     },

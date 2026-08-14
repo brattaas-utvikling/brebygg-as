@@ -98,8 +98,8 @@ import { VERDIER } from "@config/om-oss";
     background: linear-gradient(
       to right,
       transparent,
-      rgba(132, 133, 110, 0.25) 30%,
-      rgba(132, 133, 110, 0.25) 70%,
+      rgba(var(--rgb-primary), 0.25) 30%,
+      rgba(var(--rgb-primary), 0.25) 70%,
       transparent
     );
   }
@@ -123,7 +123,7 @@ import { VERDIER } from "@config/om-oss";
     border-radius:    var(--r-lg);
     overflow:         hidden;
     background-color: #243545;
-    border:           1px solid rgba(245, 243, 239, 0.07);
+    border:           1px solid rgba(var(--rgb-inv), 0.07);
     transition:
       transform    var(--transition-base),
       box-shadow   var(--transition-base),
@@ -133,7 +133,7 @@ import { VERDIER } from "@config/om-oss";
   .vd-kort:hover {
     transform:    translateY(-3px);
     box-shadow:   0 20px 48px rgba(0, 0, 0, 0.35);
-    border-color: rgba(132, 133, 110, 0.2);
+    border-color: rgba(var(--rgb-primary), 0.2);
   }
 
   @media (max-width: 767px) {
@@ -180,7 +180,7 @@ import { VERDIER } from "@config/om-oss";
     background: linear-gradient(
       to right,
       transparent 50%,
-      rgba(30, 46, 58, 0.35) 100%
+      rgba(var(--rgb-dark-2), 0.35) 100%
     );
     pointer-events: none;
   }
@@ -197,7 +197,7 @@ import { VERDIER } from "@config/om-oss";
     background: linear-gradient(
       to bottom,
       var(--color-primary),
-      rgba(132, 133, 110, 0.25)
+      rgba(var(--rgb-primary), 0.25)
     );
     /*
       Matcher diagonalen:
@@ -251,7 +251,7 @@ import { VERDIER } from "@config/om-oss";
     font-weight:    600;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color:          rgba(245, 243, 239, 0.4);
+    color:          rgba(var(--rgb-inv), 0.4);
   }
 
   /* Tittel */
@@ -362,7 +362,7 @@ import { VERDIER } from "@config/om-oss";
     height:     120%;
     background: radial-gradient(
       ellipse at 70% 30%,
-      rgba(132, 133, 110, 0.07) 0%,
+      rgba(var(--rgb-primary), 0.07) 0%,
       transparent 65%
     );
     pointer-events: none;
@@ -416,8 +416,8 @@ import { VERDIER } from "@config/om-oss";
   }
 
   .verdi-kort:hover {
-    background-color: rgba(132, 133, 110, 0.07);
-    border-color:     rgba(132, 133, 110, 0.2);
+    background-color: rgba(var(--rgb-primary), 0.07);
+    border-color:     rgba(var(--rgb-primary), 0.2);
     transform:        translateY(-2px);
   }
 
@@ -434,7 +434,7 @@ import { VERDIER } from "@config/om-oss";
     display:         flex;
     align-items:     center;
     justify-content: center;
-    background-color: rgba(132, 133, 110, 0.15);
+    background-color: rgba(var(--rgb-primary), 0.15);
     border-radius:   var(--r-md);
     margin-top:      0.125rem;
   }
@@ -457,7 +457,7 @@ import { VERDIER } from "@config/om-oss";
     border-radius: inherit;
     background: radial-gradient(
       circle at 50% 50%,
-      rgba(132, 133, 110, 0.3) 0%,
+      rgba(var(--rgb-primary), 0.3) 0%,
       transparent 70%
     );
     opacity: 0;

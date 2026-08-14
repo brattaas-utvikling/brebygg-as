@@ -103,7 +103,10 @@ async function lastOppBilde(sti: string, alt: string): Promise<Record<string, un
   const assetId = bildeCache.get(sti);
   if (!assetId) return undefined;
 
-  return { _type: "image", alt, asset: { _type: "reference", _ref: assetId } };
+  // "bilde" og ikke "image": det er navnet på Sanity-typen vår, og det er det
+  // Studio skriver når kunden laster opp et bilde selv. Skriver migreringen
+  // noe annet, får datasettet to former for samme ting.
+  return { _type: "bilde", alt, asset: { _type: "reference", _ref: assetId } };
 }
 
 /** Markdown → Portable Text. Bevisst enkel: avsnitt og overskrifter. */
