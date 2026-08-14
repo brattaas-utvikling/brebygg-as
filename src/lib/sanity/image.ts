@@ -41,3 +41,28 @@ export type BildeMeta = {
   /** Base64 20×20-forhåndsvisning fra Sanity. Gir blur-up uten ekstra forespørsel. */
   lqip?: string;
 };
+
+/**
+ * Attributter for <link rel="preload"> som matcher det <SanityBilde> faktisk
+ * ber om.
+ *
+ * Bakgrunn: BaseLayout preloadet den utransformerte asset-URL-en, mens
+ * SanityBilde henter transformerte varianter med ?w=…&auto=format. To ulike
+ * URL-er, altså to nedlastinger — originalen på 1624 px ble lastet ned og
+ * aldri brukt. Nettleseren advarte om det i konsollen.
+ *
+ * imagesrcset og imagesizes må være identiske med dem på <img>, ellers velger
+ * preload-en en annen kandidat enn bildet gjør.
+ */
+export function heroPreload(
+  kilde: Image & { asset?: { metadata?: { dimensions?: { width: number } } } },
+  sizes: string,
+): { href: string; imagesrcset: string; imagesizes: string } | null {
+  if (!kilde?.asset) return null;
+  const maksBredde = kilde.asset.metadata?.dimensions?.width ?? 2000;
+  return {
+    href:        bildeUrl(kilde, Math.min(1200, maksBredde)),
+    imagesrcset: byggSrcset(kilde, maksBredde),
+    imagesizes:  sizes,
+  };
+}

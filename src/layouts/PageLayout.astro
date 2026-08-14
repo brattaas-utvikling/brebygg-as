@@ -15,6 +15,7 @@
 //     <main id="main-content">…</main>
 //   </PageLayout>
 
+import type { Bilde } from "@/content.config";
 import BaseLayout     from "@layouts/BaseLayout.astro";
 import Header         from "@components/layout/Header.astro";
 import Footer         from "@components/layout/Footer.astro";
@@ -30,8 +31,11 @@ interface Props {
   meta:       PageMeta;
   schema:     Record<string, unknown>;
 
-  // LCP-optimalisering: send heroImage URL videre til BaseLayout for preload
-  heroImage?: string;
+  // LCP-optimalisering: sendes videre til BaseLayout for preload.
+  // Streng for lokale filer, bildeobjekt for Sanity — BaseLayout trenger
+  // metadata for å bygge en preload som matcher <SanityBilde>.
+  heroImage?: string | (Bilde & Record<string, unknown>);
+  heroSizes?: string;
 
   // Ekstra klasser på <body> (valgfritt)
   bodyClass?: string;
@@ -45,6 +49,7 @@ const {
   meta,
   schema,
   heroImage,
+  heroSizes,
   bodyClass    = "",
   hideHeader   = false,
   hideFooter   = false,
@@ -55,6 +60,7 @@ const {
   meta={meta}
   schema={schema}
   heroImage={heroImage}
+  heroSizes={heroSizes}
   bodyClass={bodyClass}
 >
   {/* Ekstra <head>-innhold fra enkeltside (videresending av slot) */}

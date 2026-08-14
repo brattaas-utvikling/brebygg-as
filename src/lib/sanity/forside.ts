@@ -5,6 +5,7 @@
 
 import { BRUKER_SANITY, sanityKlient } from "./client";
 import { Q_FORSIDE } from "./queries";
+import type { Bilde } from "@/content.config";
 import { FAQ_ITEMS, NAP } from "@config/site";
 
 export type Seksjon = Record<string, any> & { _type: string; _key: string; tema?: string };
@@ -13,7 +14,7 @@ export type ForsideData = {
   hero: {
     tittel: string;
     ingress: string;
-    bilde?: unknown;
+    bilde?: Bilde & Record<string, unknown>;
     knapper?: { tekst: string; url: string; stil?: string }[];
   };
   seksjoner: Seksjon[];

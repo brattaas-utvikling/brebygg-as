@@ -17,7 +17,6 @@ import Seksjoner    from "@components/forside/Seksjoner.astro";
 import { PAGE_META, type PageMeta } from "@config/site";
 import { getHomeSchema } from "@lib/seo/jsonld";
 import { hentForside, faqPaaSiden } from "@lib/sanity/forside";
-import { bildeSrc } from "@/content.config";
 
 const forside = await hentForside();
 
@@ -33,9 +32,9 @@ const meta: PageMeta = {
   noindex:     forside.seo?.skjulFraSok ?? false,
 };
 
-const heroBilde = forside.hero.bilde
-  ? bildeSrc(forside.hero.bilde as never)
-  : "/images/hero-forside.webp";
+// Selve bildeobjektet, ikke en URL-streng: BaseLayout trenger metadata for å
+// bygge en preload som matcher det <SanityBilde> ber om.
+const heroBilde = forside.hero.bilde ?? "/images/hero-forside.webp";
 ---
 
 <PageLayout meta={meta} schema={schema} heroImage={heroBilde}>

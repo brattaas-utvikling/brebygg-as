@@ -18,6 +18,8 @@
 import type { PageMeta } from "@config/site";
 import { SEO_DEFAULTS, NAP } from "@config/site";
 import { resolveMeta, absoluteUrl } from "@lib/seo/meta";
+import { erSanityBilde, type Bilde } from "@/content.config";
+import { heroPreload } from "@lib/sanity/image";
 import JsonLd from "@components/seo/JsonLd.astro";
 import { Font } from "astro:assets";
 import "@styles/globals.css";
@@ -25,12 +27,25 @@ import "@styles/globals.css";
 interface Props {
   meta:       PageMeta;
   schema:     Record<string, unknown>;
-  /** URL til LCP-bildet. Preloades med høy prioritet. */
-  heroImage?: string;
+  /**
+   * LCP-bildet. Preloades med høy prioritet.
+   *
+   * Tar imot enten en streng (lokal fil) eller et Sanity-bilde. For Sanity
+   * bygges imagesrcset som er identisk med det <SanityBilde> ber om — ellers
+   * laster nettleseren originalen i tillegg til den transformerte varianten.
+   */
+  heroImage?: string | (Bilde & Record<string, unknown>);
+  /** Må matche sizes på hero-bildet, ellers velger preload en annen kandidat. */
+  heroSizes?: string;
   bodyClass?: string;
 }
 
-const { meta, schema, heroImage, bodyClass = "" } = Astro.props;
+const { meta, schema, heroImage, heroSizes = "100vw", bodyClass = "" } = Astro.props;
+
+const heroPre =
+  heroImage && typeof heroImage !== "string" && erSanityBilde(heroImage)
+    ? heroPreload(heroImage as never, heroSizes)
+    : null;
 
 const resolved     = resolveMeta(meta);
 const canonicalUrl = absoluteUrl(resolved.canonical);
@@ -70,8 +85,12 @@ const ogImageUrl   = absoluteUrl(resolved.ogImage);
     <meta name="twitter:description" content={resolved.description} />
     <meta name="twitter:image"       content={ogImageUrl} />
 
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" type="image/x-icon"  href="/favicon.ico" sizes="any" />
+    {/* Faviconet er fjellmerket alene, kvadratisk. /favicon.svg er hele
+        ordmerket i 1536×1039 — det er headerlogoen, og den blir uleselig
+        letterboxet i en 16 px fane. favicon.ico og apple-touch-icon.png
+        manglet helt og ga 404 på hver sidelast. */}
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" href="/favicon-96.png" sizes="96x96" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="theme-color" content="#2C4251" />
@@ -80,9 +99,18 @@ const ogImageUrl   = absoluteUrl(resolved.ogImage);
         den kritiske vekten og en metrisk justert fallback. */}
     <Font cssVariable="--font-jakarta" preload />
 
-    {heroImage && (
+    {heroPre ? (
+      <link
+        rel="preload"
+        as="image"
+        href={heroPre.href}
+        imagesrcset={heroPre.imagesrcset}
+        imagesizes={heroPre.imagesizes}
+        fetchpriority="high"
+      />
+    ) : typeof heroImage === "string" && heroImage ? (
       <link rel="preload" as="image" href={heroImage} fetchpriority="high" />
-    )}
+    ) : null}
 
     <JsonLd schema={schema} />
     <slot name="head" />
