@@ -35,7 +35,26 @@ interface Props {
   imgHeight?: number;
   stats?: Stat[];
   imgFade?: boolean;
+  /**
+   * Bakgrunnen til seksjonen rett under. Bølgen fylles med denne fargen.
+   *
+   * Bølgen var hardkodet til var(--color-bg) (#f5f3ef), mens seksjonen under
+   * på /om-oss/ og /kontakt/ er var(--color-bg-white) (#ffffff). Kurven ble
+   * dermed en synlig off-white flate mot en hvit seksjon.
+   *
+   * Verdiene er de samme fem som sek--*-klassene og som `tema`-feltet i Sanity,
+   * så når klienten bytter tema på seksjonen under (fase 7), følger bølgen med.
+   */
+  nesteTema?: "lys" | "hvit" | "seksjon" | "mork" | "khaki";
 }
+
+const TEMA_BAKGRUNN = {
+  lys:     "var(--color-bg)",
+  hvit:    "var(--color-bg-white)",
+  seksjon: "var(--color-bg-section)",
+  mork:    "var(--color-bg-dark)",
+  khaki:   "var(--color-bg-dark-2)",
+} as const;
 
 const {
   eyebrow,
@@ -49,6 +68,7 @@ const {
   imgHeight = 960,
   stats = [],
   imgFade = false,
+  nesteTema = "lys",
 } = Astro.props;
 ---
 
@@ -121,7 +141,7 @@ const {
     >
       <path
         d="M0 56 C360 0 1080 0 1440 56 L1440 56 L0 56 Z"
-        fill="var(--color-bg)"></path>
+        fill={TEMA_BAKGRUNN[nesteTema]}></path>
     </svg>
   </div>
 </section>

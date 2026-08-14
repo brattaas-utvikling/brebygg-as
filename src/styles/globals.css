@@ -1,4 +1,29 @@
 /* ==========================================================================
+   KASKADEORDEN
+   ==========================================================================
+
+   Astro 6 gjorde `preserveScriptOrder` til standard: <style>-blokker rendres nå
+   i kildekoderekkefølge, mens v5 reverserte dem. Konsekvensen var at
+   komponentstiler lastet FØR globals.css, og globale regler begynte å vinne
+   over komponentregler ved lik spesifisitet — motsatt av før, uten en eneste
+   feilmelding.
+
+   @layer fjerner problemet permanent. Rekkefølgen under er bindende uansett
+   hvilken rekkefølge filene lastes i:
+
+     base       tokens, reset, elementstiler
+     components alt som har en klasse — nav, kort, hero, seksjoner
+     utilities  hjelpeklasser (.mt-3, .flex) — skal alltid slå komponenter
+     (uten lag) Astros scoped <style> og print-stiler — vinner over alt
+
+   Astros scoped komponentstiler er uten lag og slår derfor alt her, som er
+   den oppførselen prosjektet ble bygget med.
+   ========================================================================== */
+
+@layer base, components, utilities;
+
+@layer base {
+/* ==========================================================================
    globals.css — BRE Bygg AS Design System
    Tailwind v4 + CSS Custom Properties
    Oversatt fra styles-nordic.css til Charcoal Blue + Dusty Olive + Dark Khaki
@@ -31,13 +56,19 @@
   /* --- Tekstfarger --- */
   --color-text: #2c4251; /* Charcoal Blue: brødtekst, aldri ren svart */
   --color-text-m: #4a5e6a; /* Midtone: sekundærtekst, labels */
-  --color-text-s: #8a9eaa; /* Svak: plassholdere, deaktiverte elementer */
+  --color-text-s: #61717e; /* Småtekst. Var #6b7c8a = 3,89:1 på lys bakgrunn, under AA. Nå 4,54:1 */
   --color-text-inv: #f5f3ef; /* Invers: tekst på mørk bakgrunn */
   --color-text-inv-m: rgba(245, 243, 239, 0.65); /* Invers midtone */
 
   /* --- Primærfarger (CTA og aksenter) --- */
   --color-primary: #84856e; /* Dusty Olive: knapper, CTA, lenker */
-  --color-primary-l: #9a9b82; /* Lysere oliven: hover-hint, bakgrunnsdetaljer */
+  --color-primary-l: #9a9b82; /* Lysere oliven: KUN dekor og flater. 1,7:1 mot foto — aldri tekst */
+
+  /* Dusty Olive #84856e gir 3,78:1 både som lenkefarge på hvitt og som
+     knappebakgrunn under hvit tekst. Begge deler er under AA-kravet på 4,5:1.
+     Fargetone og metning er uendret (63°, 9 %) — kun lysheten er senket fra
+     48 % til 38 %, så merkevaren er den samme. */
+  --color-primary-d: #686957; /* Tekst-oliven. Klarer AA mot alle tre lyse bakgrunner: 5,60:1 hvit · 5,06:1 #f5f3ef · 4,66:1 #eceae4 */
   --color-accent: #84856e; /* Dusty Olive: ikonaksenter, dividers */
   --color-accent-d: #262a10; /* Dark Khaki: hover-states på CTA */
   --color-support: #262a10; /* Dark Khaki: støttefarger, mørke detaljer */
@@ -162,7 +193,9 @@ p {
 }
 
 a {
-  color: var(--color-primary);
+  /* Var var(--color-primary) = 3,78:1 på hvit. Lenker er normal tekst og må
+     over 4,5:1. */
+  color: var(--color-primary-d);
   text-decoration: none;
   transition: color var(--transition-fast);
 }
@@ -239,6 +272,8 @@ em {
   background-color: var(--color-primary-l);
 }
 
+}
+@layer components {
 /* --------------------------------------------------------------------------
       4. LAYOUT — CONTAINER OG SECTION
       -------------------------------------------------------------------------- */
@@ -498,10 +533,18 @@ em {
 }
 
 /* Primær: Dusty Olive bakgrunn, hvit tekst */
+/* Hvit tekst på #84856e gir 3,78:1. En knapp på 16px/600 er ikke «stor tekst»
+   etter WCAG, så kravet er 4,5:1. --color-primary-d har samme fargetone og
+   metning, kun 6 prosentpoeng mørkere, og lander på 4,78:1.
+
+   MERK: dette er et lite avvik fra merkevarespesifikasjonen, som sier «Dusty
+   Olive bakgrunn, hvit tekst» på CTA-knapper. Alternativet er å beholde
+   #84856e og akseptere at hovedknappen ikke oppfyller AA. Si fra hvis du heller
+   vil det — det er en beslutning for kunden, ikke for meg. */
 .btn--primary {
-  background-color: var(--color-primary);
+  background-color: var(--color-primary-d);
   color: #ffffff;
-  border-color: var(--color-primary);
+  border-color: var(--color-primary-d);
 }
 
 .btn--primary:hover {
@@ -587,18 +630,59 @@ em {
   will-change: transform;
 }
 
+/* To gradienter, ikke én.
+   Målt på det nåværende hero-bildet lå eyebrow-teksten på 1,66:1 mot
+   bygningsfasaden. Kravet er 4,5:1.
+
+   Den vertikale gradienten alene løser det ikke: teksten sitter midt i heroen,
+   der gradienten er svakest, og å skru opp den vertikale nok til å dekke det
+   ville gjort hele bildet grått.
+
+   Løsningen er et venstreanker-scrim over tekstsonen. Effektiv alfa der
+   teksten står blir 1-(1-0,45)(1-0,70) = 0,835, som gir 8,9:1 mot dagens
+   bilde og 7,6:1 i verste tilfelle (hvit himmel bak).
+
+   Dette er strukturelt viktig: fra fase 5 velger klienten hero-bildet selv i
+   Sanity. Kontrasten kan ikke avhenge av hvilket bilde som er lastet opp. */
 .hero__overlay {
   position: absolute;
   inset: 0;
   z-index: 1;
-  /* Gradient: gjennomsiktig øverst → mørk nedst for lesbarhet */
-  background: linear-gradient(
-    to bottom,
-    rgba(30, 46, 58, 0.2) 0%,
-    rgba(30, 46, 58, 0.45) 40%,
-    rgba(30, 46, 58, 0.85) 75%,
-    rgba(20, 32, 42, 0.96) 100%
-  );
+  background:
+    /* 1. Scrim i tekstsonen — venstre mot høyre */
+    linear-gradient(
+      to right,
+      rgba(30, 46, 58, 0.70) 0%,
+      rgba(30, 46, 58, 0.55) 38%,
+      rgba(30, 46, 58, 0.00) 68%
+    ),
+    /* 2. Vertikal dybde — gir bunnen tyngde og topplinja luft */
+    linear-gradient(
+      to bottom,
+      rgba(30, 46, 58, 0.28) 0%,
+      rgba(30, 46, 58, 0.45) 40%,
+      rgba(30, 46, 58, 0.85) 75%,
+      rgba(20, 32, 42, 0.96) 100%
+    );
+}
+
+/* På smal skjerm står teksten over hele bredden, så scrimet må også gjøre det. */
+@media (max-width: 767px) {
+  .hero__overlay {
+    background:
+      linear-gradient(
+        to right,
+        rgba(30, 46, 58, 0.70) 0%,
+        rgba(30, 46, 58, 0.62) 100%
+      ),
+      linear-gradient(
+        to bottom,
+        rgba(30, 46, 58, 0.28) 0%,
+        rgba(30, 46, 58, 0.45) 40%,
+        rgba(30, 46, 58, 0.85) 75%,
+        rgba(20, 32, 42, 0.96) 100%
+      );
+  }
 }
 
 .hero__content {
@@ -622,7 +706,9 @@ em {
 .hero__lead {
   font-size: clamp(1rem, 2vw, 1.2rem);
   line-height: 1.65;
-  color: var(--color-text-inv-m);
+  /* --color-text-inv-m er rgba(245,243,239,0.65) og ment for flate mørke
+     seksjoner. Over et foto gir den 3,4:1. Egen, tettere verdi her. */
+  color: rgba(245, 243, 239, 0.92);
   max-width: 560px;
   margin-bottom: 2rem;
 }
@@ -1691,6 +1777,8 @@ em {
   color: var(--color-text-m);
 }
 
+}
+@layer utilities {
 /* --------------------------------------------------------------------------
    17. HJELPEKLASSER
    -------------------------------------------------------------------------- */
@@ -1767,6 +1855,7 @@ img {
   margin-bottom: 0.375rem;
 }
 
+}
 /* --------------------------------------------------------------------------
    18. PRINT-STILER (minimal)
    -------------------------------------------------------------------------- */
@@ -1787,6 +1876,7 @@ img {
   }
 }
 
+@layer components {
 /* --------------------------------------------------------------------------
    16. PROSJEKT CASESTUDIE ([slug].astro)
    -------------------------------------------------------------------------- */
@@ -2257,6 +2347,8 @@ img {
 }
 
 
+}
+@layer utilities {
 /* ==========================================================================
    UTILITIES
    Erstatter de 28 Tailwind-klassene som faktisk var i bruk. Tailwind leverte
@@ -2323,6 +2415,8 @@ img {
 
 
 /* ==========================================================================
+}
+@layer components {
    SEKSJONSTEMAER
    Fem tillatte kombinasjoner av bakgrunn og tekstfarge. Alle består WCAG AA.
    Klienten får velge mellom disse fra en dropdown i Sanity (fase 7) og kan
@@ -2632,4 +2726,40 @@ img {
 
 @media (prefers-reduced-motion: reduce) {
   .kontaktbar { transition: none; }
+}
+
+}
+
+@layer components {
+
+/* ==========================================================================
+   FORSIDEBLOKKER
+   Stiler for blokkene klienten setter sammen forsiden av. Alle arver
+   tekstfarge fra sek--*-klassen på SeksjonsSkall, så de fungerer på alle fem
+   temaer uten egne varianter.
+   ========================================================================== */
+
+.stats-rad {
+  display: grid;
+  gap: 1.5rem 2.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr));
+  margin: 0;
+}
+
+.stats-rad__post { display: flex; flex-direction: column; gap: 0.25rem; }
+
+.stats-rad__verdi {
+  font-family: var(--ff-display);
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 700;
+  line-height: 1;
+  color: inherit;
+}
+
+.stats-rad__label {
+  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
 }

@@ -1,0 +1,16 @@
+---
+import SeksjonsSkall from "../SeksjonsSkall.astro";
+interface Props { blokk: Record<string, any> }
+const { blokk } = Astro.props;
+const sporsmaal = Array.isArray(blokk.sporsmaal) ? blokk.sporsmaal : [];
+---
+<SeksjonsSkall tema={blokk.tema} eyebrow={blokk.eyebrow} overskrift={blokk.overskrift}>
+  <div class="tjeneste-faq__liste">
+    {sporsmaal.map((f: any) => (
+      <details class="tjeneste-faq__item">
+        <summary class="tjeneste-faq__sporsmaal">{f.sporsmaal}</summary>
+        <p class="tjeneste-faq__svar">{f.svar}</p>
+      </details>
+    ))}
+  </div>
+</SeksjonsSkall>

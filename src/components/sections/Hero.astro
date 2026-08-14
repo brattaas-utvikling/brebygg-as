@@ -11,24 +11,44 @@
 //   CSS-only — ingen JS.
 
 import { NAP, NOKKELTALL, HOVEDKOMMUNER } from "@config/site";
+import Bilde from "@components/sanity/Bilde.astro";
+import type { Bilde as BildeType } from "@/content.config";
 
-// Faste stat-verdier — hentet fra site.ts der mulig
-// Én kilde. Ved forrige runde sto to hardkodede verdier igjen under de to fra
-// NOKKELTALL, så heroen viste fire tall der «1 Kontaktpunkt» kom to ganger.
-const heroStats = NOKKELTALL.map(t => ({ num: t.num, label: t.label }));
+/**
+ * Alt innholdet kommer utenfra, fra Sanity via index.astro. Fallbackene
+ * gjelder når Sanity ikke er konfigurert, så komponenten fungerer i begge
+ * moduser uten en eneste if i malen.
+ */
+interface Props {
+  eyebrow?: string;
+  tittel?:  string;
+  ingress?: string;
+  bilde?:   BildeType | unknown;
+  knapper?: { tekst: string; url: string; stil?: string }[];
+  tall?:    { label: string; verdi: string }[];
+}
+
+const {
+  eyebrow = `Totalentreprenør i ${HOVEDKOMMUNER.join(", ")}`,
+  tittel  = "Totalentreprenør i Vestfold",
+  ingress = "BRE Bygg tar fullt ansvar for byggeprosessen — fra prosjektering til du får nøklene.",
+  bilde,
+  knapper = [
+    { tekst: "Se prosjekter",  url: "/prosjekter/", stil: "primary" },
+    { tekst: NAP.phoneDisplay, url: NAP.phoneHref,  stil: "outline" },
+  ],
+  tall,
+} = Astro.props;
+
+const heroStats = tall ?? NOKKELTALL.map((t) => ({ verdi: t.num, label: t.label }));
 ---
 
 <section class="hero" aria-label="Introduksjon">
   {/* Bakgrunnsbilde — preloadet i BaseLayout via heroImage-prop */}
   <div class="hero__bg" aria-hidden="true">
-    <img
-      src="/images/hero-forside.webp"
-      alt=""
-      fetchpriority="high"
-      decoding="async"
-      width="1600"
-      height="900"
-    />
+    {bilde
+      ? <Bilde kilde={bilde as never} alt="" prioritet sizes="100vw" />
+      : <img src="/images/hero-forside.webp" alt="" fetchpriority="high" decoding="async" width="1600" height="900" />}
   </div>
 
   {/* Gradient-overlay */}
@@ -40,59 +60,36 @@ const heroStats = NOKKELTALL.map(t => ({ num: t.num, label: t.label }));
       {/* Eyebrow */}
       <p class="hero__eyebrow" aria-hidden="false">
         <span class="eyebrow-dot" aria-hidden="true"></span>
-        Totalentreprenør i {HOVEDKOMMUNER.join(", ")}
+        {eyebrow}
       </p>
 
       {/* H1 */}
-      <h1 class="hero__heading">
-        Totalentreprenør<br />
-        i Vestfold
-      </h1>
+      <h1 class="hero__heading">{tittel}</h1>
 
       {/* Ingress */}
-      <p class="hero__lead">
-        BRE Bygg tar fullt ansvar for byggeprosessen — fra prosjektering til du
-        får nøklene. Enten det er nybygg i Tønsberg, rehabilitering i Sandefjord
-        eller næringsbygg i Larvik.
-      </p>
+      <p class="hero__lead">{ingress}</p>
 
       {/* Handlingsknapper */}
-      <div class="hero__actions">
-        <a href="/prosjekter/" class="btn btn--primary btn--lg">
-          Se prosjekter
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            aria-hidden="true"
+      <div class="hero__actions" data-kontaktkilde="hero">
+        {knapper.map((k) => (
+          <a
+            href={k.url}
+            class:list={["btn", "btn--lg", k.stil === "outline" ? "btn--outline-inv" : "btn--primary"]}
+            aria-label={k.url.startsWith("tel:") ? `Ring oss: ${k.tekst}` : undefined}
           >
-            <path
-              d="M3 8h10M9 4l4 4-4 4"
-              stroke="currentColor"
-              stroke-width="1.75"
-              stroke-linecap="round"
-              stroke-linejoin="round"></path>
-          </svg>
-        </a>
-        <a
-          href={`tel:${NAP.phone.replace(/\s/g, "")}`}
-          class="btn btn--outline-inv btn--lg"
-          aria-label={`Ring oss: ${NAP.phoneDisplay}`}
-        >
-          <svg
-            width="15"
-            height="15"
-            viewBox="0 0 13 13"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="M11 8.8 9.2 8.6c-.45-.05-.9.1-1.2.4L6.65 10.3C4.72 9.34 3.14 7.76 2.18 5.83L3.5 4.5c.3-.3.45-.74.4-1.19L3.72 1.2A1.25 1.25 0 0 0 2.48.1H1.27A1.27 1.27 0 0 0 0 1.38C.38 7.32 5.18 12.12 11.12 12.5a1.27 1.27 0 0 0 1.38-1.27v-1.2A1.27 1.27 0 0 0 11 8.8Z"
-              fill="currentColor"></path>
-          </svg>
-          {NAP.phoneDisplay}
-        </a>
+            {k.url.startsWith("tel:") && (
+              <svg width="15" height="15" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+                <path d="M11 8.8 9.2 8.6c-.45-.05-.9.1-1.2.4L6.65 10.3C4.72 9.34 3.14 7.76 2.18 5.83L3.5 4.5c.3-.3.45-.74.4-1.19L3.72 1.2A1.25 1.25 0 0 0 2.48.1H1.27A1.27 1.27 0 0 0 0 1.38C.38 7.32 5.18 12.12 11.12 12.5a1.27 1.27 0 0 0 1.38-1.27v-1.2A1.27 1.27 0 0 0 11 8.8Z" fill="currentColor"></path>
+              </svg>
+            )}
+            {k.tekst}
+            {!k.url.startsWith("tel:") && (
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+            )}
+          </a>
+        ))}
       </div>
 
       {/* Hero-stats */}
@@ -100,7 +97,7 @@ const heroStats = NOKKELTALL.map(t => ({ num: t.num, label: t.label }));
         {
           heroStats.map((stat) => (
             <div class="hero-stat" role="listitem">
-              <div class="hero-stat__num">{stat.num}</div>
+              <div class="hero-stat__num">{stat.verdi}</div>
               <div class="hero-stat__label">{stat.label}</div>
             </div>
           ))
@@ -125,7 +122,11 @@ const heroStats = NOKKELTALL.map(t => ({ num: t.num, label: t.label }));
     font-weight: 600;
     letter-spacing: 0.09em;
     text-transform: uppercase;
-    color: var(--color-primary-l);
+    /* Var var(--color-primary-l) — #9a9b82 over foto gir 1,66:1.
+       Oliven er en mellomtone og når aldri 4,5:1 mot en mellommørk bakgrunn,
+       uansett hvor mye scrim vi legger på. Den olivengrønne aksenten
+       beholdes som prikken foran teksten, der kontrast ikke er et krav. */
+    color: var(--color-text-inv);
     margin-bottom: 1.25rem;
     /* Fade-in med forsinkelse 0 */
     opacity: 0;

@@ -19,6 +19,7 @@
 
 import type { CollectionEntry } from "astro:content";
 import { KATEGORIER, KATEGORI_LABEL } from "@/content.config";
+import Bilde from "@components/sanity/Bilde.astro";
 
 interface Props {
   prosjekter: CollectionEntry<"prosjekter">[];
@@ -68,14 +69,7 @@ function antall(id: string): number {
         <div role="listitem" data-kategori={entry.data.kategori}>
           <a href={`/prosjekter/${entry.id}/`} class="prosjekt-card">
             <div class="prosjekt-card__img">
-              <img
-                src={entry.data.heroImage.src}
-                alt={entry.data.heroImage.alt}
-                loading="lazy"
-                decoding="async"
-                width={entry.data.heroImage.width ?? 800}
-                height={entry.data.heroImage.height ?? 500}
-              />
+              <Bilde kilde={entry.data.heroImage} alt={entry.data.heroImage.alt} bredde={800} hoyde={500} />
             </div>
 
             <div class="prosjekt-card__body">

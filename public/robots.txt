@@ -3,6 +3,7 @@
 
 User-agent: *
 Allow: /
+Disallow: /studio
 
 # Merk: v1 hadde «Disallow: /_astro/» her. Det er katalogen all CSS og JS
 # bygges til. Å blokkere den hindrer Googlebot i å rendre siden, som slår ut

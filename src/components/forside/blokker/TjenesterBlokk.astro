@@ -1,0 +1,14 @@
+---
+import SeksjonsSkall from "../SeksjonsSkall.astro";
+import TjenesterBento from "@components/sections/TjenesterBento.astro";
+interface Props { blokk: Record<string, any> }
+const { blokk } = Astro.props;
+---
+<SeksjonsSkall
+  tema={blokk.tema}
+  eyebrow={blokk.eyebrow}
+  overskrift={blokk.overskrift}
+  ingress={blokk.ingress}
+>
+  <TjenesterBento skjulTopp />
+</SeksjonsSkall>

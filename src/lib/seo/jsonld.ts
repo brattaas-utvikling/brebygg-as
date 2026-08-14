@@ -274,7 +274,13 @@ export function buildContactPage(canonical: string) {
 // --------------------------------------------------------------------------
 
 export function getHomeSchema(faqs: readonly FaqItem[]) {
-  return komponerGraf(buildFaqPage(faqs));
+  // Tom liste → ingen FAQPage-node.
+  //
+  // Dette var en faktisk feil: getHomeSchema la ut FAQPage uansett, også med
+  // et tomt mainEntity-array. Med en klientkomponert forside kan faqBlokken
+  // fjernes når som helst, og da ville vi beskrevet innhold brukeren ikke ser.
+  // Fanget av testen som fjerner blokken og sjekker grafen.
+  return komponerGraf(faqs.length > 0 ? buildFaqPage(faqs) : undefined);
 }
 
 export function getOmOssSchema(canonical: string) {

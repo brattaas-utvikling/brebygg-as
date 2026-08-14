@@ -1,6 +1,6 @@
 {
   "name": "brebygg-no",
-  "version": "2.0.1",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
   "engines": {
@@ -12,20 +12,30 @@
     "preview": "astro preview",
     "astro": "astro",
     "check": "astro check",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "migrer": "tsx scripts/migrer-innhold.ts",
+    "migrer:torr": "tsx scripts/migrer-innhold.ts --torrkjor",
+    "studio": "sanity dev"
   },
   "dependencies": {
     "@astrojs/react": "^6.0.2",
     "@astrojs/sitemap": "^3.7.3",
     "@astrojs/vercel": "^11.0.5",
+    "@sanity/astro": "^3.5.0",
+    "@sanity/client": "^7.26.2",
+    "@sanity/image-url": "^2.1.1",
+    "@sanity/vision": "^6.9.2",
     "astro": "^7.2.1",
     "react": "^19.2.8",
-    "react-dom": "^19.2.8"
+    "react-dom": "^19.2.8",
+    "sanity": "^6.9.2"
   },
   "devDependencies": {
-    "@astrojs/check": "^0.9.10",
+    "@astrojs/check": "^0.9.5",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
+    "gray-matter": "^4.0.3",
+    "tsx": "^4.23.12",
     "typescript": "^5.9.3"
   }
 }

@@ -20,7 +20,8 @@ import Breadcrumbs                  from "@components/seo/Breadcrumbs.astro";
 
 import { SITE_URL, NAP, type PageMeta } from "@config/site";
 import { getProsjektSlugSchema }    from "@lib/seo/jsonld";
-import { KATEGORI_LABEL, STATUS_LABEL, type Prosjekt } from "@/content.config";
+import { KATEGORI_LABEL, STATUS_LABEL, type Prosjekt, bildeSrc, bildeTekst } from "@/content.config";
+import Bilde from "@components/sanity/Bilde.astro";
 
 // --------------------------------------------------------------------------
 // getStaticPaths — genererer én URL per prosjekt
@@ -75,7 +76,7 @@ const schema = getProsjektSlugSchema(
     title:         seoTitle,
     description:   seoDescription,
     canonical,
-    imageUrl:      `${SITE_URL}${data.heroImage.src}`,
+    imageUrl:      `${SITE_URL}${bildeSrc(data.heroImage)}`,
     datePublished,
   },
   data.title
@@ -85,7 +86,7 @@ const pageMeta: PageMeta = {
   title:       seoTitle,
   description: seoDescription,
   canonical,
-  ogImage:     `${SITE_URL}${data.heroImage.src}`,
+  ogImage:     `${SITE_URL}${bildeSrc(data.heroImage)}`,
   // Nå mulig fordi PageMeta bærer pageType. I v1 manglet feltet på typen, så
   // og:type sto på "website" på alle prosjektsider selv om Article-schema var
   // korrekt — schema og OG-tagger fortalte ulike ting om samme side.
@@ -127,7 +128,7 @@ const harCasestudie  = data.utfordring  || data.losning  || data.resultat;
 <PageLayout
   meta={pageMeta}
   schema={schema}
-  heroImage={data.heroImage.src}
+  heroImage={bildeSrc(data.heroImage)}
 >
   <main id="main-content">
 
@@ -138,14 +139,7 @@ const harCasestudie  = data.utfordring  || data.losning  || data.resultat;
 
       {/* Bakgrunnsbilde — preloadet via heroImage-prop i PageLayout */}
       <div class="slug-hero__bg" aria-hidden="true">
-        <img
-          src={data.heroImage.src}
-          alt=""
-          width={data.heroImage.width  ?? 1600}
-          height={data.heroImage.height ?? 900}
-          fetchpriority="high"
-          decoding="async"
-        />
+        <Bilde kilde={data.heroImage} alt="" prioritet bredde={1600} hoyde={900} />
       </div>
 
       {/* Gradient-overlay */}
@@ -289,20 +283,13 @@ const harCasestudie  = data.utfordring  || data.losning  || data.resultat;
                       class="casestudie-galleri__item"
                       role="listitem"
                     >
-                      <img
-                        src={bilde.src}
-                        alt={bilde.alt}
-                        loading="lazy"
-                        decoding="async"
-                        width="800"
-                        height="500"
-                      />
-                      {bilde.caption && (
+                      <Bilde kilde={bilde} alt={bilde.alt} />
+                      {bildeTekst(bilde) && (
                         <div
                           class="casestudie-galleri__caption"
-                          aria-label={bilde.caption}
+                          aria-label={bildeTekst(bilde)}
                         >
-                          {bilde.caption}
+                          {bildeTekst(bilde)}
                         </div>
                       )}
                     </div>
@@ -427,14 +414,7 @@ const harCasestudie  = data.utfordring  || data.losning  || data.resultat;
                 aria-label={`${p.data.title}, ${p.data.location}, ${p.data.aar}`}
               >
                 <div class="prosjekt-card__img">
-                  <img
-                    src={p.data.heroImage.src}
-                    alt={p.data.heroImage.alt}
-                    loading="lazy"
-                    decoding="async"
-                    width={p.data.heroImage.width  ?? 800}
-                    height={p.data.heroImage.height ?? 500}
-                  />
+                  <Bilde kilde={p.data.heroImage} alt={p.data.heroImage.alt} bredde={800} hoyde={500} />
                 </div>
                 <div class="prosjekt-card__body">
                   <span class="prosjekt-card__tag">

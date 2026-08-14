@@ -10,6 +10,7 @@ import CtaSeksjon  from "@components/sections/CtaSeksjon.astro";
 import { SITE_URL, NAP, HOVEDKOMMUNER, type PageMeta } from "@config/site";
 import { komponerGraf, buildBreadcrumbList, buildService } from "@lib/seo/jsonld";
 import { KATEGORI_LABEL } from "@/content.config";
+import Bilde from "@components/sanity/Bilde.astro";
 
 const tjenester = (await getCollection("tjenester"))
   .sort((a, b) => a.data.sortOrder - b.data.sortOrder);
@@ -43,6 +44,7 @@ const schema = komponerGraf(
 <PageLayout meta={pageMeta} schema={schema}>
   <main id="main-content">
     <HeroPage
+      nesteTema="lys"
       eyebrow="Tjenester"
       heading="Tre måter vi bygger på"
       lead={`BRE Bygg er totalentreprenør i ${HOVEDKOMMUNER.join(", ")} og omegn. Du har én avtale og én prosjektleder, uansett hvilken av de tre du trenger.`}
@@ -58,14 +60,7 @@ const schema = komponerGraf(
           {tjenester.map((t) => (
             <a href={`/tjenester/${t.id}/`} class="prosjekt-card" role="listitem">
               <div class="prosjekt-card__img">
-                <img
-                  src={t.data.heroImage.src}
-                  alt={t.data.heroImage.alt}
-                  loading="lazy"
-                  decoding="async"
-                  width={t.data.heroImage.width ?? 800}
-                  height={t.data.heroImage.height ?? 500}
-                />
+                <Bilde kilde={t.data.heroImage} alt={t.data.heroImage.alt} bredde={800} hoyde={500} />
               </div>
               <div class="prosjekt-card__body">
                 <span class="prosjekt-card__tag">{KATEGORI_LABEL[t.data.kategori]}</span>

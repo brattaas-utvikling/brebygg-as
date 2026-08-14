@@ -1,0 +1,28 @@
+---
+import SeksjonsSkall from "../SeksjonsSkall.astro";
+import { erMorkt } from "@lib/sanity/tema";
+interface Props { blokk: Record<string, any> }
+const { blokk } = Astro.props;
+const tema = blokk.tema ?? "mork";
+const mork = erMorkt(tema);
+const knapper = Array.isArray(blokk.knapper) ? blokk.knapper : [];
+---
+<SeksjonsSkall tema={tema}>
+  <div class="cta-banner">
+    <h2 class="section-title">{blokk.overskrift}</h2>
+    {blokk.tekst && <p class="section-desc mt-3">{blokk.tekst}</p>}
+    <div class="cta-banner__knapper mt-5">
+      {knapper.map((c: any) => (
+        <a
+          href={c.url}
+          class:list={["btn", c.stil === "outline" ? (mork ? "btn--ghost-inv" : "btn--outline") : "btn--primary"]}
+        >{c.tekst}</a>
+      ))}
+    </div>
+  </div>
+</SeksjonsSkall>
+
+<style>
+  .cta-banner { max-width: 680px; }
+  .cta-banner__knapper { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+</style>

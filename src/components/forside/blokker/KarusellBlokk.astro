@@ -1,0 +1,13 @@
+---
+import SeksjonsSkall from "../SeksjonsSkall.astro";
+import ProsjektKarusell from "@components/sections/ProsjektKarusell.astro";
+interface Props { blokk: Record<string, any> }
+const { blokk } = Astro.props;
+---
+<SeksjonsSkall tema={blokk.tema} eyebrow={blokk.eyebrow} overskrift={blokk.overskrift}>
+  <ProsjektKarusell
+    skjulTopp
+    antall={typeof blokk.antall === "number" ? blokk.antall : 8}
+    kunFremhevede={blokk.kunFremhevede === true}
+  />
+</SeksjonsSkall>

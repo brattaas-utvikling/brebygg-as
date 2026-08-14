@@ -15,7 +15,8 @@ import Breadcrumbs  from "@components/seo/Breadcrumbs.astro";
 import CtaSeksjon   from "@components/sections/CtaSeksjon.astro";
 import { SITE_URL, NAP, HOVEDKOMMUNER, type PageMeta } from "@config/site";
 import { getTjenesteSchema } from "@lib/seo/jsonld";
-import { KATEGORI_LABEL } from "@/content.config";
+import { KATEGORI_LABEL, bildeSrc } from "@/content.config";
+import Bilde from "@components/sanity/Bilde.astro";
 
 export async function getStaticPaths() {
   const tjenester  = await getCollection("tjenester");
@@ -63,7 +64,7 @@ const pageMeta: PageMeta = {
   title:       data.seoTitle       ?? `${data.title} — ${NAP.name}`,
   description: data.seoDescription ?? data.description,
   canonical,
-  ogImage:     `${SITE_URL}${data.heroImage.src}`,
+  ogImage:     `${SITE_URL}${bildeSrc(data.heroImage)}`,
 };
 
 const schema = getTjenesteSchema(
@@ -82,20 +83,13 @@ const schema = getTjenesteSchema(
 );
 ---
 
-<PageLayout meta={pageMeta} schema={schema} heroImage={data.heroImage.src}>
+<PageLayout meta={pageMeta} schema={schema} heroImage={bildeSrc(data.heroImage)}>
   <main id="main-content">
 
     {/* Hero */}
     <section class="tjeneste-hero" aria-labelledby="tjeneste-tittel">
       <div class="tjeneste-hero__bg" aria-hidden="true">
-        <img
-          src={data.heroImage.src}
-          alt=""
-          width={data.heroImage.width ?? 1600}
-          height={data.heroImage.height ?? 900}
-          fetchpriority="high"
-          decoding="async"
-        />
+        <Bilde kilde={data.heroImage} alt="" prioritet bredde={1600} hoyde={900} />
       </div>
 
       <div class="tjeneste-hero__innhold">
@@ -186,14 +180,7 @@ const schema = getTjenesteSchema(
             {relaterte.map((p) => (
               <a href={`/prosjekter/${p.id}/`} class="prosjekt-card" role="listitem">
                 <div class="prosjekt-card__img">
-                  <img
-                    src={p.data.heroImage.src}
-                    alt={p.data.heroImage.alt}
-                    loading="lazy"
-                    decoding="async"
-                    width={p.data.heroImage.width ?? 800}
-                    height={p.data.heroImage.height ?? 500}
-                  />
+                  <Bilde kilde={p.data.heroImage} alt={p.data.heroImage.alt} bredde={800} hoyde={500} />
                 </div>
                 <div class="prosjekt-card__body">
                   <span class="prosjekt-card__tag">{KATEGORI_LABEL[p.data.kategori]}</span>

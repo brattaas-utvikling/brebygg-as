@@ -1,4 +1,5 @@
 ---
+import { bildeSrc } from "@/content.config";
 // src/components/sections/TjenesterBento.astro
 // Tjeneste-seksjon med bento-grid layout på mørk bakgrunn.
 //
@@ -37,10 +38,21 @@ const cards = (await getCollection("tjenester"))
     title:       t.data.kortTittel ?? t.data.title,
     description: t.data.description,
     slug:        `/tjenester/${t.id}/`,
-    imgSrc:      t.data.heroImage.src,
+    imgSrc:      bildeSrc(t.data.heroImage),
     imgAlt:      t.data.heroImage.alt,
     cardClass:   STORRELSE_KLASSE[t.data.bentoStorrelse],
   }));
+
+/**
+ * skjulTopp: når komponenten står inne i en SeksjonsSkall på forsiden, eier
+ * skallet overskriften. Uten dette ville tittelen kommet to ganger, og siden
+ * ville fått to <h2> som sier det samme.
+ */
+interface Props {
+  skjulTopp?: boolean;
+}
+
+const { skjulTopp = false } = Astro.props;
 ---
 
 <section
@@ -49,7 +61,9 @@ const cards = (await getCollection("tjenester"))
 >
   <div class="container">
 
-    {/* Seksjonsheader */}
+    {/* Seksjonsheader. Skjules når blokken står i en SeksjonsSkall på
+        forsiden — der eier skallet overskriften. */}
+    {!skjulTopp && (
     <div class="section-header text-inv reveal">
       <span class="eyebrow">Hva vi gjør</span>
       <h2 class="section-title mt-3" id="tjenester-heading">
@@ -62,6 +76,7 @@ const cards = (await getCollection("tjenester"))
         til oss, ikke til ti forskjellige fagfolk.
       </p>
     </div>
+    )}
 
     {/* Bento-grid */}
     <div class="tjeneste-grid" role="list" aria-label="Tjenester">

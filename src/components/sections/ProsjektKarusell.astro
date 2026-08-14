@@ -11,6 +11,21 @@
 
 import { getCollection, type CollectionEntry } from "astro:content";
 import { KATEGORI_LABEL } from "@/content.config";
+import Bilde from "@components/sanity/Bilde.astro";
+
+/**
+ * skjulTopp: når komponenten står inne i en SeksjonsSkall på forsiden, eier
+ * skallet overskriften. Uten dette ville tittelen kommet to ganger, og siden
+ * ville fått to <h2> som sier det samme.
+ */
+interface Props {
+  skjulTopp?: boolean;
+  antall?: number;
+  kunFremhevede?: boolean;
+}
+
+const { skjulTopp = false, antall = 8, kunFremhevede = false } = Astro.props;
+
 
 // v1 hadde en håndlaget ProsjektEntry-type med { slug, data }. Den skygget for
 // CollectionEntry og gjorde at `entry.id` ikke fantes på typenivå etter
@@ -23,6 +38,7 @@ let prosjekter: ProsjektEntry[] = [];
 try {
   const raw: ProsjektEntry[] = await getCollection("prosjekter");
   prosjekter = raw
+    .filter((e) => !kunFremhevede || e.data.fremhevet)
     .sort((a, b) => {
       // Fremhevede prosjekter opp
       if (a.data.fremhevet && !b.data.fremhevet) return -1;
@@ -30,12 +46,13 @@ try {
       // Deretter nyeste år
       return b.data.aar - a.data.aar;
     })
-    .slice(0, 8);
+    .slice(0, antall);
 } catch {
   // Content collection ikke klar ennå — vis tom tilstand
 }
 
 const harProsjekter = prosjekter.length > 0;
+
 ---
 
 <section
@@ -43,6 +60,7 @@ const harProsjekter = prosjekter.length > 0;
   aria-labelledby="karusell-heading"
 >
   {/* Seksjonsheader */}
+  {!skjulTopp && (
   <div class="container karusell-header reveal">
     <div class="karusell-header__left">
       <span class="eyebrow">Utvalgte prosjekter</span>
@@ -63,6 +81,7 @@ const harProsjekter = prosjekter.length > 0;
       </svg>
     </a>
   </div>
+  )}
 
   {harProsjekter ? (
     <div
@@ -81,14 +100,7 @@ const harProsjekter = prosjekter.length > 0;
             >
               {/* Bilde */}
               <div class="prosjekt-card__img">
-                <img
-                  src={entry.data.heroImage.src}
-                  alt={entry.data.heroImage.alt}
-                  loading="lazy"
-                  decoding="async"
-                  width={entry.data.heroImage.width ?? 800}
-                  height={entry.data.heroImage.height ?? 500}
-                />
+                <Bilde kilde={entry.data.heroImage} alt={entry.data.heroImage.alt} bredde={800} hoyde={500} />
               </div>
 
               {/* Kortinnhold */}

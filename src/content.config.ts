@@ -5,6 +5,64 @@
 import { defineCollection } from "astro:content";
 import { z } from "astro/zod";
 import { glob } from "astro/loaders";
+import { BRUKER_SANITY } from "@lib/sanity/client";
+import { prosjekterLoader, tjenesterLoader } from "@lib/sanity/loaders";
+
+// --------------------------------------------------------------------------
+// Bilde — godtar begge kilder
+//
+// Fra markdown: { src, alt, width?, height? }
+// Fra Sanity:   { _type: "image", asset: { url, metadata: { dimensions, lqip } }, alt }
+//
+// Én union i stedet for to skjemaer og to komponentgrener. `erSanityBilde()`
+// nedenfor lar komponenter skille når de faktisk trenger det.
+// --------------------------------------------------------------------------
+
+const lokaltBilde = z.object({
+  src:     z.string(),
+  alt:     z.string(),
+  width:   z.number().optional(),
+  height:  z.number().optional(),
+  caption: z.string().optional(),
+});
+
+const sanityBilde = z.object({
+  _type: z.literal("image").optional(),
+  alt:   z.string(),
+  bildetekst: z.string().optional(),
+  asset: z.object({
+    _id: z.string().optional(),
+    url: z.string().optional(),
+    metadata: z.object({
+      dimensions: z.object({ width: z.number(), height: z.number(), aspectRatio: z.number().optional() }).optional(),
+      lqip:       z.string().optional(),
+    }).optional(),
+  }).optional(),
+});
+
+const bildeSkjema = z.union([sanityBilde, lokaltBilde]);
+
+export type Bilde = z.infer<typeof bildeSkjema>;
+
+/** True når bildet kommer fra Sanity og skal gjennom SanityBilde.astro. */
+export function erSanityBilde(b: Bilde): b is z.infer<typeof sanityBilde> {
+  return "asset" in b && b.asset !== undefined;
+}
+
+/**
+ * URL til bildet. Fungerer for begge kilder.
+ *
+ * Brukes der vi trenger en enkel streng og ikke et <img>: OG-tagger, preload
+ * og CSS-bakgrunner. Til visning skal <Bilde> brukes, ikke denne.
+ */
+export function bildeSrc(b: Bilde): string {
+  return erSanityBilde(b) ? (b.asset?.url ?? "") : b.src;
+}
+
+/** Bildetekst. Feltet heter «caption» i markdown og «bildetekst» i Sanity. */
+export function bildeTekst(b: Bilde): string | undefined {
+  return erSanityBilde(b) ? b.bildetekst : b.caption;
+}
 
 // --------------------------------------------------------------------------
 // Prosjekt-skjema
@@ -33,22 +91,10 @@ const prosjektSkjema = z.object({
   varighet:    z.string().optional(), // f.eks. "12 måneder"
 
   // Bilder — alltid egenproduserte
-  heroImage: z.object({
-    src:  z.string(),
-    alt:  z.string(),
-    // width og height for CLS-forebygging
-    width:  z.number().optional(),
-    height: z.number().optional(),
-  }),
+  heroImage: bildeSkjema,
 
   // Galleri (valgfritt)
-  galleri: z.array(
-    z.object({
-      src:    z.string(),
-      alt:    z.string(),
-      caption: z.string().optional(),
-    })
-  ).optional().default([]),
+  galleri: z.array(bildeSkjema).optional().default([]),
 
   // Casestudie-detaljer
   utfordring: z.string().optional(), // Hva var krevende?
@@ -97,12 +143,7 @@ const tjenesteSkjema = z.object({
   /** Første avsnitt på siden. Slår fast hva vi gjør, for hvem og hvor. */
   ingress:     z.string().min(60),
 
-  heroImage: z.object({
-    src:    z.string(),
-    alt:    z.string(),
-    width:  z.number().optional(),
-    height: z.number().optional(),
-  }),
+  heroImage: bildeSkjema,
 
   /** Styrer bento-cellens størrelse på forsiden. */
   bentoStorrelse: z.enum(["large", "small", "third"]).default("small"),
@@ -140,13 +181,29 @@ export type Tjeneste = z.infer<typeof tjenesteSkjema>;
 // Collections
 // --------------------------------------------------------------------------
 
+// --------------------------------------------------------------------------
+// Kildebryter
+//
+// Er PUBLIC_SANITY_PROJECT_ID satt, hentes innholdet fra Sanity. Er den ikke
+// satt, brukes markdown-filene. Begge kilder går gjennom skjemaene over, så
+// getCollection() gir identisk typet data uansett.
+//
+// MIDLERTIDIG. Markdown-grenen og src/content/-mappene skal slettes når
+// migreringen er kjørt og verifisert — to permanente kilder til samme innhold
+// er en vedlikeholdsfelle, ikke en funksjon. Se MIGRERING.md.
+// --------------------------------------------------------------------------
+
 const prosjekter = defineCollection({
-  loader: glob({ pattern: "**/[^_]*.md", base: "./src/content/prosjekter" }),
+  loader: BRUKER_SANITY
+    ? prosjekterLoader()
+    : glob({ pattern: "**/[^_]*.md", base: "./src/content/prosjekter" }),
   schema: prosjektSkjema,
 });
 
 const tjenester = defineCollection({
-  loader: glob({ pattern: "**/[^_]*.md", base: "./src/content/tjenester" }),
+  loader: BRUKER_SANITY
+    ? tjenesterLoader()
+    : glob({ pattern: "**/[^_]*.md", base: "./src/content/tjenester" }),
   schema: tjenesteSkjema,
 });
 

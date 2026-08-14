@@ -1,0 +1,58 @@
+---
+// src/components/forside/Seksjoner.astro
+//
+// Blokk-dispatcher. Slår opp komponent på _type fra Sanity.
+//
+// Et oppslagsobjekt og ikke en switch i JSX: switch-en fungerte, men
+// blokk-scopede variabler inne i case-grener blir ikke sett av type-sjekkeren
+// i .astro-filer, så halvparten av grenene måtte skrives om til aksessorer i
+// frontmatter. Én komponent per blokk er kortere, testbart hver for seg, og
+// legger stilene der de brukes.
+//
+// `ukjente`-sjekken er med vilje en feil og ikke en stille null: legger noen
+// til en blokktype i Sanity uten komponent her, skal bygget si fra — ikke la
+// klienten publisere en seksjon som aldri vises.
+
+import StatsRad        from "./blokker/StatsRad.astro";
+import TekstBilde      from "./blokker/TekstBilde.astro";
+import Baerekraft      from "./blokker/Baerekraft.astro";
+import FaqBlokk        from "./blokker/FaqBlokk.astro";
+import CtaBanner       from "./blokker/CtaBanner.astro";
+import PaagaendeBanner from "./blokker/PaagaendeBanner.astro";
+import TjenesterBlokk  from "./blokker/TjenesterBlokk.astro";
+import KarusellBlokk   from "./blokker/KarusellBlokk.astro";
+
+type Blokk = Record<string, any> & { _type: string; _key: string };
+
+interface Props {
+  seksjoner?: Blokk[];
+}
+
+const { seksjoner = [] } = Astro.props;
+
+const KOMPONENT = {
+  statsRad:         StatsRad,
+  tekstBilde:       TekstBilde,
+  omOssTeaser:      TekstBilde,   // samme form, andre felt
+  baerekraft:       Baerekraft,
+  faqBlokk:         FaqBlokk,
+  ctaBanner:        CtaBanner,
+  paagaendeBanner:  PaagaendeBanner,
+  tjenesterBento:   TjenesterBlokk,
+  prosjektKarusell: KarusellBlokk,
+} as const;
+
+const ukjente = [...new Set(seksjoner.map((s) => s._type).filter((t) => !(t in KOMPONENT)))];
+if (ukjente.length > 0) {
+  throw new Error(
+    `Forsiden har blokktyper uten komponent: ${ukjente.join(", ")}.\n` +
+    `Lag en komponent i src/components/forside/blokker/ og registrer den i KOMPONENT, ` +
+    `eller fjern blokken i Sanity Studio.`
+  );
+}
+---
+
+{seksjoner.map((s) => {
+  const Blokk = KOMPONENT[s._type as keyof typeof KOMPONENT];
+  return <Blokk blokk={s} />;
+})}
