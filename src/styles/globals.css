@@ -48,11 +48,37 @@
   :root {
     /* --- Bakgrunnsfarger --- */
 
-    --color-bg: #f7f7f5;
+    --bandicoot-50: #f9faf9;
+    --bandicoot-100: #f4f5f4;
+    --bandicoot-200: #e8e8e3;
+    --bandicoot-300: #d8d8cf;
+    --bandicoot-400: #acac9a;
+    --bandicoot-500: #81816b; /* Green Leaf, originalen */
+    --bandicoot-600: #585a4b;
+    --bandicoot-700: #464739;
+    --bandicoot-800: #2b2922;
+    --bandicoot-900: #1e1e15;
+    --bandicoot-950: #0d0d08;
+
+    /* ── Bakgrunner ─────────────────────────────────────────────────────────
+       100 og ikke 50 som standardbakgrunn. Hvite kort mot 50 gir 1,05:1 og
+       forsvinner; mot 100 er de fortsatt svake, så kortene får kantlinje. */
+
+    --color-bg: var(--bandicoot-100);
     --color-bg-white: #ffffff;
-    --color-bg-section: #edede9;
-    --color-bg-dark: #4e4e41;
-    --color-bg-dark-2: #35352c;
+    --color-bg-section: var(--bandicoot-200);
+    --color-bg-dark: var(--bandicoot-600); /* header, mørke seksjoner */
+    --color-bg-dark-2: var(--bandicoot-800); /* footer, hero-bunn */
+
+    /* ── Tekst ──────────────────────────────────────────────────────────────
+       800 overskrift 13,3:1 · 700 brødtekst 8,7:1 · 600 småtekst 6,5:1
+       Alle målt mot --color-bg. */
+
+    --color-text: var(--bandicoot-800);
+    --color-text-m: var(--bandicoot-700);
+    --color-text-s: var(--bandicoot-600);
+    --color-text-inv: var(--bandicoot-50);
+    --color-text-inv-m: rgba(249, 250, 249, 0.72);
 
     --color-text: #32322a;
     --color-text-m: #5c5c4c;
@@ -60,23 +86,25 @@
     --color-text-inv: #f5f3ef;
     --color-text-inv-m: rgba(245, 243, 239, 0.65);
 
-    --color-primary: #a3714c;
-    --color-primary-l: #a3714c;
-    --color-primary-d: #8a5a3b;
-    --color-accent: #a3714c;
-    --color-accent-d: #1f1f19;
-    --color-support: #1f1f19;
+    --color-primary: var(--bandicoot-500);
+    --color-primary-l: var(--bandicoot-400);
+    --color-primary-d: var(--bandicoot-600);
+    --color-accent: var(--bandicoot-500);
+    --color-accent-d: var(--bandicoot-800); /* hover på CTA */
+    --color-support: var(--bandicoot-900);
 
-    --color-border: #dcdcd5;
-    --color-border-m: #ccccc2;
-    --color-border-l: #e8e8e3;
+    --color-border: var(--bandicoot-500);
+    --color-border-m: var(--bandicoot-400);
+    --color-border-l: var(--bandicoot-300);
 
-    --rgb-dark: 78, 78, 65;
-    --rgb-dark-2: 53, 53, 44;
-    --rgb-deepest: 31, 31, 25;
-    --rgb-primary: 163, 113, 76;
-    --rgb-inv: 245, 243, 239;
-    --rgb-khaki: 31, 31, 25;
+    /* ── RGB-komponenter for rgba() ─────────────────────────────────────── */
+
+    --rgb-dark: 88, 90, 75; /* 600 */
+    --rgb-dark-2: 43, 41, 34; /* 800 */
+    --rgb-deepest: 13, 13, 8; /* 950 — bunnen av hero-gradienten */
+    --rgb-primary: 129, 129, 107; /* 500 */
+    --rgb-inv: 249, 250, 249; /* 50 */
+    --rgb-khaki: 30, 30, 21; /* 900 */
 
     /* --- Typografi --- */
     --ff-display: var(--font-jakarta), system-ui, sans-serif;
@@ -334,6 +362,17 @@
       box-shadow var(--transition-base),
       transform 0.3s ease-in-out;
     will-change: transform;
+  }
+  .nav .btn--primary {
+    background-color: var(--bandicoot-50);
+    color: var(--bandicoot-800);
+    border-color: var(--bandicoot-50);
+  }
+
+  .nav .btn--primary:hover {
+    background-color: var(--bandicoot-100);
+    border-color: #ffffff;
+    color: var(--bandicoot-800);
   }
 
   .nav.scrolled {
