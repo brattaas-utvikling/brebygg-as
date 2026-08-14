@@ -97,8 +97,8 @@ const punkter = [
     background: linear-gradient(
       to right,
       transparent,
-      rgba(132, 133, 110, 0.3) 30%,
-      rgba(132, 133, 110, 0.3) 70%,
+      rgba(var(--rgb-primary), 0.3) 30%,
+      rgba(var(--rgb-primary), 0.3) 70%,
       transparent
     );
   }
@@ -109,8 +109,8 @@ const punkter = [
     inset:          0;
     pointer-events: none;
     background-image:
-      linear-gradient(rgba(132, 133, 110, 0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(132, 133, 110, 0.05) 1px, transparent 1px);
+      linear-gradient(rgba(var(--rgb-primary), 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(var(--rgb-primary), 0.05) 1px, transparent 1px);
     background-size: 40px 40px;
     -webkit-mask-image: radial-gradient(ellipse at 50% 50%, black 20%, transparent 75%);
             mask-image: radial-gradient(ellipse at 50% 50%, black 20%, transparent 75%);
@@ -127,8 +127,8 @@ const punkter = [
     grid-template-columns: repeat(3, 1fr);
     /* 1px gap → bakgrunnens rgba-linje fungerer som skillelinje */
     gap:                   1px;
-    background-color:      rgba(245, 243, 239, 0.07);
-    border:                1px solid rgba(245, 243, 239, 0.07);
+    background-color:      rgba(var(--rgb-inv), 0.07);
+    border:                1px solid rgba(var(--rgb-inv), 0.07);
     border-radius:         var(--r-lg);
     overflow:              hidden;
     margin-top:            clamp(2rem, 4vw, 3rem);
@@ -155,7 +155,7 @@ const punkter = [
   }
 
   .ba-kort:hover {
-    background-color: rgba(44, 66, 81, 0.85);
+    background-color: rgba(var(--rgb-dark), 0.85);
   }
 
   /* ── Stort typografisk tall ─────────────────────────────────────────── */
