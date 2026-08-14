@@ -1,0 +1,76 @@
+---
+// src/components/sanity/SanityBilde.astro
+//
+// Ett sted for alle Sanity-bilder.
+//
+// Fire ting løses her, én gang, i stedet for i hver komponent:
+//   - srcset i faste bredder med auto=format (AVIF der det støttes)
+//   - width/height fra asset.metadata.dimensions → CLS blir null uten
+//     manuelt arbeid
+//   - LQIP fra asset.metadata.lqip som bakgrunn → blur-up gratis, ingen
+//     ekstra forespørsel
+//   - alt er en PÅKREVD prop. Kombinert med validation i Sanity-skjemaet er
+//     det strukturelt umulig å få et bilde uten alt-tekst ut på siden.
+
+import type { Image } from "@sanity/types";
+import { bildeUrl, byggSrcset } from "@lib/sanity/image";
+
+interface Props {
+  kilde:   Image & { asset?: { metadata?: { dimensions?: { width: number; height: number }; lqip?: string } } };
+  alt:     string;
+  /** sizes-attributtet. Uten dette laster nettleseren største variant. */
+  sizes?:  string;
+  /** LCP-bilde: eager + fetchpriority="high". Kun ett per side. */
+  prioritet?: boolean;
+  class?:  string;
+  /** Overstyr høyde/bredde-forhold, f.eks. "16/9" på et kort. */
+  forhold?: string;
+}
+
+const {
+  kilde,
+  alt,
+  sizes = "(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 800px",
+  prioritet = false,
+  class: klasse,
+  forhold,
+} = Astro.props;
+
+const meta   = kilde?.asset?.metadata;
+const dim    = meta?.dimensions;
+const lqip   = meta?.lqip;
+
+// fit=max skalerer aldri opp, så det gir ingen mening å be om bredder over
+// originalen.
+const maksBredde = dim?.width ?? 2000;
+---
+
+<img
+  src={bildeUrl(kilde, Math.min(1200, maksBredde))}
+  srcset={byggSrcset(kilde, maksBredde)}
+  sizes={sizes}
+  alt={alt}
+  width={dim?.width}
+  height={dim?.height}
+  loading={prioritet ? "eager" : "lazy"}
+  decoding={prioritet ? "sync" : "async"}
+  fetchpriority={prioritet ? "high" : "auto"}
+  class:list={["sanity-bilde", klasse]}
+  style={{
+    ...(lqip ? { backgroundImage: `url(${lqip})` } : {}),
+    ...(forhold ? { aspectRatio: forhold } : {}),
+  }}
+/>
+
+<style>
+  .sanity-bilde {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    /* LQIP-en er 20 px bred og strekkes over hele flaten. Uten cover blir den
+       gjentatt som fliser. */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+</style>

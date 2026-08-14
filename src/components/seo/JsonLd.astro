@@ -1,7 +1,13 @@
 ---
 // src/components/seo/JsonLd.astro
-// Injiserer JSON-LD schema server-side.
-// ALDRI bruk <script> med dynamisk innhold her — bruk set:html for SSG-sikkerhet.
+// Serialiserer JSON-LD server-side.
+//
+// set:html og ikke {JSON.stringify(...)}: Astro escaper uttrykk i tekstnoder,
+// og escapede anførselstegn gir ugyldig JSON-LD.
+//
+// </script> i en strengverdi ville avslutte script-taggen tidlig. Vi bryter
+// sekvensen. Ingen av dagens data inneholder den, men schema kommer fra Sanity
+// fra fase 6 og da er inputen redaktørstyrt.
 
 interface Props {
   schema: Record<string, unknown> | Record<string, unknown>[];
@@ -9,8 +15,9 @@ interface Props {
 
 const { schema } = Astro.props;
 
-// Serialiser én gang — unngå at samme data dukker opp flere ganger
-const schemaString = JSON.stringify(schema, null, 0);
+const json = JSON.stringify(schema)
+  .replace(/<\/script/gi, "<\\/script")
+  .replace(/<!--/g, "\\u003C!--");
 ---
 
-<script type="application/ld+json" set:html={schemaString} />
+<script is:inline type="application/ld+json" set:html={json}></script>

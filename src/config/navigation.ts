@@ -59,7 +59,14 @@ export type BreadcrumbItem = {
   href:  string;
 };
 
-export function buildBreadcrumbs(path: string): BreadcrumbItem[] {
+/**
+ * @param overstyringer Label per segment. Nødvendig for dynamiske ruter, der
+ *   segmentet er en slug og ikke et menneskelesbart navn.
+ */
+export function buildBreadcrumbs(
+  path: string,
+  overstyringer: Record<string, string> = {},
+): BreadcrumbItem[] {
   const segments = path.replace(/^\/|\/$/g, "").split("/");
 
   const labelMap: Record<string, string> = {
@@ -79,7 +86,7 @@ export function buildBreadcrumbs(path: string): BreadcrumbItem[] {
     if (!segment) continue;
     accumulated += `/${segment}`;
     crumbs.push({
-      label: labelMap[segment] ?? segment,
+      label: overstyringer[segment] ?? labelMap[segment] ?? segment,
       href:  accumulated + "/",
     });
   }

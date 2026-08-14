@@ -31,10 +31,10 @@ const safeProgress = Math.max(0, Math.min(100, progress));
   <div class="container">
     <div class="ongoing-banner__inner">
 
-      <!-- Pulserende "live"-badge -->
+      {/* Pulserende "live"-badge */}
       <span class="badge-dot" aria-label="Pågående">Pågående</span>
 
-      <!-- Prosjektinfo -->
+      {/* Prosjektinfo */}
       <p class="ongoing-banner__text">
         <strong>{projectName}</strong>
         {" "}i {location}
@@ -45,7 +45,7 @@ const safeProgress = Math.max(0, Math.min(100, progress));
         )}
       </p>
 
-      <!-- Progress -->
+      {/* Progress */}
       <div
         class="ongoing-banner__progress-wrap"
         aria-label={`${safeProgress}% ferdigstilt`}
@@ -60,10 +60,8 @@ const safeProgress = Math.max(0, Math.min(100, progress));
           aria-valuemin={0}
           aria-valuemax={100}
         >
-          <!--
-            data-width brukes av BaseLayout-script for å animere bredden
-            inn i view (starter på 0, animerer til data-width ved scroll).
-          -->
+          {/* data-width brukes av BaseLayout-script for å animere bredden
+            inn i view (starter på 0, animerer til data-width ved scroll). */}
           <div
             class="progress-bar__fill"
             data-width={safeProgress}
@@ -103,3 +101,30 @@ const safeProgress = Math.max(0, Math.min(100, progress));
     .ongoing-banner__progress-wrap { display: none; }
   }
 </style>
+
+<script>
+  // Progress-bar. Flyttet hit fra BaseLayout.
+  // Respekterer prefers-reduced-motion: da settes bredden direkte uten animasjon.
+  const bars = document.querySelectorAll<HTMLElement>(".progress-bar__fill[data-width]");
+
+  if (bars.length) {
+    const redusert = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (redusert) {
+      bars.forEach((b) => { b.style.width = `${b.dataset.width ?? "0"}%`; });
+    } else {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (!entry.isIntersecting) continue;
+            const el = entry.target as HTMLElement;
+            el.style.width = `${el.dataset.width ?? "0"}%`;
+            observer.unobserve(el);
+          }
+        },
+        { threshold: 0.3 }
+      );
+      bars.forEach((b) => { b.style.width = "0"; observer.observe(b); });
+    }
+  }
+</script>

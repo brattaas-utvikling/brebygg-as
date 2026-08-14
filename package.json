@@ -1,33 +1,42 @@
 {
   "name": "brebygg-no",
-  "version": "1.0.2",
+  "version": "2.0.3",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "lint": "tsc --noEmit"
+    "check": "astro check",
+    "lint": "tsc --noEmit",
+    "migrer": "tsx scripts/migrer-innhold.ts",
+    "migrer:torr": "tsx scripts/migrer-innhold.ts --torrkjor",
+    "studio": "sanity dev",
+    "test:skjema": "tsx scripts/test-skjema.ts"
   },
   "dependencies": {
-    "@astrojs/react": "^3.6.0",
-    "@astrojs/sitemap": "^3.2.0",
-    "@astrojs/vercel": "^8.0.0",
-    "@sanity/client": "^6.21.3",
-    "@types/react": "^18.3.11",
-    "@types/react-dom": "^18.3.1",
-    "astro": "^5.1.0",
-    "astro-compress": "^2.3.3",
-    "clsx": "^2.1.1",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "tailwind-merge": "^2.5.4"
+    "@astrojs/react": "^6.0.2",
+    "@astrojs/sitemap": "^3.7.3",
+    "@astrojs/vercel": "^11.0.5",
+    "@sanity/astro": "^3.5.0",
+    "@sanity/client": "^7.26.2",
+    "@sanity/image-url": "^2.1.1",
+    "@sanity/vision": "^6.9.2",
+    "astro": "^7.2.1",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "sanity": "^6.9.2"
   },
   "devDependencies": {
-    "@tailwindcss/typography": "^0.5.15",
-    "@tailwindcss/vite": "^4.0.0",
-    "tailwindcss": "^4.0.0",
-    "typescript": "^5.7.2"
+    "@astrojs/check": "^0.9.5",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "gray-matter": "^4.0.3",
+    "tsx": "^4.23.12",
+    "typescript": "^5.9.3"
   }
 }

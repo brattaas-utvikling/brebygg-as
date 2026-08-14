@@ -1,76 +1,52 @@
 ---
 // src/pages/index.astro
-// Landingssiden for brebygg.no
+// Landingssiden.
 //
-// Seksjonsrekkefølge (fra spec):
-//   1. Header (i PageLayout)
-//   2. Hero
-//   3. StatsRow
-//   4. OngoingBanner
-//   5. TjenesterBento
-//   6. ProsjektKarusell
-//   7. OmOssTeaser
-//   8. BaerekraftSeksjon
-//   9. CtaSeksjon
-//  10. Footer (i PageLayout)
+// Rekkefølgen på seksjonene er ikke lenger hardkodet her — klienten setter dem
+// sammen i Sanity og drar dem i den rekkefølgen hun vil. Denne filen eier bare
+// to ting: heroen, og at seksjonslista rendres etter den.
+//
+// Heroen ligger utenfor seksjonslista med vilje. Hero-bildet er LCP-elementet
+// og preloades med fetchpriority="high", og <h1> må være første overskrift på
+// siden. Kunne klienten flytte heroen ned, ryker begge deler. Alt innholdet i
+// heroen er redigerbart — bare ikke plasseringen.
 
-import PageLayout from "@layouts/PageLayout.astro";
-import Hero from "@components/sections/Hero.astro";
-// import StatsRow from "@components/sections/StatsRow.astro";
-import OngoingBanner from "@components/sections/OngoingBanner.astro";
-import TjenesterBento from "@components/sections/TjenesterBento.astro";
-import ProsjektKarusell from "@components/sections/ProsjektKarusell.astro";
-import OmOssTeaser from "@components/sections/OmOssTeaser.astro";
-import BaerekraftSeksjon from "@components/sections/BaerekraftSeksjon.astro";
-import CtaSeksjon from "@components/sections/CtaSeksjon.astro";
-
-import { PAGE_META, FAQ_ITEMS } from "@config/site";
+import PageLayout   from "@layouts/PageLayout.astro";
+import Hero         from "@components/sections/Hero.astro";
+import Seksjoner    from "@components/forside/Seksjoner.astro";
+import { PAGE_META, type PageMeta } from "@config/site";
 import { getHomeSchema } from "@lib/seo/jsonld";
+import { hentForside, faqPaaSiden } from "@lib/sanity/forside";
+import { bildeSrc } from "@/content.config";
 
-// Schema: LocalBusiness + WebSite + FAQPage
-const schema = getHomeSchema(FAQ_ITEMS);
+const forside = await hentForside();
+
+// FAQPage-schema utledes av komposisjonen, ikke av en fast liste. Står ingen
+// faqBlokk på siden, legges det ikke ut FAQ-schema — schema for innhold
+// brukeren ikke ser er nettopp det Googles retningslinjer slår ned på.
+const schema = getHomeSchema(faqPaaSiden(forside.seksjoner));
+
+const meta: PageMeta = {
+  ...PAGE_META.home,
+  title:       forside.seo?.tittel      ?? PAGE_META.home.title,
+  description: forside.seo?.beskrivelse ?? PAGE_META.home.description,
+  noindex:     forside.seo?.skjulFraSok ?? false,
+};
+
+const heroBilde = forside.hero.bilde
+  ? bildeSrc(forside.hero.bilde as never)
+  : "/images/hero-forside.webp";
 ---
 
-<PageLayout
-  meta={PAGE_META.home}
-  schema={schema}
-  heroImage="/images/hero-forside.webp"
->
+<PageLayout meta={meta} schema={schema} heroImage={heroBilde}>
   <main id="main-content">
-    <!-- 2. Hero — fullscreen, LCP-kritisk -->
-    <Hero />
-
-    <!-- 3. Stats-rad — 4 nøkkeltall i hvit seksjon -->
-    <!-- <StatsRow /> -->
-
-    <!-- 4. Pågående-banner — viser ett aktivt prosjekt -->
-    <!--
-      Oppdater disse verdiene når et nytt prosjekt starter:
-        projectName: navn på bygget
-        location:    sted i Vestfold
-        progress:    0–100 (%)
-        dueLabel:    "Q3 2025" e.l.
-    -->
-    <OngoingBanner
-      projectName="Boligprosjekt"
-      location="Sandefjord"
-      progress={65}
-      dueLabel="Q3 2025"
+    <Hero
+      tittel={forside.hero.tittel}
+      ingress={forside.hero.ingress}
+      bilde={forside.hero.bilde}
+      knapper={forside.hero.knapper}
     />
 
-    <!-- 5. Tjenester — bento-grid på mørk bakgrunn -->
-    <TjenesterBento />
-
-    <!-- 6. Prosjektkarusell — drag-scroll, fra content collection -->
-    <ProsjektKarusell />
-
-    <!-- 7. Om oss teaser — split-layout på grå bakgrunn -->
-    <OmOssTeaser />
-
-    <!-- 8. Bærekraft — blueprint-seksjon på mørk bakgrunn -->
-    <BaerekraftSeksjon />
-
-    <!-- 9. CTA — kontaktoppfordring, mørk variant -->
-    <CtaSeksjon variant="dark" />
+    <Seksjoner seksjoner={forside.seksjoner} />
   </main>
 </PageLayout>

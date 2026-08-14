@@ -27,14 +27,13 @@ const punkter = [
   class="baerekraft-seksjon section"
   aria-labelledby="baerekraft-heading"
 >
-  <!-- Blueprint-grid-bakgrunn -->
+  {/* Blueprint-grid-bakgrunn */}
   <div class="baerekraft-grid-bg" aria-hidden="true"></div>
 
   <div class="container baerekraft-inner">
 
-    <!-- Seksjonsheader -->
+    {/* Seksjonsheader */}
     <div class="section-header text-inv reveal">
-      <span class="eyebrow">Ansvar</span>
       <h2 class="section-title mt-3" id="baerekraft-heading">
         Vi bygger fremtiden sammen med deg!
       </h2>
@@ -49,7 +48,7 @@ const punkter = [
       </p>
     </div>
 
-    <!-- Kortgrid -->
+    {/* Kortgrid */}
     <div
       class="ba-grid"
       role="list"
@@ -60,15 +59,15 @@ const punkter = [
           class={`ba-kort reveal-d${i as 0|1|2}`}
           role="listitem"
         >
-          <!-- Tall -->
+          {/* Tall */}
           <span class="ba-tall" aria-hidden="true">
             {String(i + 1).padStart(2, "0")}
           </span>
 
-          <!-- Dusty Olive-strek -->
+          {/* Dusty Olive-strek */}
           <div class="ba-strek" aria-hidden="true"></div>
 
-          <!-- Tekst -->
+          {/* Tekst */}
           <h3 class="ba-tittel">{p.tittel}</h3>
           <p class="ba-tekst">{p.tekst}</p>
         </article>

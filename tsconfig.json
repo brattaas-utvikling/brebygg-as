@@ -4,22 +4,20 @@
     "types": ["astro/client"],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@config/*": ["./src/config/*"],
+      "@/*":           ["./src/*"],
+      "@config/*":     ["./src/config/*"],
       "@components/*": ["./src/components/*"],
-      "@layouts/*": ["./src/layouts/*"],
-      "@lib/*": ["./src/lib/*"],
-      "@styles/*": ["./src/styles/*"],
-      "@content/*": ["./src/content/*"]
+      "@layouts/*":    ["./src/layouts/*"],
+      "@lib/*":        ["./src/lib/*"],
+      "@styles/*":     ["./src/styles/*"]
     },
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
     "noUncheckedIndexedAccess": true,
-    // Tillat JSX for React-islands
     "jsx": "react-jsx",
     "jsxImportSource": "react"
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.astro", "*.mjs", "*.ts"],
-  "exclude": ["node_modules", "dist", ".astro"]
+  "include": [".astro/types.d.ts", "src/**/*", "*.mjs", "*.ts"],
+  "exclude": ["node_modules", "dist", ".vercel"]
 }

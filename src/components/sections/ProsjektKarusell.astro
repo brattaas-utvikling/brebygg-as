@@ -9,22 +9,36 @@
 // Tom tilstand:
 //   Hvis ingen prosjekter finnes ennå, vises en placeholder-rad.
 
-// import { getCollection }  from "astro:content";
 import { getCollection, type CollectionEntry } from "astro:content";
-import type { Prosjekt }  from "@content/config";
+import { KATEGORI_LABEL } from "@/content.config";
+import Bilde from "@components/sanity/Bilde.astro";
 
-type ProsjektEntry = {
-  slug:  string;
-  data:  Prosjekt;
-};
+/**
+ * skjulTopp: når komponenten står inne i en SeksjonsSkall på forsiden, eier
+ * skallet overskriften. Uten dette ville tittelen kommet to ganger, og siden
+ * ville fått to <h2> som sier det samme.
+ */
+interface Props {
+  skjulTopp?: boolean;
+  antall?: number;
+  kunFremhevede?: boolean;
+}
 
-// Hent og sorter prosjekter — fremhevede først, deretter nyeste
+const { skjulTopp = false, antall = 8, kunFremhevede = false } = Astro.props;
+
+
+// v1 hadde en håndlaget ProsjektEntry-type med { slug, data }. Den skygget for
+// CollectionEntry og gjorde at `entry.id` ikke fantes på typenivå etter
+// migreringen til Content Layer API — uten at bygget feilet, fordi .astro-filer
+// ikke type-sjekkes av `tsc`. CollectionEntry er allerede riktig type.
+type ProsjektEntry = CollectionEntry<"prosjekter">;
+
 let prosjekter: ProsjektEntry[] = [];
 
 try {
-  // const raw = await getCollection("prosjekter");
-  const raw: CollectionEntry<"prosjekter">[] = await getCollection("prosjekter");
+  const raw: ProsjektEntry[] = await getCollection("prosjekter");
   prosjekter = raw
+    .filter((e) => !kunFremhevede || e.data.fremhevet)
     .sort((a, b) => {
       // Fremhevede prosjekter opp
       if (a.data.fremhevet && !b.data.fremhevet) return -1;
@@ -32,33 +46,23 @@ try {
       // Deretter nyeste år
       return b.data.aar - a.data.aar;
     })
-    .slice(0, 8)
-    .map(entry => ({ slug: entry.slug, data: entry.data }));
+    .slice(0, antall);
 } catch {
-  // Content collection ikke klar ennå — vis placeholders
-}
-
-// Kategori-etikett på norsk
-function kategoriLabel(k: Prosjekt["kategori"]): string {
-  const map: Record<Prosjekt["kategori"], string> = {
-    nybygg:          "Nybygg",
-    rehabilitering:  "Rehabilitering",
-    naeringsbygg:    "Næringsbygg",
-  };
-  return map[k];
+  // Content collection ikke klar ennå — vis tom tilstand
 }
 
 const harProsjekter = prosjekter.length > 0;
+
 ---
 
 <section
   class="karusell-seksjon section"
   aria-labelledby="karusell-heading"
 >
-  <!-- Seksjonsheader -->
+  {/* Seksjonsheader */}
+  {!skjulTopp && (
   <div class="container karusell-header reveal">
     <div class="karusell-header__left">
-      <span class="eyebrow">Utvalgte prosjekter</span>
       <h2 class="section-title mt-2" id="karusell-heading">
         Hva vi har levert
       </h2>
@@ -76,9 +80,9 @@ const harProsjekter = prosjekter.length > 0;
       </svg>
     </a>
   </div>
+  )}
 
   {harProsjekter ? (
-    <!-- Karusell -->
     <div
       class="karusell"
       role="region"
@@ -89,26 +93,19 @@ const harProsjekter = prosjekter.length > 0;
         {prosjekter.map((entry, i) => (
           <div class={`karusell__item reveal-d${Math.min(i, 3) as 0|1|2|3}`}>
             <a
-              href={`/prosjekter/${entry.slug}/`}
+              href={`/prosjekter/${entry.id}/`}
               class="prosjekt-card"
               aria-label={`${entry.data.title} — ${entry.data.location}`}
             >
-              <!-- Bilde -->
+              {/* Bilde */}
               <div class="prosjekt-card__img">
-                <img
-                  src={entry.data.heroImage.src}
-                  alt={entry.data.heroImage.alt}
-                  loading="lazy"
-                  decoding="async"
-                  width={entry.data.heroImage.width ?? 800}
-                  height={entry.data.heroImage.height ?? 500}
-                />
+                <Bilde kilde={entry.data.heroImage} alt={entry.data.heroImage.alt} bredde={800} hoyde={500} />
               </div>
 
-              <!-- Kortinnhold -->
+              {/* Kortinnhold */}
               <div class="prosjekt-card__body">
                 <span class="prosjekt-card__tag">
-                  {kategoriLabel(entry.data.kategori)}
+                  {KATEGORI_LABEL[entry.data.kategori]}
                 </span>
 
                 <h3 class="prosjekt-card__title">{entry.data.title}</h3>
@@ -129,7 +126,6 @@ const harProsjekter = prosjekter.length > 0;
       </div>
     </div>
   ) : (
-    <!-- Tom tilstand -->
     <div class="container">
       <div class="karusell-empty">
         <p>Prosjekter legges inn fortløpende.</p>
@@ -194,3 +190,36 @@ const harProsjekter = prosjekter.length > 0;
     padding-bottom: 1rem;
   }
 </style>
+
+<script>
+  // Drag-scroll med mus. Flyttet hit fra BaseLayout.
+  // Touch og tastatur håndteres allerede av native scroll + tabindex="0",
+  // så dette er kun en bekvemmelighet for pekerenheter.
+  document.querySelectorAll<HTMLElement>(".karusell").forEach((el) => {
+    let nede = false;
+    let startX = 0;
+    let startScroll = 0;
+
+    el.addEventListener("pointerdown", (e: PointerEvent) => {
+      if (e.pointerType !== "mouse") return;
+      nede = true;
+      startX = e.clientX;
+      startScroll = el.scrollLeft;
+      el.classList.add("is-dragging");
+    });
+
+    const slipp = () => {
+      if (!nede) return;
+      nede = false;
+      el.classList.remove("is-dragging");
+    };
+    document.addEventListener("pointerup", slipp);
+    document.addEventListener("pointercancel", slipp);
+
+    el.addEventListener("pointermove", (e: PointerEvent) => {
+      if (!nede) return;
+      e.preventDefault();
+      el.scrollLeft = startScroll - (e.clientX - startX) * 1.5;
+    });
+  });
+</script>

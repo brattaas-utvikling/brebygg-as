@@ -3,12 +3,10 @@
 // Gjenbrukbar hero-seksjon for innersider (om-oss, prosjekter).
 //
 // Layout:
-//   Venstre (55 %): eyebrow + H1 + ingress + valgfritt sitat + stats
 //   Høyre  (45 %): bilde i avrundet ramme
 //   Bakgrunn: Charcoal Blue (var(--color-bg-dark))
 //
 // Props:
-//   eyebrow   — tekst over H1
 //   heading   — H1-tekst (støtter HTML via set:html for linjeskift)
 //   lead      — ingress (maks 2 setninger, konkret)
 //   sitat?    — sitattekst
@@ -24,7 +22,6 @@ interface Stat {
 }
 
 interface Props {
-  eyebrow: string;
   heading: string;
   lead: string;
   sitat?: string;
@@ -35,10 +32,28 @@ interface Props {
   imgHeight?: number;
   stats?: Stat[];
   imgFade?: boolean;
+  /**
+   * Bakgrunnen til seksjonen rett under. Bølgen fylles med denne fargen.
+   *
+   * Bølgen var hardkodet til var(--color-bg) (#f5f3ef), mens seksjonen under
+   * på /om-oss/ og /kontakt/ er var(--color-bg-white) (#ffffff). Kurven ble
+   * dermed en synlig off-white flate mot en hvit seksjon.
+   *
+   * Verdiene er de samme fem som sek--*-klassene og som `tema`-feltet i Sanity,
+   * så når klienten bytter tema på seksjonen under (fase 7), følger bølgen med.
+   */
+  nesteTema?: "lys" | "hvit" | "seksjon" | "mork" | "khaki";
 }
 
+const TEMA_BAKGRUNN = {
+  lys:     "var(--color-bg)",
+  hvit:    "var(--color-bg-white)",
+  seksjon: "var(--color-bg-section)",
+  mork:    "var(--color-bg-dark)",
+  khaki:   "var(--color-bg-dark-2)",
+} as const;
+
 const {
-  eyebrow,
   heading,
   lead,
   sitat,
@@ -49,6 +64,7 @@ const {
   imgHeight = 960,
   stats = [],
   imgFade = false,
+  nesteTema = "lys",
 } = Astro.props;
 ---
 
@@ -56,9 +72,8 @@ const {
   <div
     class={`container page-hero__inner ${imgFade ? "page-hero__inner--wide" : ""}`}
   >
-    <!-- Venstre: tekst -->
+    {/* Venstre: tekst */}
     <div class="page-hero__text">
-      <span class="eyebrow eyebrow--inv">{eyebrow}</span>
 
       <h1 class="page-hero__heading" set:html={heading} />
 
@@ -66,7 +81,7 @@ const {
 
       <p class="page-hero__lead">{lead}</p>
 
-      <!-- Sitat (valgfritt) -->
+      {/* Sitat (valgfritt) */}
       {
         sitat && (
           <blockquote class="page-hero__sitat">
@@ -78,7 +93,7 @@ const {
         )
       }
 
-      <!-- Stats (valgfri rad) -->
+      {/* Stats (valgfri rad) */}
       {
         stats.length > 0 && (
           <div class="page-hero__stats" role="list" aria-label="Nøkkeltall">
@@ -93,7 +108,7 @@ const {
       }
     </div>
 
-    <!-- Høyre: bilde -->
+    {/* Høyre: bilde */}
     <div class="page-hero__img-col" aria-hidden="false">
       <div
         class={`page-hero__img-wrap ${imgFade ? "page-hero__img-wrap--fade" : ""}`}
@@ -106,13 +121,13 @@ const {
           fetchpriority="high"
           decoding="async"
         />
-        <!-- Subtil Dusty Olive-ramme øverst til venstre — gir dybde -->
+        {/* Subtil Dusty Olive-ramme øverst til venstre — gir dybde */}
         <div class="page-hero__img-frame" aria-hidden="true"></div>
       </div>
     </div>
   </div>
 
-  <!-- Bølge-overgang til neste seksjon -->
+  {/* Bølge-overgang til neste seksjon */}
   <div class="page-hero__wave" aria-hidden="true">
     <svg
       viewBox="0 0 1440 56"
@@ -121,7 +136,7 @@ const {
     >
       <path
         d="M0 56 C360 0 1080 0 1440 56 L1440 56 L0 56 Z"
-        fill="var(--color-bg)"></path>
+        fill={TEMA_BAKGRUNN[nesteTema]}></path>
     </svg>
   </div>
 </section>

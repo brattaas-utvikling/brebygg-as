@@ -5,9 +5,11 @@
 //
 // Props:
 //   as      — HTML-element å rendre som (default: "div")
-//   class   — ekstra Tailwind-klasser
+//   class   — ekstra klasser
 
-interface Props {
+// Eksporteres slik at Astro faktisk bruker typen. Uten export ser
+// tsserver den som ubrukt, fordi Astro.props types implisitt.
+export interface Props {
   as?:    string;
   class?: string;
   [key: string]: unknown;

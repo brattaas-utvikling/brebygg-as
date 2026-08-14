@@ -1,18 +1,11 @@
 ---
 // src/components/sections/OmOssTeaser.astro
-// Kort presentasjon av BRE Bygg med tre faktabokser.
-// Split-layout: tekst venstre, bilder/fakta høyre.
+// Kort presentasjon av BRE Bygg.
+// Split-layout: tekst venstre, bilde høyre.
 //
 // Bilde: /public/images/om-oss-teaser.webp
 // Format: portrett eller kvadrat, maks 200 KB.
 
-import { COMPANY, NAP } from "@config/site";
-
-const fakta = [
-  { num: `${COMPANY.foundingYear}`,           label: "Grunnlagt"                },
-  { num: `${COMPANY.projectsCompleted}+`,     label: "Prosjekter levert"        },
-  { num: COMPANY.employees,                   label: "Ansatte i fast stilling"  },
-] as const;
 ---
 
 <section
@@ -22,9 +15,8 @@ const fakta = [
   <div class="container">
     <div class="teaser-grid">
 
-      <!-- Venstre: tekst -->
+      {/* Venstre: tekst */}
       <div class="teaser-text reveal">
-        <span class="eyebrow">Om BRE Bygg</span>
 
         <h2 class="section-title mt-3" id="om-oss-teaser-heading">
           Bygget på anbefalinger
@@ -40,7 +32,7 @@ const fakta = [
         <p class="mt-4">
           Som totalentreprenør sitter vi med ansvaret hele veien — ikke bare
           for det vi gjør selv, men for alle underentreprenørene vi
-          koordinerer. Det er slik vi har jobbet siden {COMPANY.foundingYear},
+          koordinerer. Det er slik vi har jobbet hele veien,
           og det er slik vi fortsetter.
         </p>
 
@@ -58,10 +50,10 @@ const fakta = [
         </a>
       </div>
 
-      <!-- Høyre: bilde + faktabokser -->
+      {/* Høyre: bilde + faktabokser */}
       <div class="teaser-right reveal-d1">
 
-        <!-- Bilde -->
+        {/* Bilde */}
         <div class="teaser-img-wrap">
           <img
             src="/images/om-oss-teaser.webp"
@@ -71,22 +63,14 @@ const fakta = [
             width="640"
             height="480"
           />
-          <!-- Overlay-etikett på bildet -->
+          {/* Overlay-etikett på bildet */}
           <div class="teaser-img-badge" aria-hidden="true">
             <span class="badge-dot">Aktiv</span>
             <span>Vestfold</span>
           </div>
         </div>
 
-        <!-- Faktabokser -->
-        <div class="teaser-fakta" role="list" aria-label="Fakta om BRE Bygg">
-          {fakta.map((f) => (
-            <div class="teaser-fakta__item" role="listitem">
-              <div class="teaser-fakta__num">{f.num}</div>
-              <div class="teaser-fakta__label">{f.label}</div>
-            </div>
-          ))}
-        </div>
+      </div>
 
       </div>
 
@@ -169,41 +153,8 @@ const fakta = [
   }
 
   /* ── Faktabokser ──────────────────────────────────────────────────── */
-  .teaser-fakta {
-    display:               grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap:                   0.75rem;
-  }
 
-  .teaser-fakta__item {
-    background-color: var(--color-bg-white);
-    border-radius:    var(--r-md);
-    padding:          1rem;
-    box-shadow:       var(--shadow-sm);
-    text-align:       center;
-    border:           1px solid var(--color-border);
-    transition:       box-shadow var(--transition-base), transform var(--transition-base);
-  }
 
-  .teaser-fakta__item:hover {
-    box-shadow: var(--shadow-md);
-    transform:  translateY(-2px);
-  }
 
-  .teaser-fakta__num {
-    font-family:    var(--ff-display);
-    font-size:      1.5rem;
-    font-weight:    700;
-    color:          var(--color-primary);
-    letter-spacing: -0.02em;
-    line-height:    1;
-  }
 
-  .teaser-fakta__label {
-    font-size:   0.75rem;
-    color:       var(--color-text-s);
-    margin-top:  0.25rem;
-    line-height: 1.4;
-    font-weight: 500;
-  }
 </style>

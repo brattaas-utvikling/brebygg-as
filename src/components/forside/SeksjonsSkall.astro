@@ -1,0 +1,45 @@
+---
+// src/components/forside/SeksjonsSkall.astro
+//
+// Skallet rundt hver blokk klienten setter inn på forsiden.
+//
+// All tema-logikk bor her. Blokkene under vet ingenting om farger — de vet
+// bare om de står på mørk bunn, og det får de vite via `erMorkt`. Det er det
+// som gjør at klienten kan velge fritt mellom fem temaer uten at noen
+// kombinasjon kan bli ulovlig.
+
+import { temaKlasse } from "@lib/sanity/tema";
+
+interface Props {
+  tema?:      string | null;
+  overskrift?: string | null;
+  ingress?:   string | null;
+  /** id på <h2>, for aria-labelledby. */
+  id?:        string;
+  class?:     string;
+}
+
+const { tema, overskrift, ingress, id, class: klasse } = Astro.props;
+const overskriftId = id ?? (overskrift ? `s-${overskrift.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 40)}` : undefined);
+---
+
+<section
+  class:list={["section", temaKlasse(tema), klasse]}
+  aria-labelledby={overskriftId}
+>
+  <div class="container">
+    {(overskrift || ingress) && (
+      <header class="seksjon-topp">
+        {overskrift && <h2 class="section-title" id={overskriftId}>{overskrift}</h2>}
+        {ingress    && <p class="section-desc mt-3">{ingress}</p>}
+      </header>
+    )}
+
+    <slot />
+  </div>
+</section>
+
+<style>
+  .seksjon-topp { max-width: 780px; }
+  .seksjon-topp + :global(*) { margin-top: clamp(2rem, 4vw, 3rem); }
+</style>

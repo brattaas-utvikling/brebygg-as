@@ -1,4 +1,5 @@
 ---
+import { bildeSrc } from "@/content.config";
 // src/components/sections/TjenesterBento.astro
 // Tjeneste-seksjon med bento-grid layout på mørk bakgrunn.
 //
@@ -16,29 +17,42 @@
 //   /public/images/tjenester/naeringsbygg.webp
 //   Alle: maks 200 KB, 1200×800 px, WebP
 
-import { TJENESTER } from "@config/site";
+import { getCollection } from "astro:content";
 
-// Legg til bildereferanse og kortere hover-tekst per tjeneste
-const cards = [
-  {
-    ...TJENESTER[0]!, // nybygg — large
-    imgSrc:  "/images/tjenester/nybygg.jpg",
-    imgAlt:  "Nybygg under oppføring i Tønsberg",
-    cardClass: "tjeneste-card--large",
-  },
-  {
-    ...TJENESTER[1]!, // rehabilitering — small
-    imgSrc:  "/images/hero-forside.webp",
-    imgAlt:  "Rehabilitering av fasade i Sandefjord",
-    cardClass: "tjeneste-card--small",
-  },
-  {
-    ...TJENESTER[2]!, // naeringsbygg — full
-    imgSrc:  "/images/tjenester/naeringsbygg.webp",
-    imgAlt:  "Næringsbygg i Larvik, stål og glass",
-    cardClass: "tjeneste-card--full",
-  },
-] as const;
+// Leser fra tjenester-collection. v1 hadde TJENESTER duplisert i site.ts og
+// plukket dem ut med TJENESTER[0]! — posisjonsavhengig og med non-null-
+// assertion, altså to måter å knekke på hvis rekkefølgen endret seg.
+//
+// bentoStorrelse ligger på tjenesten selv, så klienten styrer layouten fra
+// innholdet. Samme felt går rett inn i Sanity i fase 5.
+const STORRELSE_KLASSE = {
+  large: "tjeneste-card--large",
+  small: "tjeneste-card--small",
+  third: "tjeneste-card--full",
+} as const;
+
+const cards = (await getCollection("tjenester"))
+  .sort((a, b) => a.data.sortOrder - b.data.sortOrder)
+  .map((t) => ({
+    id:          t.id,
+    title:       t.data.kortTittel ?? t.data.title,
+    description: t.data.description,
+    slug:        `/tjenester/${t.id}/`,
+    imgSrc:      bildeSrc(t.data.heroImage),
+    imgAlt:      t.data.heroImage.alt,
+    cardClass:   STORRELSE_KLASSE[t.data.bentoStorrelse],
+  }));
+
+/**
+ * skjulTopp: når komponenten står inne i en SeksjonsSkall på forsiden, eier
+ * skallet overskriften. Uten dette ville tittelen kommet to ganger, og siden
+ * ville fått to <h2> som sier det samme.
+ */
+interface Props {
+  skjulTopp?: boolean;
+}
+
+const { skjulTopp = false } = Astro.props;
 ---
 
 <section
@@ -47,9 +61,10 @@ const cards = [
 >
   <div class="container">
 
-    <!-- Seksjonsheader -->
+    {/* Seksjonsheader. Skjules når blokken står i en SeksjonsSkall på
+        forsiden — der eier skallet overskriften. */}
+    {!skjulTopp && (
     <div class="section-header text-inv reveal">
-      <span class="eyebrow">Hva vi gjør</span>
       <h2 class="section-title mt-3" id="tjenester-heading">
         Tre typer oppdrag.<br />Én ansvarlig.
       </h2>
@@ -60,8 +75,9 @@ const cards = [
         til oss, ikke til ti forskjellige fagfolk.
       </p>
     </div>
+    )}
 
-    <!-- Bento-grid -->
+    {/* Bento-grid */}
     <div class="tjeneste-grid" role="list" aria-label="Tjenester">
       {cards.map((card, i) => (
         <article
@@ -69,7 +85,7 @@ const cards = [
           role="listitem"
           aria-label={card.title}
         >
-          <!-- Bakgrunnsbilde med parallax-hint -->
+          {/* Bakgrunnsbilde med parallax-hint */}
           <div class="tjeneste-card__img-wrap" aria-hidden="true">
             <img
               src={card.imgSrc}
@@ -81,24 +97,24 @@ const cards = [
             />
           </div>
 
-          <!-- Gradient-overlay -->
+          {/* Gradient-overlay */}
           <div class="tjeneste-card__overlay" aria-hidden="true"></div>
 
-          <!-- Kortinnhold -->
+          {/* Kortinnhold */}
           <div class="tjeneste-card__body">
 
-            <!-- Kategori-tag -->
+            {/* Kategori-tag */}
             <span class="tjeneste-card__tag" aria-hidden="true">
               {card.title}
             </span>
 
-            <!-- Tittel — alltid synlig -->
+            {/* Tittel — alltid synlig */}
             <h3 class="tjeneste-card__title">{card.title}</h3>
 
-            <!-- Beskrivelse — avdukes ved hover -->
+            {/* Beskrivelse — avdukes ved hover */}
             <p class="tjeneste-card__desc">{card.description}</p>
 
-            <!-- Lenke — avdukes ved hover -->
+            {/* Lenke — avdukes ved hover */}
             <a
               href={card.slug}
               class="tjeneste-card__link"

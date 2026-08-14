@@ -1,0 +1,60 @@
+---
+// src/components/sanity/Bilde.astro
+//
+// Ett inngangspunkt for alle bilder, uansett kilde.
+//
+// Da kildebryteren kom inn, ga typesystemet 31 feil — ett per sted som leste
+// `heroImage.src` direkte. Det var ikke støy: hvert av dem ville brutt den
+// dagen innholdet kom fra Sanity i stedet for markdown.
+//
+// Alternativet var en type guard på 31 steder. Denne komponenten gjør det
+// samme én gang. Kaller du <Bilde kilde={...} alt={...} />, får du automatisk
+// srcset, LQIP og riktige dimensjoner når kilden er Sanity — og en enkel <img>
+// når den er en lokal fil.
+
+import { erSanityBilde, type Bilde as BildeType } from "@/content.config";
+import SanityBilde from "./SanityBilde.astro";
+
+interface Props {
+  kilde:      BildeType;
+  /** Overstyrer alt-teksten i dataene. Bruk "" for rent dekorative bilder. */
+  alt?:       string;
+  sizes?:     string;
+  prioritet?: boolean;
+  class?:     string;
+  forhold?:   string;
+  /** Fallback-dimensjoner for lokale bilder uten width/height i frontmatter. */
+  bredde?:    number;
+  hoyde?:     number;
+}
+
+const {
+  kilde, alt, sizes, prioritet = false,
+  class: klasse, forhold, bredde = 800, hoyde = 500,
+} = Astro.props;
+
+const altTekst = alt ?? kilde.alt;
+---
+
+{erSanityBilde(kilde) ? (
+  <SanityBilde
+    kilde={kilde as never}
+    alt={altTekst}
+    sizes={sizes}
+    prioritet={prioritet}
+    class={klasse}
+    forhold={forhold}
+  />
+) : (
+  <img
+    src={kilde.src}
+    alt={altTekst}
+    width={kilde.width ?? bredde}
+    height={kilde.height ?? hoyde}
+    loading={prioritet ? "eager" : "lazy"}
+    decoding={prioritet ? "sync" : "async"}
+    fetchpriority={prioritet ? "high" : "auto"}
+    class={klasse}
+    style={forhold ? `aspect-ratio:${forhold}` : undefined}
+  />
+)}

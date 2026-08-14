@@ -9,28 +9,18 @@
 //   4. TeamSeksjon — portrettkort med navn og rolle
 //   5. VerdierSeksjon — 4 verdier på mørk bakgrunn
 //   6. HmsSeksjon — HMS-punkter + sertifiserings-badges
-//   7. CtaSeksjon — kontaktoppfordring
 //   8. Footer   (i PageLayout)
 
 import PageLayout from "@layouts/PageLayout.astro";
 import HeroPage from "@components/sections/HeroPage.astro";
-// import HistorieSeksjon from "@components/sections/HistorieSeksjon.astro";
 import TeamSeksjon from "@components/sections/TeamSeksjon.astro";
 import VerdierSeksjon from "@components/sections/VerdierSeksjon.astro";
 import HmsSeksjon from "@components/sections/HmsSeksjon.astro";
-import CtaSeksjon from "@components/sections/CtaSeksjon.astro";
 
-import { PAGE_META, COMPANY } from "@config/site";
+import { PAGE_META, FAKTA_BEKREFTET } from "@config/site";
 import { getOmOssSchema } from "@lib/seo/jsonld";
 
 const schema = getOmOssSchema(PAGE_META.omOss.canonical);
-
-// Hero-stats — konkrete tall
-const heroStats = [
-  { num: `${COMPANY.foundingYear}`, label: "Grunnlagt" },
-  { num: `${COMPANY.projectsCompleted}+`, label: "Prosjekter levert" },
-  { num: COMPANY.employees, label: "Faste ansatte" },
-] as const;
 
 // Sitat fra daglig leder (oppdater tekst og kilde)
 const sitat =
@@ -44,38 +34,29 @@ const sitatKilde = "Rudi, BRE Bygg AS";
   heroImage="/images/om-oss-hero.webp"
 >
   <main id="main-content">
-    <!-- 2. HeroPage — split-hero -->
+    {/* 2. HeroPage — split-hero */}
     <HeroPage
-      eyebrow="Om BRE Bygg"
+      nesteTema="hvit"
       heading="Totalentreprenør<br />i Vestfold"
-      lead={`BRE Bygg er et team på ${COMPANY.employees} faste ansatte med base i Sandefjord. Vi leverer nybygg, rehabilitering og næringsbygg i Tønsberg, Sandefjord, Larvik og Horten.`}
+      lead={`BRE Bygg er ${FAKTA_BEKREFTET.ansatte} personer med base i Sandefjord. Vi leverer nybygg, rehabilitering og næringsbygg i Tønsberg, Sandefjord, Larvik og Horten — som totalentreprenør, med én prosjektleder på hvert oppdrag.`}
       sitat={sitat}
       sitatKilde={sitatKilde}
       imgSrc="/images/om-oss-hero.webp"
       imgAlt="BRE Bygg-team på byggeplass i Vestfold"
       imgWidth={800}
       imgHeight={960}
-      stats={[...heroStats]}
       imgFade={true}
     />
 
-    <!-- 3. Historikk — vertikal tidslinje -->
-    <!-- <HistorieSeksjon /> -->
-
-    <!-- 4. Team — portrettkort -->
+    {/* 3. Historikk — vertikal tidslinje */}
+    {/* 4. Team — portrettkort */}
     <TeamSeksjon />
 
-    <!-- 5. Verdier — 4 verdier på mørk bakgrunn -->
+    {/* 5. Verdier — 4 verdier på mørk bakgrunn */}
     <VerdierSeksjon />
 
-    <!-- 6. HMS og sertifiseringer -->
+    {/* 6. HMS og sertifiseringer */}
     <HmsSeksjon />
 
-    <!-- 7. CTA — lys variant, for variasjon etter mørk HMS-seksjon -->
-    <CtaSeksjon
-      variant="light"
-      heading="Klar for et prosjekt i Vestfold?"
-      sub="Ring eller send en e-post. Vi svarer innen én arbeidsdag og setter opp et møte uten forpliktelser."
-    />
   </main>
 </PageLayout>

@@ -1,26 +1,18 @@
 ---
 // src/components/sections/KartSeksjon.astro
-// Google Maps embed for BRE Bygg AS, Nordre Foksrød 21, Sandefjord.
+// Kart for BRE Bygg AS, Nordre Fokserød 21, Sandefjord.
 //
-// Implementasjon:
-//   - Privacy-enhanced embed (maps.google.com/maps, ikke Maps JS API)
-//   - loading="lazy" på iframe — laster ikke før scroll
-//   - referrerpolicy="no-referrer-when-downgrade" — standard sikker policy
-//   - Placeholder vises statisk til iframe er klar (CSS opacity-overgang)
-//   - Ingen cookies uten brukerinteraksjon (ingen Maps JS API-kall)
+// Klikk-for-å-laste-fasade. Tre grunner, ikke én:
+//   1. Personvern. Et Google-innhold-iframe setter forespørsler mot Google idet
+//      siden lastes. Med fasade skjer det først når brukeren ber om det.
+//   2. LCP. Iframen er tung og lå i den kritiske lastebanen på /kontakt/.
+//   3. Sammenlignbarhet. Fasaden ser lik ut uansett om vi bruker den nøkkelløse
+//      q=-formen eller Embed API senere — bytte av MAPS.embedUrl er hele jobben.
 //
-// VIKTIG: Erstatt embedUrl i site.ts med riktig URL fra Google Maps:
-//   1. Åpne maps.google.com og søk etter adressen
-//   2. Klikk Del → Bygg inn et kart
-//   3. Kopier src-URL fra <iframe>-koden
+// v1 pekte på en oppdiktet pb=-streng med koordinater for Sandefjord sentrum.
+// Kartet viste altså feil sted, ~5,5 km unna, uten at noe feilet.
 
-import { NAP, MAPS } from "@config/site";
-
-// Bygger en Google Maps direktelenke for "Åpne i kart"-knappen
-const mapsDirectLink =
-  `https://maps.google.com/maps?q=${encodeURIComponent(
-    `${NAP.address.street}, ${NAP.address.postalCode} ${NAP.address.city}, ${NAP.address.countryFull}`
-  )}&hl=no`;
+import { NAP, MAPS, ADRESSE_EN_LINJE, OPENING_HOURS } from "@config/site";
 ---
 
 <section
@@ -29,11 +21,10 @@ const mapsDirectLink =
 >
   <div class="container">
 
-    <!-- Header: kort introduksjon + lenke -->
+    {/* Header: kort introduksjon + lenke */}
     <div class="kart-header">
       <div class="kart-header__inner">
         <div>
-          <span class="eyebrow">Finn oss</span>
           <h2
             class="section-title mt-2"
             id="kart-heading"
@@ -42,7 +33,7 @@ const mapsDirectLink =
           </h2>
         </div>
         <a
-          href={mapsDirectLink}
+          href={MAPS.directUrl}
           class="btn btn--outline btn--sm kart-header__cta"
           target="_blank"
           rel="noopener noreferrer"
@@ -57,34 +48,45 @@ const mapsDirectLink =
       </div>
     </div>
 
-    <!-- Kartramme -->
-    <div class="kart-ramme" role="img" aria-label={`Kart som viser ${NAP.name}, ${NAP.address.street}, ${NAP.address.city}`}>
+    {/* Kartramme */}
+    <div class="kart-ramme">
 
-      <!--
-        Privacy-enhanced embed:
-        Bruker maps.google.com/maps (ikke maps.googleapis.com) —
-        dette er Google Maps' innebygde embed uten samtykke-banner.
-        loading="lazy": iframe lastes ikke før den er nær viewport.
-        referrerpolicy: hindrer referrer-lekkasje.
-      -->
-      <iframe
-        src={MAPS.embedUrl}
-        title={`Kart: ${NAP.name} — ${NAP.address.street}, ${NAP.address.city}`}
-        loading="lazy"
-        referrerpolicy="no-referrer-when-downgrade"
-        allowfullscreen
-        aria-hidden="false"
-      ></iframe>
+      {/* Fasade. Iframen settes inn først ved klikk. */}
+      <div class="kart-fasade" data-kart-fasade>
+        <div class="kart-fasade__innhold">
+          <p class="kart-fasade__adresse">
+            <strong>{NAP.name}</strong><br />
+            {ADRESSE_EN_LINJE}<br />
+            <span class="kart-fasade__tid">{OPENING_HOURS.display}</span>
+          </p>
+          <button type="button" class="btn btn--primary btn--sm" data-kart-last>
+            Vis kart
+          </button>
+          <p class="kart-fasade__notis">
+            Kartet lastes fra Google. Ingen data sendes før du trykker.
+          </p>
+        </div>
+      </div>
+
+      <template data-kart-mal>
+        <iframe
+          src={MAPS.embedUrl}
+          title={`Kart: ${NAP.name}, ${ADRESSE_EN_LINJE}`}
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          allowfullscreen
+        ></iframe>
+      </template>
     </div>
 
-    <!-- Under kartet: adresse + lenke -->
+    {/* Under kartet: adresse + lenke */}
     <div class="kart-under">
       <address class="kart-adresse" aria-label="Besøksadresse">
         <strong>{NAP.name}</strong>
         {NAP.address.street}, {NAP.address.postalCode} {NAP.address.city}
       </address>
       <a
-        href={mapsDirectLink}
+        href={MAPS.directUrl}
         class="btn btn--outline btn--sm"
         target="_blank"
         rel="noopener noreferrer"
@@ -100,3 +102,55 @@ const mapsDirectLink =
 
   </div>
 </section>
+
+<script>
+  // Setter inn kart-iframen ved klikk. Ingen forespørsel mot Google før det.
+  const knapp  = document.querySelector<HTMLButtonElement>("[data-kart-last]");
+  const fasade = document.querySelector<HTMLElement>("[data-kart-fasade]");
+  const mal    = document.querySelector<HTMLTemplateElement>("[data-kart-mal]");
+
+  if (knapp && fasade && mal) {
+    knapp.addEventListener("click", () => {
+      const iframe = mal.content.cloneNode(true) as DocumentFragment;
+      fasade.replaceWith(iframe);
+      // Flytt fokus til kartet, ellers havner det på <body> etter at knappen
+      // brukeren nettopp trykket forsvinner ut av DOM.
+      document.querySelector<HTMLIFrameElement>(".kart-ramme iframe")?.focus();
+    }, { once: true });
+  }
+</script>
+
+<style>
+  .kart-fasade {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 1.5rem;
+    text-align: center;
+    background-color: var(--color-bg-section);
+    background-image:
+      linear-gradient(var(--color-border-l) 1px, transparent 1px),
+      linear-gradient(90deg, var(--color-border-l) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+
+  .kart-fasade__adresse {
+    margin: 0 0 1rem;
+    color: var(--color-text);
+    line-height: 1.6;
+    max-width: none;
+  }
+
+  .kart-fasade__tid {
+    color: var(--color-text-m);
+    font-size: 0.875rem;
+  }
+
+  .kart-fasade__notis {
+    margin: 0.75rem 0 0;
+    font-size: 0.75rem;
+    color: var(--color-text-m);
+    max-width: 28ch;
+  }
+</style>

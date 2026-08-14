@@ -1,0 +1,36 @@
+---
+import SeksjonsSkall from "../SeksjonsSkall.astro";
+import Bilde from "@components/sanity/Bilde.astro";
+interface Props { blokk: Record<string, any> }
+const { blokk } = Astro.props;
+const layout = blokk.layout ?? "bildeHoyre";
+const cta = blokk.cta;
+---
+<SeksjonsSkall tema={blokk.tema}>
+  <div class:list={["tekstbilde", `tekstbilde--${layout}`]}>
+    <div class="tekstbilde__tekst">
+      {blokk.overskrift && <h2 class="section-title mt-2">{blokk.overskrift}</h2>}
+      {blokk.tekst      && <p class="section-desc mt-3">{blokk.tekst}</p>}
+      {cta && (
+        <a href={cta.url} class:list={["btn", "mt-5", cta.stil === "outline" ? "btn--outline" : "btn--primary"]}>
+          {cta.tekst}
+        </a>
+      )}
+    </div>
+    {blokk.bilde && (
+      <div class="tekstbilde__bilde">
+        <Bilde kilde={blokk.bilde} forhold="4/3" />
+      </div>
+    )}
+  </div>
+</SeksjonsSkall>
+
+<style>
+  .tekstbilde { display: grid; gap: clamp(2rem, 5vw, 4rem); align-items: center; }
+  @media (min-width: 900px) {
+    .tekstbilde--bildeHoyre  { grid-template-columns: 1fr 1fr; }
+    .tekstbilde--bildeVenstre { grid-template-columns: 1fr 1fr; }
+    .tekstbilde--bildeVenstre .tekstbilde__tekst { order: 2; }
+  }
+  .tekstbilde__bilde :global(img) { border-radius: var(--r-lg); width: 100%; }
+</style>

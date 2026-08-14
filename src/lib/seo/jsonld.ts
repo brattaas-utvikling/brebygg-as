@@ -8,9 +8,13 @@ import {
   NAP,
   OPENING_HOURS,
   AREA_SERVED,
-  COMPANY,
+  HOVEDKOMMUNER,
+  FAKTA_BEKREFTET,
+  SOCIAL,
+  MAPS,
   type FaqItem,
 } from "@config/site";
+import { TEAM } from "@config/om-oss";
 
 // --------------------------------------------------------------------------
 // Hjelpefunksjoner
@@ -30,19 +34,23 @@ function websiteId(): string {
 
 export function buildLocalBusiness() {
   return {
-    "@type":       "LocalBusiness",
+    "@type":       ["LocalBusiness", "GeneralContractor"],
     "@id":         orgId(),
     "name":        NAP.name,
     "url":         SITE_URL,
-    "description": `Totalentreprenør i Vestfold. Nybygg, rehabilitering og næringsbygg i ${AREA_SERVED.slice(0, 4).join(", ")} og omegn.`,
+    "description": `Totalentreprenør i Vestfold. Nybygg, rehabilitering og næringsbygg i ${HOVEDKOMMUNER.join(", ")} og omegn.`,
     "telephone":   NAP.phone,
     "email":       NAP.email,
-    "foundingDate": String(COMPANY.foundingYear),
+    "vatID":       `NO${NAP.orgNumber.replace(/\s/g, "")}MVA`,
+    "numberOfEmployees": {
+      "@type": "QuantitativeValue",
+      "value": FAKTA_BEKREFTET.ansatte,
+    },
     "address": {
-      "@type":         "PostalAddress",
-      "streetAddress":  NAP.address.street,
-      "addressLocality": NAP.address.city,
+      "@type":           "PostalAddress",
+      "streetAddress":   NAP.address.street,
       "postalCode":      NAP.address.postalCode,
+      "addressLocality": NAP.address.city,
       "addressRegion":   NAP.address.region,
       "addressCountry":  NAP.address.country,
     },
@@ -51,18 +59,47 @@ export function buildLocalBusiness() {
       "latitude":  NAP.geo.latitude,
       "longitude": NAP.geo.longitude,
     },
-    "areaServed": AREA_SERVED,
+    "areaServed": AREA_SERVED.map((navn) => ({ "@type": "City", "name": navn })),
     "openingHoursSpecification": OPENING_HOURS.schema,
-    "priceRange": "Kontakt for tilbud",
-    "hasMap": `https://maps.google.com/?q=${encodeURIComponent(
-      `${NAP.address.street}, ${NAP.address.postalCode} ${NAP.address.city}`
-    )}`,
-"sameAs": [
-  "https://www.facebook.com/p/BRE-Bygg-61573773851023/",
-  "https://www.instagram.com/brebyggas/",
-  "https://www.linkedin.com/company/bre-bygg-as/"
-],
+    "hasMap":     MAPS.directUrl,
+    "sameAs":     [SOCIAL.facebook, SOCIAL.instagram, SOCIAL.linkedin],
+
+    // Kontaktpunkt på organisasjonsnivå. Rollebasert med vilje: en sitering som
+    // peker på en persons adresse brekker den dagen personen bytter rolle, og
+    // NAP-konsistens er en av de få målbare faktorene i lokalt søk.
+    "contactPoint": [
+      {
+        "@type":             "ContactPoint",
+        "contactType":       "customer service",
+        "email":             NAP.email,
+        "telephone":         NAP.phone,
+        "areaServed":        "NO",
+        "availableLanguage": "Norwegian",
+      },
+    ],
+
+    // De navngitte personene ligger som employee. Det er dette som gir uttelling
+    // for AEO: «hvem er daglig leder i BRE Bygg» er et spørsmål en språkmodell
+    // kan svare på og sitere. Et påstått prosjekttall er det ikke.
+    "employee": TEAM.map((m) => ({
+      "@type":     "Person",
+      "@id":       `${SITE_URL}/om-oss/#${slugifiser(m.navn)}`,
+      "name":      m.navn,
+      "jobTitle":  m.rolle,
+      "worksFor":  { "@id": orgId() },
+      ...(m.epost ? { "email": m.epost } : {}),
+      ...(m.tlf   ? { "telephone": m.tlf.replace(/\s/g, "") } : {}),
+    })),
   };
+}
+
+/** Stabil ankerid for Person-noder. Brukes også som id på /om-oss/-kortene. */
+export function slugifiser(navn: string): string {
+  return navn
+    .toLowerCase()
+    .replace(/æ/g, "ae").replace(/ø/g, "oe").replace(/å/g, "aa")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
 }
 
 // --------------------------------------------------------------------------
@@ -84,12 +121,25 @@ export function buildWebSite() {
 // @graph — base for alle sider
 // --------------------------------------------------------------------------
 
-export function buildBaseGraph() {
+/**
+ * Setter sammen en JSON-LD-graf.
+ *
+ * LocalBusiness og WebSite er med på hver eneste side og legges til her, én
+ * gang. Før dette sto de gjentatt i alle seks get*Schema-funksjonene — seks
+ * steder å glemme å oppdatere når organisasjonsnoden endrer seg.
+ *
+ * `undefined` filtreres bort, slik at kallsteder kan skrive
+ * `faqs.length ? buildFaqPage(faqs) : undefined` uten et if.
+ */
+export function komponerGraf(
+  ...noder: Array<Record<string, unknown> | undefined>
+) {
   return {
     "@context": "https://schema.org",
     "@graph": [
       buildLocalBusiness(),
       buildWebSite(),
+      ...noder.filter((n): n is Record<string, unknown> => n !== undefined),
     ],
   };
 }
@@ -98,7 +148,7 @@ export function buildBaseGraph() {
 // FAQPage — kun landingssiden
 // --------------------------------------------------------------------------
 
-export function buildFaqPage(faqs: FaqItem[]) {
+export function buildFaqPage(faqs: readonly FaqItem[]) {
   return {
     "@type": "FAQPage",
     "@id":   `${SITE_URL}/#faq`,
@@ -122,7 +172,7 @@ export type BreadcrumbInput = {
   url:   string;
 };
 
-export function buildBreadcrumbList(items: BreadcrumbInput[]) {
+export function buildBreadcrumbList(items: readonly BreadcrumbInput[]) {
   return {
     "@type":           "BreadcrumbList",
     "itemListElement": items.map((item, index) => ({
@@ -143,8 +193,8 @@ export function buildAboutPage(canonical: string) {
     "@type":     "AboutPage",
     "@id":       `${canonical}#webpage`,
     "url":        canonical,
-    "name":      `Om BRE Bygg — Totalentreprenør i Vestfold siden ${COMPANY.foundingYear}`,
-    "description": `BRE Bygg har bygget i Vestfold siden ${COMPANY.foundingYear}. Møt menneskene bak prosjektene.`,
+    "name":      "Om BRE Bygg — Totalentreprenør i Vestfold",
+    "description": "Tre personer, én kontaktflate. Møt menneskene bak prosjektene i Vestfold.",
     "inLanguage": "nb-NO",
     "isPartOf":  { "@id": websiteId() },
     "about":     { "@id": orgId() },
@@ -223,75 +273,102 @@ export function buildContactPage(canonical: string) {
 // Disse funksjonene returnerer ferdig @graph-objekt klart for JSON.stringify
 // --------------------------------------------------------------------------
 
-export function getHomeSchema(faqs: FaqItem[]) {
-  return {
-    "@context": "https://schema.org",
-    "@graph": [
-      buildLocalBusiness(),
-      buildWebSite(),
-      buildFaqPage(faqs),
-    ],
-  };
+export function getHomeSchema(faqs: readonly FaqItem[]) {
+  // Tom liste → ingen FAQPage-node.
+  //
+  // Dette var en faktisk feil: getHomeSchema la ut FAQPage uansett, også med
+  // et tomt mainEntity-array. Med en klientkomponert forside kan faqBlokken
+  // fjernes når som helst, og da ville vi beskrevet innhold brukeren ikke ser.
+  // Fanget av testen som fjerner blokken og sjekker grafen.
+  return komponerGraf(faqs.length > 0 ? buildFaqPage(faqs) : undefined);
 }
 
 export function getOmOssSchema(canonical: string) {
-  return {
-    "@context": "https://schema.org",
-    "@graph": [
-      buildLocalBusiness(),
-      buildWebSite(),
-      buildAboutPage(canonical),
-      buildBreadcrumbList([
-        { label: "Hjem",    url: `${SITE_URL}/` },
-        { label: "Om oss",  url: canonical },
-      ]),
-    ],
-  };
+  return komponerGraf(
+    buildAboutPage(canonical),
+    buildBreadcrumbList([
+      { label: "Hjem",   url: `${SITE_URL}/` },
+      { label: "Om oss", url: canonical },
+    ]),
+  );
 }
 
 export function getProsjekterSchema(canonical: string) {
-  return {
-    "@context": "https://schema.org",
-    "@graph": [
-      buildLocalBusiness(),
-      buildWebSite(),
-      buildCollectionPage(canonical),
-      buildBreadcrumbList([
-        { label: "Hjem",       url: `${SITE_URL}/` },
-        { label: "Prosjekter", url: canonical },
-      ]),
-    ],
-  };
+  return komponerGraf(
+    buildCollectionPage(canonical),
+    buildBreadcrumbList([
+      { label: "Hjem",       url: `${SITE_URL}/` },
+      { label: "Prosjekter", url: canonical },
+    ]),
+  );
 }
 
 export function getProsjektSlugSchema(article: ArticleInput, projectTitle: string) {
-  const prosjekterUrl = `${SITE_URL}/prosjekter/`;
-  return {
-    "@context": "https://schema.org",
-    "@graph": [
-      buildLocalBusiness(),
-      buildWebSite(),
-      buildArticle(article),
-      buildBreadcrumbList([
-        { label: "Hjem",        url: `${SITE_URL}/` },
-        { label: "Prosjekter",  url: prosjekterUrl },
-        { label: projectTitle,  url: article.canonical },
-      ]),
-    ],
-  };
+  return komponerGraf(
+    buildArticle(article),
+    buildBreadcrumbList([
+      { label: "Hjem",       url: `${SITE_URL}/` },
+      { label: "Prosjekter", url: `${SITE_URL}/prosjekter/` },
+      { label: projectTitle, url: article.canonical },
+    ]),
+  );
 }
 
 export function getKontaktSchema(canonical: string) {
+  return komponerGraf(
+    buildContactPage(canonical),
+    buildBreadcrumbList([
+      { label: "Hjem",    url: `${SITE_URL}/` },
+      { label: "Kontakt", url: canonical },
+    ]),
+  );
+}
+
+// --------------------------------------------------------------------------
+// Service — tjenestesider
+//
+// Kobles til LocalBusiness via provider: { "@id": orgId() }. Uten det leddet
+// står Service-noden løsrevet, og Google ser ikke at det er BRE Bygg som
+// leverer tjenesten.
+// --------------------------------------------------------------------------
+
+type ServiceInput = {
+  navn:        string;
+  beskrivelse: string;
+  canonical:   string;
+  kategori:    string;
+};
+
+export function buildService(input: ServiceInput) {
   return {
-    "@context": "https://schema.org",
-    "@graph": [
-      buildLocalBusiness(),
-      buildWebSite(),
-      buildContactPage(canonical),
-      buildBreadcrumbList([
-        { label: "Hjem",    url: `${SITE_URL}/` },
-        { label: "Kontakt", url: canonical },
-      ]),
-    ],
+    "@type":       "Service",
+    "@id":         `${input.canonical}#service`,
+    "name":        input.navn,
+    "description": input.beskrivelse,
+    "serviceType": input.kategori,
+    "provider":    { "@id": orgId() },
+    "areaServed":  AREA_SERVED.map((navn) => ({ "@type": "City", "name": navn })),
+    "url":         input.canonical,
   };
+}
+
+/**
+ * Full graf for en tjenesteside.
+ *
+ * FAQPage emitteres kun når tjenesten faktisk har spørsmål, og de spørsmålene
+ * vises på siden. Schema som beskriver innhold brukeren ikke ser, er nettopp
+ * det Googles retningslinjer for strukturerte data slår ned på.
+ */
+export function getTjenesteSchema(
+  service: ServiceInput,
+  breadcrumbs: readonly BreadcrumbInput[],
+  faqs: readonly FaqItem[],
+) {
+  return komponerGraf(
+    buildService(service),
+    buildBreadcrumbList(breadcrumbs),
+    // FAQPage kun når spørsmålene faktisk vises på siden. Schema som beskriver
+    // innhold brukeren ikke ser, er det Googles retningslinjer slår ned på.
+    faqs.length > 0 ? buildFaqPage(faqs) : undefined,
+  );
 }

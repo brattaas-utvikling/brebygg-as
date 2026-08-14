@@ -29,12 +29,11 @@ const isDark = variant === "dark";
 >
   <div class="container">
     <div class="cta-inner reveal">
-      <!-- Dekorativt element bak teksten -->
+      {/* Dekorativt element bak teksten */}
       <div class="cta-bg-deco" aria-hidden="true"></div>
 
-      <!-- Tekst -->
+      {/* Tekst */}
       <div class="cta-text">
-        <span class={`eyebrow ${isDark ? "" : ""}`}>Ta kontakt</span>
         <h2
           class={`cta-heading ${isDark ? "text-inv-heading" : ""}`}
           id="cta-heading"
@@ -46,7 +45,7 @@ const isDark = variant === "dark";
         </p>
       </div>
 
-      <!-- Knapper -->
+      {/* Knapper */}
       <div class="cta-actions">
         <a href="/kontakt/" class="btn btn--primary btn--lg"> Ta kontakt </a>
         <a

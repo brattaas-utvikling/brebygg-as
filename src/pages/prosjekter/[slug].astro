@@ -18,20 +18,20 @@ import type { CollectionEntry }     from "astro:content";
 import PageLayout                   from "@layouts/PageLayout.astro";
 import Breadcrumbs                  from "@components/seo/Breadcrumbs.astro";
 
-import { SITE_URL, PAGE_META, NAP } from "@config/site";
+import { SITE_URL, NAP, type PageMeta } from "@config/site";
 import { getProsjektSlugSchema }    from "@lib/seo/jsonld";
-import type { Prosjekt } from "@content/config";
+import { KATEGORI_LABEL, STATUS_LABEL, bildeSrc, bildeTekst, tilTekst } from "@/content.config";
+import Bilde from "@components/sanity/Bilde.astro";
 
 // --------------------------------------------------------------------------
 // getStaticPaths — genererer én URL per prosjekt
 // --------------------------------------------------------------------------
 
 export async function getStaticPaths() {
-  // const entries = await getCollection("prosjekter");
   const entries: CollectionEntry<"prosjekter">[] = await getCollection("prosjekter");
   return entries.map(entry => ({
-    // params: { slug: entry.slug },
-    params: { slug: entry.slug! },
+    // params: { slug: entry.id },
+    params: { slug: entry.id },
     props:  { entry },
   }));
 }
@@ -54,16 +54,8 @@ const { Content } = await render(entry);
 // Kategori-etiketter og styling
 // --------------------------------------------------------------------------
 
-const KATEGORI_LABEL: Record<typeof data.kategori, string> = {
-  nybygg:         "Nybygg",
-  rehabilitering: "Rehabilitering",
-  naeringsbygg:   "Næringsbygg",
-};
-
-const STATUS_LABEL: Record<typeof data.status, string> = {
-  ferdig:   "Ferdigstilt",
-  pagaende: "Pågående",
-};
+// KATEGORI_LABEL og STATUS_LABEL bor i content.config.ts. v1 hadde dem
+// duplisert i tre filer, som er tre steder å glemme å oppdatere.
 
 const erPågående = data.status === "pagaende";
 
@@ -71,15 +63,11 @@ const erPågående = data.status === "pagaende";
 // SEO-data
 // --------------------------------------------------------------------------
 
-// const canonicalPath = `/prosjekter/${entry.slug}/`;
-const canonicalPath = `/prosjekter/${entry.slug!}/`;
-// const canonical     = `${SITE_URL}${canonicalPath}`;
-const canonical = `${SITE_URL ?? "https://brebygg.no"}${canonicalPath}`;
+const canonicalPath = `/prosjekter/${entry.id}/`;
+const canonical = `${SITE_URL}${canonicalPath}`;
 
-// const seoTitle       = data.seoTitle       ?? `${data.title} — ${NAP.name}`;
-// const seoDescription = data.seoDescription ?? data.description;
 const seoTitle       = data.seoTitle       ?? `${data.title} — ${NAP.name}`;
-const seoDescription = data.seoDescription ?? data.description ?? "";
+const seoDescription = data.seoDescription ?? data.description;
 // Article-schema trenger en dato — bruk 1. januar i prosjektåret
 const datePublished = `${data.aar}-01-01`;
 
@@ -88,27 +76,31 @@ const schema = getProsjektSlugSchema(
     title:         seoTitle,
     description:   seoDescription,
     canonical,
-    imageUrl:      `${SITE_URL}${data.heroImage.src}`,
+    imageUrl:      `${SITE_URL}${bildeSrc(data.heroImage)}`,
     datePublished,
   },
   data.title
 );
 
-const pageMeta = {
+const pageMeta: PageMeta = {
   title:       seoTitle,
   description: seoDescription,
-  canonical:   canonical as string,
+  canonical,
+  ogImage:     `${SITE_URL}${bildeSrc(data.heroImage)}`,
+  // Nå mulig fordi PageMeta bærer pageType. I v1 manglet feltet på typen, så
+  // og:type sto på "website" på alle prosjektsider selv om Article-schema var
+  // korrekt — schema og OG-tagger fortalte ulike ting om samme side.
+  pageType:    "article",
 };
 
 // --------------------------------------------------------------------------
 // Relaterte prosjekter
 // --------------------------------------------------------------------------
 
-// const alleProsjekter = await getCollection("prosjekter");
 const alleProsjekter: CollectionEntry<"prosjekter">[] = await getCollection("prosjekter");
 
 const relaterte = alleProsjekter
-  .filter(p => p.slug !== entry.slug && p.data.kategori === data.kategori)
+  .filter(p => p.id !== entry.id && p.data.kategori === data.kategori)
   .sort((a, b) => b.data.aar - a.data.aar)
   .slice(0, 3);
 
@@ -116,7 +108,7 @@ const relaterte = alleProsjekter
 const ekstraRelaterte =
   relaterte.length < 3
     ? alleProsjekter
-        .filter(p => p.slug !== entry.slug && !relaterte.some(r => r.slug === p.slug))
+        .filter(p => p.id !== entry.id && !relaterte.some(r => r.id === p.id))
         .sort((a, b) => b.data.aar - a.data.aar)
         .slice(0, 3 - relaterte.length)
     : [];
@@ -127,12 +119,6 @@ const visRelaterte = [...relaterte, ...ekstraRelaterte];
 // Hjelpere
 // --------------------------------------------------------------------------
 
-// function kategoriLabel(k: typeof data.kategori): string {
-//   return KATEGORI_LABEL[k];
-// }
-function kategoriLabel(k: typeof data.kategori): string {
-  return KATEGORI_LABEL[k] ?? k;
-}
 
 const harNøkkeltall  = data.nokkeltall  && data.nokkeltall.length  > 0;
 const harGalleri     = data.galleri     && data.galleri.length     > 0;
@@ -142,54 +128,49 @@ const harCasestudie  = data.utfordring  || data.losning  || data.resultat;
 <PageLayout
   meta={pageMeta}
   schema={schema}
-  heroImage={data.heroImage.src}
+  heroImage={bildeSrc(data.heroImage)}
 >
   <main id="main-content">
 
-    <!-- ================================================================
+    {/* ================================================================
          1. SLUG-HERO
-         ================================================================ -->
+         ================================================================ */}
     <section class="slug-hero" aria-labelledby="prosjekt-heading">
 
-      <!-- Bakgrunnsbilde — preloadet via heroImage-prop i PageLayout -->
+      {/* Bakgrunnsbilde — preloadet via heroImage-prop i PageLayout */}
       <div class="slug-hero__bg" aria-hidden="true">
-        <img
-          src={data.heroImage.src}
-          alt=""
-          width={data.heroImage.width  ?? 1600}
-          height={data.heroImage.height ?? 900}
-          fetchpriority="high"
-          decoding="async"
-        />
+        <Bilde kilde={data.heroImage} alt="" prioritet bredde={1600} hoyde={900} />
       </div>
 
-      <!-- Gradient-overlay -->
+      {/* Gradient-overlay */}
       <div class="slug-hero__overlay" aria-hidden="true"></div>
 
-      <!-- Innhold -->
+      {/* Innhold */}
       <div class="slug-hero__content">
         <div class="container">
 
-          <!-- Brødsti -->
+          {/* Brødsti */}
           <Breadcrumbs
             customPath={canonicalPath}
+            labels={{ [entry.id]: data.title }}
+            variant="inv"
           />
 
-          <!-- Kategori/status-tag -->
+          {/* Kategori/status-tag */}
           <div
             class={`slug-hero__tag ${erPågående ? "slug-hero__tag--pågående" : ""}`}
-            aria-label={erPågående ? "Pågående prosjekt" : `Kategori: ${kategoriLabel(data.kategori)}`}
+            aria-label={erPågående ? "Pågående prosjekt" : `Kategori: ${KATEGORI_LABEL[data.kategori]}`}
           >
             <span class="slug-hero__tag-dot" aria-hidden="true"></span>
-            {erPågående ? "Pågående" : kategoriLabel(data.kategori)}
+            {erPågående ? "Pågående" : KATEGORI_LABEL[data.kategori]}
           </div>
 
-          <!-- H1 -->
+          {/* H1 */}
           <h1 class="slug-hero__heading" id="prosjekt-heading">
             {data.title}
           </h1>
 
-          <!-- Meta-rad: sted · år · varighet -->
+          {/* Meta-rad: sted · år · varighet */}
           <div class="slug-hero__meta" role="list" aria-label="Prosjektinfo">
             <span role="listitem">
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true" style="display:inline;vertical-align:-1px;margin-right:3px">
@@ -213,9 +194,9 @@ const harCasestudie  = data.utfordring  || data.losning  || data.resultat;
       </div>
     </section>
 
-    <!-- ================================================================
+    {/* ================================================================
          2. NØKKELTALL-STRIP
-         ================================================================ -->
+         ================================================================ */}
          {/* {data.nokkeltall!.map(({ label, verdi }) => ( */}
     {harNøkkeltall && (
       <div class="nokkeltall-strip reveal" aria-label="Nøkkeltall for prosjektet">
@@ -232,9 +213,9 @@ const harCasestudie  = data.utfordring  || data.losning  || data.resultat;
       </div>
     )}
 
-    <!-- ================================================================
+    {/* ================================================================
          3. CASESTUDIE — to-kolonne grid
-         ================================================================ -->
+         ================================================================ */}
     <section
       class="section"
       style="background-color: var(--color-bg);"
@@ -243,10 +224,10 @@ const harCasestudie  = data.utfordring  || data.losning  || data.resultat;
       <div class="container">
         <div class="casestudie-layout">
 
-          <!-- ── Venstre: prosa + kort + galleri ─────────────────────── -->
+          {/* ── Venstre: prosa + kort + galleri ─────────────────────── */}
           <div class="casestudie-main">
 
-            <!-- Ingress — description fra frontmatter -->
+            {/* Ingress — description fra frontmatter */}
             <p
               class="casestudie-ingress reveal"
               style="font-size: clamp(1.0625rem, 2vw, 1.2rem); line-height: 1.7; color: var(--color-text-m); margin-bottom: 2rem;"
@@ -254,7 +235,7 @@ const harCasestudie  = data.utfordring  || data.losning  || data.resultat;
               {data.description}
             </p>
 
-            <!-- UTF / LSN / RES — vises bare hvis ett eller flere er satt -->
+            {/* UTF / LSN / RES — vises bare hvis ett eller flere er satt */}
             {harCasestudie && (
               <div
                 class="casestudie-kart-grid reveal"
@@ -263,30 +244,30 @@ const harCasestudie  = data.utfordring  || data.losning  || data.resultat;
                 {data.utfordring && (
                   <div class="casestudie-kort casestudie-kort--utfordring">
                     <p class="casestudie-kort__label">Utfordring</p>
-                    <p class="casestudie-kort__tekst">{data.utfordring}</p>
+                    <p class="casestudie-kort__tekst">{tilTekst(data.utfordring)}</p>
                   </div>
                 )}
                 {data.losning && (
                   <div class="casestudie-kort casestudie-kort--losning">
                     <p class="casestudie-kort__label">Løsning</p>
-                    <p class="casestudie-kort__tekst">{data.losning}</p>
+                    <p class="casestudie-kort__tekst">{tilTekst(data.losning)}</p>
                   </div>
                 )}
                 {data.resultat && (
                   <div class="casestudie-kort casestudie-kort--resultat">
                     <p class="casestudie-kort__label">Resultat</p>
-                    <p class="casestudie-kort__tekst">{data.resultat}</p>
+                    <p class="casestudie-kort__tekst">{tilTekst(data.resultat)}</p>
                   </div>
                 )}
               </div>
             )}
 
-            <!-- Markdown-brødtekst -->
+            {/* Markdown-brødtekst */}
             <div class="prose reveal">
               <Content />
             </div>
 
-            <!-- ── Bildegalleri ──────────────────────────────────────── -->
+            {/* ── Bildegalleri ──────────────────────────────────────── */}
             {harGalleri && (
               <div
                 class="casestudie-galleri reveal"
@@ -296,26 +277,18 @@ const harCasestudie  = data.utfordring  || data.losning  || data.resultat;
                   Bilder fra prosjektet
                 </h2>
                 <div class="casestudie-galleri__grid" role="list">
-                  {/* {data.galleri!.map(bilde => ( */}
-                  {data.galleri!.map((bilde: Prosjekt["galleri"][number]) => (
+                  {(data.galleri ?? []).map((bilde) => (
                     <div
                       class="casestudie-galleri__item"
                       role="listitem"
                     >
-                      <img
-                        src={bilde.src}
-                        alt={bilde.alt}
-                        loading="lazy"
-                        decoding="async"
-                        width="800"
-                        height="500"
-                      />
-                      {bilde.caption && (
+                      <Bilde kilde={bilde} alt={bilde.alt} />
+                      {bildeTekst(bilde) && (
                         <div
                           class="casestudie-galleri__caption"
-                          aria-label={bilde.caption}
+                          aria-label={bildeTekst(bilde)}
                         >
-                          {bilde.caption}
+                          {bildeTekst(bilde)}
                         </div>
                       )}
                     </div>
@@ -326,12 +299,12 @@ const harCasestudie  = data.utfordring  || data.losning  || data.resultat;
 
           </div>
 
-          <!-- ── Høyre: meta-sidebar ──────────────────────────────────── -->
+          {/* ── Høyre: meta-sidebar ──────────────────────────────────── */}
           <aside
             class="casestudie-sidebar"
             aria-label="Prosjektdetaljer"
           >
-            <!-- Tilbake-lenke -->
+            {/* Tilbake-lenke */}
             <a href="/prosjekter/" class="casestudie-sidebar__tilbake">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                 <path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="1.75"
@@ -340,7 +313,7 @@ const harCasestudie  = data.utfordring  || data.losning  || data.resultat;
               Alle prosjekter
             </a>
 
-            <!-- Meta-kort -->
+            {/* Meta-kort */}
             <div class="casestudie-meta-kort">
               <div class="casestudie-meta-kort__header">
                 <p class="casestudie-meta-kort__tittel">Prosjektinfo</p>
@@ -350,7 +323,7 @@ const harCasestudie  = data.utfordring  || data.losning  || data.resultat;
                 <li class="casestudie-meta-list__item">
                   <span class="casestudie-meta-list__key">Type</span>
                   <span class="casestudie-meta-list__val">
-                    {kategoriLabel(data.kategori)}
+                    {KATEGORI_LABEL[data.kategori]}
                   </span>
                 </li>
                 <li class="casestudie-meta-list__item">
@@ -387,7 +360,7 @@ const harCasestudie  = data.utfordring  || data.losning  || data.resultat;
               </ul>
             </div>
 
-            <!-- CTA under meta-kort -->
+            {/* CTA under meta-kort */}
             <div
               style="margin-top: 1.25rem; padding: 1.25rem; background: var(--color-bg-section); border-radius: var(--r-md); border: 1px solid var(--color-border);"
             >
@@ -407,9 +380,9 @@ const harCasestudie  = data.utfordring  || data.losning  || data.resultat;
       </div>
     </section>
 
-    <!-- ================================================================
+    {/* ================================================================
          4. RELATERTE PROSJEKTER
-         ================================================================ -->
+         ================================================================ */}
     {visRelaterte.length > 0 && (
       <section
         class="relaterte-seksjon"
@@ -418,11 +391,6 @@ const harCasestudie  = data.utfordring  || data.losning  || data.resultat;
         <div class="container">
 
           <div class="section-header reveal">
-            <span class="eyebrow">
-              {relaterte.length > 0
-                ? `Flere ${kategoriLabel(data.kategori).toLowerCase()}-prosjekter`
-                : "Andre prosjekter"}
-            </span>
             <h2
               class="section-title mt-3"
               id="relaterte-heading"
@@ -435,24 +403,16 @@ const harCasestudie  = data.utfordring  || data.losning  || data.resultat;
           <div class="relaterte-grid">
             {visRelaterte.map((p, i) => (
               <a
-                // href={`/prosjekter/${p.slug}/`}
-                href={`/prosjekter/${p.slug!}/`}
+                href={`/prosjekter/${p.id}/`}
                 class={`prosjekt-card reveal-d${Math.min(i, 2) as 0|1|2}`}
                 aria-label={`${p.data.title}, ${p.data.location}, ${p.data.aar}`}
               >
                 <div class="prosjekt-card__img">
-                  <img
-                    src={p.data.heroImage.src}
-                    alt={p.data.heroImage.alt}
-                    loading="lazy"
-                    decoding="async"
-                    width={p.data.heroImage.width  ?? 800}
-                    height={p.data.heroImage.height ?? 500}
-                  />
+                  <Bilde kilde={p.data.heroImage} alt={p.data.heroImage.alt} bredde={800} hoyde={500} />
                 </div>
                 <div class="prosjekt-card__body">
                   <span class="prosjekt-card__tag">
-                    {kategoriLabel(p.data.kategori)}
+                    {KATEGORI_LABEL[p.data.kategori]}
                   </span>
                   <h3 class="prosjekt-card__title">{p.data.title}</h3>
                   <p class="prosjekt-card__meta">
@@ -468,7 +428,7 @@ const harCasestudie  = data.utfordring  || data.losning  || data.resultat;
             ))}
           </div>
 
-          <!-- Se alle lenke -->
+          {/* Se alle lenke */}
           <div
             class="reveal"
             style="text-align: center; margin-top: 2.5rem;"

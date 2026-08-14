@@ -23,9 +23,8 @@ import { VERDIER } from "@config/om-oss";
 >
   <div class="container">
 
-    <!-- Seksjonsheader -->
+    {/* Seksjonsheader */}
     <div class="section-header section-header--center text-inv reveal">
-      <span class="eyebrow">Hvordan vi jobber</span>
       <h2 class="section-title mt-3" id="verdier-heading">
         Det vi faktisk mener
       </h2>
@@ -36,7 +35,7 @@ import { VERDIER } from "@config/om-oss";
       </p>
     </div>
 
-    <!-- Kortgrid -->
+    {/* Kortgrid */}
     <div
       class="vd-grid"
       role="list"
@@ -49,7 +48,7 @@ import { VERDIER } from "@config/om-oss";
           aria-label={v.tittel}
         >
 
-          <!-- Bilde — klippet med diagonal, gylne snitt-bredde -->
+          {/* Bilde — klippet med diagonal, gylne snitt-bredde */}
           <div class="vd-bilde" aria-hidden="true">
             <img
               src={v.bilde}
@@ -59,11 +58,11 @@ import { VERDIER } from "@config/om-oss";
               width="600"
               height="400"
             />
-            <!-- Dusty Olive-strek langs diagonalkanten -->
+            {/* Dusty Olive-strek langs diagonalkanten */}
             <div class="vd-diagonal-linje" aria-hidden="true"></div>
           </div>
 
-          <!-- Tekst -->
+          {/* Tekst */}
           <div class="vd-tekst">
             <p class="vd-nr-kategori">
               <span class="vd-nr" aria-hidden="true">{v.nr}</span>
@@ -304,7 +303,6 @@ import { VERDIER } from "@config/om-oss";
 
 
     <div class="section-header section-header--center text-inv reveal">
-      <span class="eyebrow">Hvordan vi jobber</span>
       <h2 class="section-title mt-3" id="verdier-heading">
         Det vi faktisk mener
       </h2>
