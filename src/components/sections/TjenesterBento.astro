@@ -34,13 +34,13 @@ const STORRELSE_KLASSE = {
 const cards = (await getCollection("tjenester"))
   .sort((a, b) => a.data.sortOrder - b.data.sortOrder)
   .map((t) => ({
-    id:          t.id,
-    title:       t.data.kortTittel ?? t.data.title,
+    id: t.id,
+    title: t.data.kortTittel ?? t.data.title,
     description: t.data.description,
-    slug:        `/tjenester/${t.id}/`,
-    imgSrc:      bildeSrc(t.data.heroImage),
-    imgAlt:      t.data.heroImage.alt,
-    cardClass:   STORRELSE_KLASSE[t.data.bentoStorrelse],
+    slug: `/tjenester/${t.id}/`,
+    imgSrc: bildeSrc(t.data.heroImage),
+    imgAlt: t.data.heroImage.alt,
+    cardClass: STORRELSE_KLASSE[t.data.bentoStorrelse],
   }));
 
 /**
@@ -55,111 +55,121 @@ interface Props {
 const { skjulTopp = false } = Astro.props;
 ---
 
-<section
-  class="tjeneste-section section"
-  aria-labelledby="tjenester-heading"
->
+<section class="tjeneste-section section" aria-labelledby="tjenester-heading">
   <div class="container">
-
-    {/* Seksjonsheader. Skjules når blokken står i en SeksjonsSkall på
-        forsiden — der eier skallet overskriften. */}
-    {!skjulTopp && (
-    <div class="section-header text-inv reveal">
-      <h2 class="section-title mt-3" id="tjenester-heading">
-        Tre typer oppdrag.<br />Én ansvarlig.
-      </h2>
-      <div class="divider"></div>
-      <p class="section-desc">
-        Som totalentreprenør håndterer vi hele kjeden — søknader,
-        prosjektering, koordinering og byggeledelse. Du forholder deg
-        til oss, ikke til ti forskjellige fagfolk.
-      </p>
-    </div>
-    )}
+    {
+      /* Seksjonsheader. Skjules når blokken står i en SeksjonsSkall på
+        forsiden — der eier skallet overskriften. */
+    }
+    {
+      !skjulTopp && (
+        <div class="section-header text-inv reveal">
+          <h2 class="section-title mt-3" id="tjenester-heading">
+            Alle typer oppdrag,
+            <br />
+            en ansvarlig.
+          </h2>
+          <div class="divider" />
+          <p class="section-desc">
+            Som totalentreprenør håndterer vi hele kjeden — søknader,
+            prosjektering, koordinering og byggeledelse. Du trenger kun å
+            forholde deg til oss.
+          </p>
+        </div>
+      )
+    }
 
     {/* Bento-grid */}
     <div class="tjeneste-grid" role="list" aria-label="Tjenester">
-      {cards.map((card, i) => (
-        <article
-          class={`tjeneste-card ${card.cardClass} reveal${i === 0 ? "" : `-d${Math.min(i, 2)}`}`}
-          role="listitem"
-          aria-label={card.title}
-        >
-          {/* Bakgrunnsbilde med parallax-hint */}
-          <div class="tjeneste-card__img-wrap" aria-hidden="true">
-            <img
-              src={card.imgSrc}
-              alt={card.imgAlt}
-              loading="lazy"
-              decoding="async"
-              width="1200"
-              height="800"
-            />
-          </div>
+      {
+        cards.map((card, i) => (
+          <article
+            class={`tjeneste-card ${card.cardClass} reveal${i === 0 ? "" : `-d${Math.min(i, 2)}`}`}
+            role="listitem"
+            aria-label={card.title}
+          >
+            {/* Bakgrunnsbilde med parallax-hint */}
+            <div class="tjeneste-card__img-wrap" aria-hidden="true">
+              <img
+                src={card.imgSrc}
+                alt={card.imgAlt}
+                loading="lazy"
+                decoding="async"
+                width="1200"
+                height="800"
+              />
+            </div>
 
-          {/* Gradient-overlay */}
-          <div class="tjeneste-card__overlay" aria-hidden="true"></div>
+            {/* Gradient-overlay */}
+            <div class="tjeneste-card__overlay" aria-hidden="true" />
 
-          {/* Kortinnhold */}
-          <div class="tjeneste-card__body">
+            {/* Kortinnhold */}
+            <div class="tjeneste-card__body">
+              {/* Kategori-tag */}
+              <span class="tjeneste-card__tag" aria-hidden="true">
+                {card.title}
+              </span>
 
-            {/* Kategori-tag */}
-            <span class="tjeneste-card__tag" aria-hidden="true">
-              {card.title}
-            </span>
+              {/* Tittel — alltid synlig */}
+              <h3 class="tjeneste-card__title">{card.title}</h3>
 
-            {/* Tittel — alltid synlig */}
-            <h3 class="tjeneste-card__title">{card.title}</h3>
+              {/* Beskrivelse — avdukes ved hover */}
+              <p class="tjeneste-card__desc">{card.description}</p>
 
-            {/* Beskrivelse — avdukes ved hover */}
-            <p class="tjeneste-card__desc">{card.description}</p>
-
-            {/* Lenke — avdukes ved hover */}
-            <a
-              href={card.slug}
-              class="tjeneste-card__link"
-              aria-label={`Les mer om ${card.title}`}
-            >
-              Les mer
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                <path d="M2.5 7h9M8 3.5l3.5 3.5L8 10.5"
-                  stroke="currentColor" stroke-width="1.5"
-                  stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </a>
-
-          </div>
-        </article>
-      ))}
+              {/* Lenke — avdukes ved hover */}
+              <a
+                href={card.slug}
+                class="tjeneste-card__link"
+                aria-label={`Les mer om ${card.title}`}
+              >
+                Les mer
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 14 14"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M2.5 7h9M8 3.5l3.5 3.5L8 10.5"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </a>
+            </div>
+          </article>
+        ))
+      }
     </div>
-
   </div>
 </section>
-
 
 <style>
   /* Kategori-tag øverst i kortet */
   .tjeneste-card__tag {
-    display:         inline-flex;
-    padding:         0.25rem 0.625rem;
+    display: inline-flex;
+    padding: 0.25rem 0.625rem;
     background-color: rgba(var(--rgb-primary), 0.25);
-    color:           var(--color-primary-l);
-    border-radius:   var(--r-full);
-    font-size:       0.6875rem;
-    font-weight:     600;
-    text-transform:  uppercase;
-    letter-spacing:  0.08em;
-    margin-bottom:   0.5rem;
-    width:           fit-content;
+    color: var(--color-primary-l);
+    border-radius: var(--r-full);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.5rem;
+    width: fit-content;
   }
 
   /* Full-bredd card: liggende format */
   .tjeneste-card--full .tjeneste-card__body {
-    flex-direction:  row;
-    align-items:     flex-end;
+    flex-direction: row;
+    align-items: flex-end;
     justify-content: space-between;
-    flex-wrap:       wrap;
-    gap:             1rem;
+    flex-wrap: wrap;
+    gap: 1rem;
   }
 
   .tjeneste-card--full .tjeneste-card__title {
@@ -168,15 +178,15 @@ const { skjulTopp = false } = Astro.props;
 
   /* For full-bredde card: desc og link er alltid synlig */
   .tjeneste-card--full .tjeneste-card__desc {
-    max-width:  480px;
+    max-width: 480px;
     max-height: 80px;
-    opacity:    0.75;
-    margin:     0;
+    opacity: 0.75;
+    margin: 0;
   }
 
   .tjeneste-card--full:hover .tjeneste-card__desc {
     max-height: 80px;
-    opacity:    1;
+    opacity: 1;
   }
 
   .tjeneste-card--full .tjeneste-card__left {
@@ -185,7 +195,7 @@ const { skjulTopp = false } = Astro.props;
   }
 
   .tjeneste-card--full .tjeneste-card__right {
-    display:     flex;
+    display: flex;
     align-items: flex-end;
   }
 

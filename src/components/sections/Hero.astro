@@ -3,12 +3,18 @@
 // Fullscreen hero-seksjon — LCP-kritisk komponent.
 //
 // Bilde:
-//   Plasser /public/images/hero-forside.webp (maks 200 KB, 1600×900px).
-//   BaseLayout preloader bildet via heroImage-prop satt i index.astro.
+//   Kommer fra Sanity via forside.hero.bilde. BaseLayout preloader det med
+//   imagesrcset som matcher <SanityBilde> nøyaktig, ellers laster nettleseren
+//   originalen i tillegg til den transformerte varianten.
+//   Fallbacken /images/hero-forside.webp brukes bare når Sanity ikke er satt.
+//
+// Overlay:
+//   .hero__overlay ligger i globals.css, ikke her. To gradienter — et
+//   venstreanker-scrim over tekstsonen og en vertikal for dybde. Begge bruker
+//   var(--rgb-dark-2), så de følger merkevarefargen automatisk.
 //
 // Animasjoner:
-//   Heading, lead, knapper og stats bruker .fade-up med forsinkelse.
-//   CSS-only — ingen JS.
+//   Heading, lead og knapper fader opp med forsinkelse. CSS-only, ingen JS.
 
 import { NAP } from "@config/site";
 import Bilde from "@components/sanity/Bilde.astro";
@@ -20,30 +26,40 @@ import type { Bilde as BildeType } from "@/content.config";
  * moduser uten en eneste if i malen.
  */
 interface Props {
-  tittel?:  string;
+  tittel?: string;
   ingress?: string;
-  bilde?:   BildeType | unknown;
+  bilde?: BildeType | unknown;
   knapper?: { tekst: string; url: string; stil?: string }[];
 }
 
 const {
-  tittel  = "Totalentreprenør i Vestfold",
+  tittel = "Totalentreprenør i Vestfold",
   ingress = "BRE Bygg tar fullt ansvar for byggeprosessen — fra prosjektering til du får nøklene.",
   bilde,
   knapper = [
-    { tekst: "Se prosjekter",  url: "/prosjekter/", stil: "primary" },
-    { tekst: NAP.phoneDisplay, url: NAP.phoneHref,  stil: "outline" },
+    { tekst: "Se prosjekter", url: "/prosjekter/", stil: "primary" },
+    { tekst: NAP.phoneDisplay, url: NAP.phoneHref, stil: "outline" },
   ],
 } = Astro.props;
-
 ---
 
 <section class="hero" aria-label="Introduksjon">
   {/* Bakgrunnsbilde — preloadet i BaseLayout via heroImage-prop */}
   <div class="hero__bg" aria-hidden="true">
-    {bilde
-      ? <Bilde kilde={bilde as never} alt="" prioritet sizes="100vw" />
-      : <img src="/images/hero-forside.webp" alt="" fetchpriority="high" decoding="async" width="1600" height="900" />}
+    {
+      bilde ? (
+        <Bilde kilde={bilde as never} alt="" prioritet sizes="100vw" />
+      ) : (
+        <img
+          src="/images/hero-forside.webp"
+          alt=""
+          fetchpriority="high"
+          decoding="async"
+          width="1600"
+          height="900"
+        />
+      )
+    }
   </div>
 
   {/* Gradient-overlay */}
@@ -52,8 +68,6 @@ const {
   {/* Innhold */}
   <div class="hero__content">
     <div class="container">
-      {/* Eyebrow */}
-
       {/* H1 */}
       <h1 class="hero__heading">{tittel}</h1>
 
@@ -62,27 +76,55 @@ const {
 
       {/* Handlingsknapper */}
       <div class="hero__actions" data-kontaktkilde="hero">
-        {knapper.map((k) => (
-          <a
-            href={k.url}
-            class:list={["btn", "btn--lg", k.stil === "outline" ? "btn--outline-inv" : "btn--primary"]}
-            aria-label={k.url.startsWith("tel:") ? `Ring oss: ${k.tekst}` : undefined}
-          >
-            {k.url.startsWith("tel:") && (
-              <svg width="15" height="15" viewBox="0 0 13 13" fill="none" aria-hidden="true">
-                <path d="M11 8.8 9.2 8.6c-.45-.05-.9.1-1.2.4L6.65 10.3C4.72 9.34 3.14 7.76 2.18 5.83L3.5 4.5c.3-.3.45-.74.4-1.19L3.72 1.2A1.25 1.25 0 0 0 2.48.1H1.27A1.27 1.27 0 0 0 0 1.38C.38 7.32 5.18 12.12 11.12 12.5a1.27 1.27 0 0 0 1.38-1.27v-1.2A1.27 1.27 0 0 0 11 8.8Z" fill="currentColor"></path>
-              </svg>
-            )}
-            {k.tekst}
-            {!k.url.startsWith("tel:") && (
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path>
-              </svg>
-            )}
-          </a>
-        ))}
+        {
+          knapper.map((k) => (
+            <a
+              href={k.url}
+              class:list={[
+                "btn",
+                "btn--lg",
+                k.stil === "outline" ? "btn--outline-inv" : "btn--primary",
+              ]}
+              aria-label={
+                k.url.startsWith("tel:") ? `Ring oss: ${k.tekst}` : undefined
+              }
+            >
+              {k.url.startsWith("tel:") && (
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 13 13"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M11 8.8 9.2 8.6c-.45-.05-.9.1-1.2.4L6.65 10.3C4.72 9.34 3.14 7.76 2.18 5.83L3.5 4.5c.3-.3.45-.74.4-1.19L3.72 1.2A1.25 1.25 0 0 0 2.48.1H1.27A1.27 1.27 0 0 0 0 1.38C.38 7.32 5.18 12.12 11.12 12.5a1.27 1.27 0 0 0 1.38-1.27v-1.2A1.27 1.27 0 0 0 11 8.8Z"
+                    fill="currentColor"
+                  />
+                </svg>
+              )}
+              {k.tekst}
+              {!k.url.startsWith("tel:") && (
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M3 8h10M9 4l4 4-4 4"
+                    stroke="currentColor"
+                    stroke-width="1.75"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              )}
+            </a>
+          ))
+        }
       </div>
-
     </div>
   </div>
 
@@ -93,10 +135,7 @@ const {
 </section>
 
 <style>
-  /* ── Eyebrow ──────────────────────────────────────────────────────── */
-
-
-  /* ── Heading, lead, actions, stats — staggered fade-up ─────────── */
+  /* ── Heading, lead og knapper — trappet fade-up ─────────────────── */
   .hero__heading {
     opacity: 0;
     animation: hero-fade-up 0.75s var(--ease-out) 0.2s forwards;
@@ -110,13 +149,6 @@ const {
   .hero__actions {
     opacity: 0;
     animation: hero-fade-up 0.7s var(--ease-out) 0.48s forwards;
-  }
-
-
-  /* ── Stat-separator ─────────────────────────────────────────────── */
-
-
-  @media (max-width: 479px) {
   }
 
   /* ── Scroll-indikator ───────────────────────────────────────────── */
@@ -174,10 +206,7 @@ const {
     }
   }
 
-  /* ── Respons: hero-heading linjeskift ───────────────────────────── */
-  @media (max-width: 479px) {
-    .hero__heading br {
-      display: none;
-    }
-  }
+  /* Regelen .hero__heading br sto her fra da tittelen var hardkodet med et
+     linjeskift. Nå kommer den som én streng fra Sanity, så det finnes ingen
+     <br> å skjule. text-wrap: balance i globals.css gjør jobben i stedet. */
 </style>

@@ -1,68 +1,54 @@
-/* ==========================================================================
-   KASKADEORDEN
-   ==========================================================================
-
-   Astro 6 gjorde `preserveScriptOrder` til standard: <style>-blokker rendres nå
-   i kildekoderekkefølge, mens v5 reverserte dem. Konsekvensen var at
-   komponentstiler lastet FØR globals.css, og globale regler begynte å vinne
-   over komponentregler ved lik spesifisitet — motsatt av før, uten en eneste
-   feilmelding.
-
-   @layer fjerner problemet permanent. Rekkefølgen under er bindende uansett
-   hvilken rekkefølge filene lastes i:
-
-     base       tokens, reset, elementstiler
-     components alt som har en klasse — nav, kort, hero, seksjoner
-     utilities  hjelpeklasser (.mt-3, .flex) — skal alltid slå komponenter
-     (uten lag) Astros scoped <style> og print-stiler — vinner over alt
-
-   Astros scoped komponentstiler er uten lag og slår derfor alt her, som er
-   den oppførselen prosjektet ble bygget med.
-   ========================================================================== */
-
 @layer base, components, utilities;
 
 @layer base {
   /* ==========================================================================
-   globals.css — BRE Bygg AS Design System
-   Tailwind v4 + CSS Custom Properties
-   Charcoal Blue + Dusty Olive + Dark Khaki
-   ========================================================================== */
-
-  /* Ingen @import her.
-   v1 hadde to:
-     1) @import "tailwindcss"  — Tailwind er fjernet. Preflight var uansett
-        overflødig; denne filen har sin egen reset på linje ~90.
-     2) @import url(Google Fonts) — plassert etter regler, og dermed ugyldig
-        CSS. Lightning CSS kastet den i produksjonsbygget uten at noe feilet,
-        så fonten lastet kun via en deferred <link> og ga FOUT på hver side.
-        Fonten selvhostes nå via fonts[] i astro.config.mjs og eksponeres som
-        --font-jakarta. */
+      globals.css — BRE Bygg AS Design System
+      Tailwind v4 + CSS Custom Properties
+      ========================================================================== */
 
   /* --------------------------------------------------------------------------
-      1. DESIGN TOKENS — CSS CUSTOM PROPERTIES
-      Autoriteten for alle farger, typografi og dimensjoner.
-      Tailwind-klassene i tailwind.config.mjs refererer til disse.
-      -------------------------------------------------------------------------- */
+         1. DESIGN TOKENS — CSS CUSTOM PROPERTIES
+         Autoriteten for alle farger, typografi og dimensjoner.
+         Tailwind-klassene i tailwind.config.mjs refererer til disse.
+         -------------------------------------------------------------------------- */
 
   :root {
-    /* --- Bakgrunnsfarger --- */
+    /* ── Bandicoot — bærer nettstedet ──────────────────────────────────────
+     Flater, tekst, kantlinjer, header. Uendret fra den monokrome varianten. */
 
     --bandicoot-50: #f9faf9;
     --bandicoot-100: #f4f5f4;
     --bandicoot-200: #e8e8e3;
     --bandicoot-300: #d8d8cf;
     --bandicoot-400: #acac9a;
-    --bandicoot-500: #81816b; /* Green Leaf, originalen */
+    --bandicoot-500: #81816b; /* Green Leaf */
     --bandicoot-600: #585a4b;
     --bandicoot-700: #464739;
     --bandicoot-800: #2b2922;
     --bandicoot-900: #1e1e15;
     --bandicoot-950: #0d0d08;
 
+    /* ── Cloud Burst — eneste aksent ───────────────────────────────────────
+     Kun knapper, lenker og fokusringer. Aldri som bakgrunn på en seksjon —
+     da blir det to merkevarefarger som konkurrerer.
+ 
+     700 og ikke 900 som fargegeneratoren valgte: 900 er så mørk at den leser
+     som svart ved siden av Bandicoot 800, og aksenteffekten forsvinner. */
+
+    --kournikova-50: #fefbe8;
+    --kournikova-100: #fff7c2;
+    --kournikova-200: #ffe66d;
+    --kournikova-300: #ffd845;
+    --kournikova-400: #fcc113;
+    --kournikova-500: #eca806;
+    --kournikova-600: #cc8002;
+    --kournikova-700: #a25a06;
+    --kournikova-800: #86470d;
+    --kournikova-900: #723a11;
+    --kournikova-950: #431d05;
+
     /* ── Bakgrunner ─────────────────────────────────────────────────────────
-       100 og ikke 50 som standardbakgrunn. Hvite kort mot 50 gir 1,05:1 og
-       forsvinner; mot 100 er de fortsatt svake, så kortene får kantlinje. */
+     100 og ikke 50: hvite kort mot 50 gir 1,05:1 og forsvinner. */
 
     --color-bg: var(--bandicoot-100);
     --color-bg-white: #ffffff;
@@ -71,8 +57,7 @@
     --color-bg-dark-2: var(--bandicoot-800); /* footer, hero-bunn */
 
     /* ── Tekst ──────────────────────────────────────────────────────────────
-       800 overskrift 13,3:1 · 700 brødtekst 8,7:1 · 600 småtekst 6,5:1
-       Alle målt mot --color-bg. */
+     800 overskrift 13,32:1 · 700 brødtekst 8,65:1 · 600 småtekst 6,45:1 */
 
     --color-text: var(--bandicoot-800);
     --color-text-m: var(--bandicoot-700);
@@ -80,18 +65,25 @@
     --color-text-inv: var(--bandicoot-50);
     --color-text-inv-m: rgba(249, 250, 249, 0.72);
 
-    --color-text: #32322a;
-    --color-text-m: #5c5c4c;
-    --color-text-s: #70705c;
-    --color-text-inv: #f5f3ef;
-    --color-text-inv-m: rgba(245, 243, 239, 0.65);
+    /* ── Aksent ─────────────────────────────────────────────────────────────
+     CB700 som knappe- og lenkefarge:
+       hvit tekst på knapp   7,35:1
+       lenke på bakgrunn     6,72:1
+       lenke på seksjon      5,98:1
+       lenke på hvitt kort   7,35:1
+     Hover går til CB800, som gir 9,08:1 — knappen blir dypere, ikke lysere. */
 
-    --color-primary: var(--bandicoot-500);
-    --color-primary-l: var(--bandicoot-400);
-    --color-primary-d: var(--bandicoot-600);
-    --color-accent: var(--bandicoot-500);
-    --color-accent-d: var(--bandicoot-800); /* hover på CTA */
+    --color-primary: var(--kournikova-700);
+    --color-primary-l: var(--kournikova-500); /* KUN dekor, aldri tekst */
+    --color-primary-d: var(--kournikova-700);
+    --color-accent: var(--kournikova-700);
+    --color-accent-d: var(--kournikova-800); /* hover på CTA */
     --color-support: var(--bandicoot-900);
+
+    /* ── Kantlinjer ─────────────────────────────────────────────────────────
+     500 og ikke 300. Et prosjektkort er en lenke, og WCAG 1.4.11 krever 3:1
+     for grensen til et interaktivt element. 300 gir 1,31:1 — ingen synlig
+     kant. 500 gir 3,63:1 mot bakgrunnen. */
 
     --color-border: var(--bandicoot-500);
     --color-border-m: var(--bandicoot-400);
@@ -99,12 +91,12 @@
 
     /* ── RGB-komponenter for rgba() ─────────────────────────────────────── */
 
-    --rgb-dark: 88, 90, 75; /* 600 */
-    --rgb-dark-2: 43, 41, 34; /* 800 */
-    --rgb-deepest: 13, 13, 8; /* 950 — bunnen av hero-gradienten */
-    --rgb-primary: 129, 129, 107; /* 500 */
-    --rgb-inv: 249, 250, 249; /* 50 */
-    --rgb-khaki: 30, 30, 21; /* 900 */
+    --rgb-dark: 88, 90, 75; /* B600 */
+    --rgb-dark-2: 43, 41, 34; /* B800 */
+    --rgb-deepest: 13, 13, 8; /* B950 — bunnen av hero-gradienten */
+    --rgb-primary: 72, 74, 173; /* CB700 */
+    --rgb-inv: 249, 250, 249; /* B50 */
+    --rgb-khaki: 30, 30, 21; /* B900 */
 
     /* --- Typografi --- */
     --ff-display: var(--font-jakarta), system-ui, sans-serif;
@@ -119,13 +111,17 @@
 
     /* --- Skygger (Charcoal Blue-tonede) --- */
     --shadow-sm:
-      0 1px 4px rgba(44, 66, 81, 0.07), 0 1px 2px rgba(44, 66, 81, 0.05);
+      0 1px 4px rgba(var(--rgb-dark), 0.07),
+      0 1px 2px rgba(var(--rgb-dark), 0.05);
     --shadow-md:
-      0 4px 20px rgba(44, 66, 81, 0.1), 0 1px 4px rgba(44, 66, 81, 0.06);
+      0 4px 20px rgba(var(--rgb-dark), 0.1),
+      0 1px 4px rgba(var(--rgb-dark), 0.06);
     --shadow-lg:
-      0 16px 48px rgba(44, 66, 81, 0.14), 0 4px 12px rgba(44, 66, 81, 0.08);
+      0 16px 48px rgba(var(--rgb-dark), 0.14),
+      0 4px 12px rgba(var(--rgb-dark), 0.08);
     --shadow-xl:
-      0 32px 80px rgba(44, 66, 81, 0.18), 0 8px 24px rgba(44, 66, 81, 0.1);
+      0 32px 80px rgba(var(--rgb-dark), 0.18),
+      0 8px 24px rgba(var(--rgb-dark), 0.1);
 
     /* --- Ease-kurver --- */
     --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
@@ -151,11 +147,22 @@
 
     /* --- Nav --- */
     --nav-height: 72px;
+
+    /* --- RGB-komponenter for rgba() ---
+        rgba() kan ikke ta en hex-variabel, så de hardkodede fargene i scrim,
+        skygger og overlays fulgte ikke med når tokenene ble endret. Med disse
+        kan de skrives rgba(var(--rgb-dark) / 0.85) og følge paletten. */
+    --rgb-dark: 44, 66, 81; /* --color-bg-dark   #2C4251 */
+    --rgb-dark-2: 30, 46, 58; /* --color-bg-dark-2 #1E2E3A */
+    --rgb-deepest: 20, 32, 42; /* bunnen av hero-gradienten */
+    --rgb-primary: 132, 133, 110; /* --color-primary   #84856E */
+    --rgb-inv: 245, 243, 239; /* --color-text-inv  #F5F3EF */
+    --rgb-khaki: 38, 42, 16; /* --color-support   #262A10 */
   }
 
   /* --------------------------------------------------------------------------
-      2. BASE RESET OG BOX MODEL
-      -------------------------------------------------------------------------- */
+         2. BASE RESET OG BOX MODEL
+         -------------------------------------------------------------------------- */
 
   *,
   *::before,
@@ -186,8 +193,8 @@
   }
 
   /* --------------------------------------------------------------------------
-      3. TYPOGRAFI
-      -------------------------------------------------------------------------- */
+         3. TYPOGRAFI
+         -------------------------------------------------------------------------- */
 
   h1,
   h2,
@@ -222,7 +229,7 @@
 
   a {
     /* Var var(--color-primary) = 3,78:1 på hvit. Lenker er normal tekst og må
-     over 4,5:1. */
+        over 4,5:1. */
     color: var(--color-primary-d);
     text-decoration: none;
     transition: color var(--transition-fast);
@@ -302,8 +309,8 @@
 }
 @layer components {
   /* --------------------------------------------------------------------------
-      4. LAYOUT — CONTAINER OG SECTION
-      -------------------------------------------------------------------------- */
+         4. LAYOUT — CONTAINER OG SECTION
+         -------------------------------------------------------------------------- */
 
   .container {
     width: 100%;
@@ -344,15 +351,15 @@
   }
 
   /* --------------------------------------------------------------------------
-      5. NAVIGASJON
-      -------------------------------------------------------------------------- */
+         5. NAVIGASJON
+         -------------------------------------------------------------------------- */
 
   .nav {
     position: sticky;
     top: 0;
     z-index: 100;
     height: var(--nav-height);
-    background-color: var(--color-bg-dark);
+    background-color: rgba(var(--rgb-dark), 0.92);
     backdrop-filter: blur(12px) saturate(180%);
     -webkit-backdrop-filter: blur(12px) saturate(180%);
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
@@ -363,6 +370,7 @@
       transform 0.3s ease-in-out;
     will-change: transform;
   }
+
   .nav .btn--primary {
     background-color: var(--bandicoot-50);
     color: var(--bandicoot-800);
@@ -370,13 +378,12 @@
   }
 
   .nav .btn--primary:hover {
-    background-color: var(--bandicoot-100);
+    background-color: #ffffff;
     border-color: #ffffff;
-    color: var(--bandicoot-800);
   }
 
   .nav.scrolled {
-    background-color: var(--color-bg-dark-2);
+    background-color: rgba(var(--rgb-dark-2), 0.97);
     box-shadow: var(--shadow-md);
   }
 
@@ -428,7 +435,7 @@
   .nav__links a {
     font-size: 0.9rem;
     font-weight: 500;
-    color: rgba(245, 243, 239, 0.8);
+    color: rgba(var(--rgb-inv), 0.8);
     text-decoration: none;
     transition: color var(--transition-fast);
     position: relative;
@@ -497,7 +504,7 @@
     }
 
     /* nav__center er en usynlig wrapper — nav__links er position:fixed
-           og tar seg av sin egen plassering */
+              og tar seg av sin egen plassering */
     .nav__center {
       display: contents;
     }
@@ -544,8 +551,8 @@
   }
 
   /* --------------------------------------------------------------------------
-      6. KNAPPER
-      -------------------------------------------------------------------------- */
+         6. KNAPPER
+         -------------------------------------------------------------------------- */
 
   .btn {
     display: inline-flex;
@@ -579,13 +586,13 @@
 
   /* Primær: Dusty Olive bakgrunn, hvit tekst */
   /* Hvit tekst på #84856e gir 3,78:1. En knapp på 16px/600 er ikke «stor tekst»
-   etter WCAG, så kravet er 4,5:1. --color-primary-d har samme fargetone og
-   metning, kun 6 prosentpoeng mørkere, og lander på 4,78:1.
-
-   MERK: dette er et lite avvik fra merkevarespesifikasjonen, som sier «Dusty
-   Olive bakgrunn, hvit tekst» på CTA-knapper. Alternativet er å beholde
-   #84856e og akseptere at hovedknappen ikke oppfyller AA. Si fra hvis du heller
-   vil det — det er en beslutning for kunden, ikke for meg. */
+      etter WCAG, så kravet er 4,5:1. --color-primary-d har samme fargetone og
+      metning, kun 6 prosentpoeng mørkere, og lander på 4,78:1.
+   
+      MERK: dette er et lite avvik fra merkevarespesifikasjonen, som sier «Dusty
+      Olive bakgrunn, hvit tekst» på CTA-knapper. Alternativet er å beholde
+      #84856e og akseptere at hovedknappen ikke oppfyller AA. Si fra hvis du heller
+      vil det — det er en beslutning for kunden, ikke for meg. */
   .btn--primary {
     background-color: var(--color-primary-d);
     color: #ffffff;
@@ -616,11 +623,11 @@
   .btn--outline-inv {
     background-color: transparent;
     color: var(--color-text-inv);
-    border-color: rgba(245, 243, 239, 0.4);
+    border-color: rgba(var(--rgb-inv), 0.4);
   }
 
   .btn--outline-inv:hover {
-    background-color: rgba(245, 243, 239, 0.1);
+    background-color: rgba(var(--rgb-inv), 0.1);
     border-color: var(--color-text-inv);
     color: var(--color-text-inv);
   }
@@ -649,8 +656,8 @@
   }
 
   /* --------------------------------------------------------------------------
-      7. HERO-SEKSJON
-      -------------------------------------------------------------------------- */
+         7. HERO-SEKSJON
+         -------------------------------------------------------------------------- */
 
   .hero {
     position: relative;
@@ -676,38 +683,38 @@
   }
 
   /* To gradienter, ikke én.
-   Målt på det nåværende hero-bildet lå eyebrow-teksten på 1,66:1 mot
-   bygningsfasaden. Kravet er 4,5:1.
-
-   Den vertikale gradienten alene løser det ikke: teksten sitter midt i heroen,
-   der gradienten er svakest, og å skru opp den vertikale nok til å dekke det
-   ville gjort hele bildet grått.
-
-   Løsningen er et venstreanker-scrim over tekstsonen. Effektiv alfa der
-   teksten står blir 1-(1-0,45)(1-0,70) = 0,835, som gir 8,9:1 mot dagens
-   bilde og 7,6:1 i verste tilfelle (hvit himmel bak).
-
-   Dette er strukturelt viktig: fra fase 5 velger klienten hero-bildet selv i
-   Sanity. Kontrasten kan ikke avhenge av hvilket bilde som er lastet opp. */
+      Målt på det nåværende hero-bildet lå eyebrow-teksten på 1,66:1 mot
+      bygningsfasaden. Kravet er 4,5:1.
+   
+      Den vertikale gradienten alene løser det ikke: teksten sitter midt i heroen,
+      der gradienten er svakest, og å skru opp den vertikale nok til å dekke det
+      ville gjort hele bildet grått.
+   
+      Løsningen er et venstreanker-scrim over tekstsonen. Effektiv alfa der
+      teksten står blir 1-(1-0,45)(1-0,70) = 0,835, som gir 8,9:1 mot dagens
+      bilde og 7,6:1 i verste tilfelle (hvit himmel bak).
+   
+      Dette er strukturelt viktig: fra fase 5 velger klienten hero-bildet selv i
+      Sanity. Kontrasten kan ikke avhenge av hvilket bilde som er lastet opp. */
   .hero__overlay {
     position: absolute;
     inset: 0;
     z-index: 1;
     background:
-    /* 1. Scrim i tekstsonen — venstre mot høyre */
+       /* 1. Scrim i tekstsonen — venstre mot høyre */
       linear-gradient(
         to right,
-        rgba(30, 46, 58, 0.7) 0%,
-        rgba(30, 46, 58, 0.55) 38%,
-        rgba(30, 46, 58, 0) 68%
+        rgba(var(--rgb-dark-2), 0.7) 0%,
+        rgba(var(--rgb-dark-2), 0.55) 38%,
+        rgba(var(--rgb-dark-2), 0) 68%
       ),
       /* 2. Vertikal dybde — gir bunnen tyngde og topplinja luft */
         linear-gradient(
           to bottom,
-          rgba(30, 46, 58, 0.28) 0%,
-          rgba(30, 46, 58, 0.45) 40%,
-          rgba(30, 46, 58, 0.85) 75%,
-          rgba(20, 32, 42, 0.96) 100%
+          rgba(var(--rgb-dark-2), 0.28) 0%,
+          rgba(var(--rgb-dark-2), 0.45) 40%,
+          rgba(var(--rgb-dark-2), 0.85) 75%,
+          rgba(var(--rgb-deepest), 0.96) 100%
         );
   }
 
@@ -717,15 +724,15 @@
       background:
         linear-gradient(
           to right,
-          rgba(30, 46, 58, 0.7) 0%,
-          rgba(30, 46, 58, 0.62) 100%
+          rgba(var(--rgb-dark-2), 0.7) 0%,
+          rgba(var(--rgb-dark-2), 0.62) 100%
         ),
         linear-gradient(
           to bottom,
-          rgba(30, 46, 58, 0.28) 0%,
-          rgba(30, 46, 58, 0.45) 40%,
-          rgba(30, 46, 58, 0.85) 75%,
-          rgba(20, 32, 42, 0.96) 100%
+          rgba(var(--rgb-dark-2), 0.28) 0%,
+          rgba(var(--rgb-dark-2), 0.45) 40%,
+          rgba(var(--rgb-dark-2), 0.85) 75%,
+          rgba(var(--rgb-deepest), 0.96) 100%
         );
     }
   }
@@ -752,8 +759,8 @@
     font-size: clamp(1rem, 2vw, 1.2rem);
     line-height: 1.65;
     /* --color-text-inv-m er rgba(245,243,239,0.65) og ment for flate mørke
-     seksjoner. Over et foto gir den 3,4:1. Egen, tettere verdi her. */
-    color: rgba(245, 243, 239, 0.92);
+        seksjoner. Over et foto gir den 3,4:1. Egen, tettere verdi her. */
+    color: rgba(var(--rgb-inv), 0.92);
     max-width: 560px;
     margin-bottom: 2rem;
   }
@@ -771,7 +778,7 @@
     flex-wrap: wrap;
     gap: clamp(1.5rem, 3vw, 2.5rem);
     padding-top: 2rem;
-    border-top: 1px solid rgba(245, 243, 239, 0.12);
+    border-top: 1px solid rgba(var(--rgb-inv), 0.12);
   }
 
   .hero-stat__num {
@@ -791,8 +798,8 @@
   }
 
   /* --------------------------------------------------------------------------
-      8. STATS-RAD
-      -------------------------------------------------------------------------- */
+         8. STATS-RAD
+         -------------------------------------------------------------------------- */
 
   .stats-row {
     background-color: var(--color-bg-white);
@@ -827,8 +834,8 @@
   }
 
   /* --------------------------------------------------------------------------
-      9. PÅGÅENDE-BANNER (ONGOING BANNER)
-      -------------------------------------------------------------------------- */
+         9. PÅGÅENDE-BANNER (ONGOING BANNER)
+         -------------------------------------------------------------------------- */
 
   .ongoing-banner {
     background-color: var(--color-bg-section);
@@ -902,8 +909,8 @@
   }
 
   /* --------------------------------------------------------------------------
-      10. TJENESTER — BENTO GRID
-      -------------------------------------------------------------------------- */
+         10. TJENESTER — BENTO GRID
+         -------------------------------------------------------------------------- */
 
   .tjeneste-section {
     background-color: var(--color-bg-dark);
@@ -916,17 +923,6 @@
     content: "";
     position: absolute;
     inset: 0;
-    background-image:
-      radial-gradient(
-        ellipse at 20% 50%,
-        rgba(132, 133, 110, 0.08) 0%,
-        transparent 60%
-      ),
-      radial-gradient(
-        ellipse at 80% 20%,
-        rgba(44, 66, 81, 0.4) 0%,
-        transparent 50%
-      );
     pointer-events: none;
   }
 
@@ -955,7 +951,7 @@
   /* Full-bredd rad — brukes for siste/fremhevet tjeneste */
   .tjeneste-card--full {
     grid-column: span 12;
-    min-height: 240px !important;
+    min-height: 460px !important;
   }
 
   @media (max-width: 1023px) {
@@ -1106,8 +1102,8 @@
   }
 
   /* --------------------------------------------------------------------------
-      11. PROSJEKTKORT
-      -------------------------------------------------------------------------- */
+         11. PROSJEKTKORT
+         -------------------------------------------------------------------------- */
 
   .prosjekt-card {
     background-color: var(--color-bg-white);
@@ -1189,8 +1185,8 @@
   }
 
   /* --------------------------------------------------------------------------
-      12. PROSJEKTGALLERI — filtrerbart grid
-      -------------------------------------------------------------------------- */
+         12. PROSJEKTGALLERI — filtrerbart grid
+         -------------------------------------------------------------------------- */
 
   /* Filterbar — horisontal scroll på mobil */
   .filter-bar {
@@ -1268,7 +1264,7 @@
     font-weight: 700;
     line-height: 1;
     border-radius: var(--r-full);
-    background-color: rgba(44, 66, 81, 0.1);
+    background-color: rgba(var(--rgb-dark), 0.1);
     color: var(--color-text-m);
     transition:
       background-color 0.15s ease,
@@ -1361,7 +1357,7 @@
     text-transform: uppercase;
     letter-spacing: 0.07em;
     color: var(--color-primary);
-    background-color: rgba(132, 133, 110, 0.1);
+    background-color: rgba(var(--rgb-primary), 0.1);
     padding: 0.2rem 0.55rem;
     border-radius: var(--r-full);
     margin-bottom: 0.5rem;
@@ -1393,8 +1389,8 @@
   }
 
   /* --------------------------------------------------------------------------
-      13. STRIP — KONTAKTSIDE
-      -------------------------------------------------------------------------- */
+         13. STRIP — KONTAKTSIDE
+         -------------------------------------------------------------------------- */
 
   .strip {
     background-color: var(--color-bg-white);
@@ -1470,7 +1466,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: rgba(132, 133, 110, 0.1);
+    background-color: rgba(var(--rgb-primary), 0.1);
     border-radius: var(--r-md);
     color: var(--color-primary);
     transition: background-color var(--transition-fast);
@@ -1478,7 +1474,7 @@
   }
 
   .strip__item:hover .strip__icon-wrap {
-    background-color: rgba(132, 133, 110, 0.18);
+    background-color: rgba(var(--rgb-primary), 0.18);
   }
 
   @media (max-width: 479px) {
@@ -1532,8 +1528,8 @@
   }
 
   /* --------------------------------------------------------------------------
-      14. KART-SEKSJON
-      -------------------------------------------------------------------------- */
+         14. KART-SEKSJON
+         -------------------------------------------------------------------------- */
 
   .kart-seksjon {
     background-color: var(--color-bg-section);
@@ -1594,8 +1590,8 @@
   }
 
   /* --------------------------------------------------------------------------
-      14. FOOTER
-      -------------------------------------------------------------------------- */
+         14. FOOTER
+         -------------------------------------------------------------------------- */
 
   .footer {
     background-color: var(--color-bg-dark-2);
@@ -1686,7 +1682,7 @@
     flex-wrap: wrap;
     gap: 0.75rem 1.5rem;
     font-size: 0.8125rem;
-    color: rgba(245, 243, 239, 0.32);
+    color: rgba(var(--rgb-inv), 0.32);
     letter-spacing: 0.01em;
   }
   .footer__logo-img {
@@ -1698,10 +1694,10 @@
   }
 
   /* --------------------------------------------------------------------------
-      14. SCROLL-REVEAL ANIMASJONER
-      Scroll-drevne animasjoner med animation-timeline: view()
-      Fallback: opacity + translateY ved hjelp av Intersection Observer
-      -------------------------------------------------------------------------- */
+         14. SCROLL-REVEAL ANIMASJONER
+         Scroll-drevne animasjoner med animation-timeline: view()
+         Fallback: opacity + translateY ved hjelp av Intersection Observer
+         -------------------------------------------------------------------------- */
 
   @supports (animation-timeline: view()) {
     .reveal {
@@ -1773,8 +1769,8 @@
   }
 
   /* --------------------------------------------------------------------------
-      15. KARUSELL (PROSJEKTSCROLL)
-      -------------------------------------------------------------------------- */
+         15. KARUSELL (PROSJEKTSCROLL)
+         -------------------------------------------------------------------------- */
 
   .karusell {
     overflow-x: auto;
@@ -1806,8 +1802,8 @@
   }
 
   /* --------------------------------------------------------------------------
-      16. BADGE / TAG KOMPONENTER
-      -------------------------------------------------------------------------- */
+         16. BADGE / TAG KOMPONENTER
+         -------------------------------------------------------------------------- */
 
   .badge {
     display: inline-flex;
@@ -1821,12 +1817,12 @@
   }
 
   .badge--olive {
-    background-color: rgba(132, 133, 110, 0.12);
+    background-color: rgba(var(--rgb-primary), 0.12);
     color: var(--color-primary);
   }
 
   .badge--charcoal {
-    background-color: rgba(44, 66, 81, 0.1);
+    background-color: rgba(var(--rgb-dark), 0.1);
     color: var(--color-bg-dark);
   }
 
@@ -1837,8 +1833,8 @@
 }
 @layer utilities {
   /* --------------------------------------------------------------------------
-   17. HJELPEKLASSER
-   -------------------------------------------------------------------------- */
+      17. HJELPEKLASSER
+      -------------------------------------------------------------------------- */
 
   /* Visuelt skjult, men tilgjengelig for skjermlesere */
   .sr-only {
@@ -1913,8 +1909,8 @@
   }
 }
 /* --------------------------------------------------------------------------
-   18. PRINT-STILER (minimal)
-   -------------------------------------------------------------------------- */
+      18. PRINT-STILER (minimal)
+      -------------------------------------------------------------------------- */
 
 @media print {
   .nav,
@@ -1934,8 +1930,8 @@
 
 @layer components {
   /* --------------------------------------------------------------------------
-   16. PROSJEKT CASESTUDIE ([slug].astro)
-   -------------------------------------------------------------------------- */
+      16. PROSJEKT CASESTUDIE ([slug].astro)
+      -------------------------------------------------------------------------- */
 
   /* ── Hero ──────────────────────────────────────────────────────────────── */
 
@@ -1966,9 +1962,9 @@
     z-index: 1;
     background: linear-gradient(
       to bottom,
-      rgba(30, 46, 58, 0.25) 0%,
-      rgba(30, 46, 58, 0.5) 45%,
-      rgba(20, 32, 42, 0.92) 100%
+      rgba(var(--rgb-dark-2), 0.25) 0%,
+      rgba(var(--rgb-dark-2), 0.5) 45%,
+      rgba(var(--rgb-deepest), 0.92) 100%
     );
   }
 
@@ -1985,8 +1981,8 @@
     align-items: center;
     gap: 0.35rem;
     padding: 0.3rem 0.75rem;
-    background-color: rgba(132, 133, 110, 0.28);
-    border: 1px solid rgba(132, 133, 110, 0.4);
+    background-color: rgba(var(--rgb-primary), 0.28);
+    border: 1px solid rgba(var(--rgb-primary), 0.4);
     border-radius: var(--r-full);
     font-size: 0.75rem;
     font-weight: 600;
@@ -2033,7 +2029,7 @@
     width: 3px;
     height: 3px;
     border-radius: 50%;
-    background-color: rgba(245, 243, 239, 0.35);
+    background-color: rgba(var(--rgb-inv), 0.35);
     flex-shrink: 0;
   }
 
@@ -2353,9 +2349,13 @@
     left: 0;
     right: 0;
     padding: 0.625rem 0.875rem;
-    background: linear-gradient(to top, rgba(20, 32, 42, 0.85), transparent);
+    background: linear-gradient(
+      to top,
+      rgba(var(--rgb-deepest), 0.85),
+      transparent
+    );
     font-size: 0.75rem;
-    color: rgba(245, 243, 239, 0.9);
+    color: rgba(var(--rgb-inv), 0.9);
     line-height: 1.4;
     transform: translateY(100%);
     transition: transform 0.28s var(--ease-out);
@@ -2404,11 +2404,11 @@
 }
 @layer utilities {
   /* ==========================================================================
-   UTILITIES
-   Erstatter de 28 Tailwind-klassene som faktisk var i bruk. Tailwind leverte
-   ~47 KB CSS per side for disse. Alt annet i prosjektet er BEM + CSS-variabler,
-   så avhengigheten ga tre stylingsystemer uten tilsvarende gevinst.
-   ========================================================================== */
+      UTILITIES
+      Erstatter de 28 Tailwind-klassene som faktisk var i bruk. Tailwind leverte
+      ~47 KB CSS per side for disse. Alt annet i prosjektet er BEM + CSS-variabler,
+      så avhengigheten ga tre stylingsystemer uten tilsvarende gevinst.
+      ========================================================================== */
 
   .antialiased {
     -webkit-font-smoothing: antialiased;
@@ -2531,13 +2531,13 @@
   }
 
   /* ==========================================================================
-}
-@layer components {
-   SEKSJONSTEMAER
-   Fem tillatte kombinasjoner av bakgrunn og tekstfarge. Alle består WCAG AA.
-   Klienten får velge mellom disse fra en dropdown i Sanity (fase 7) og kan
-   ikke sette farger fritt — da kan ingen ulovlig kombinasjon oppstå.
-   ========================================================================== */
+   }
+   @layer components {
+      SEKSJONSTEMAER
+      Fem tillatte kombinasjoner av bakgrunn og tekstfarge. Alle består WCAG AA.
+      Klienten får velge mellom disse fra en dropdown i Sanity (fase 7) og kan
+      ikke sette farger fritt — da kan ingen ulovlig kombinasjon oppstå.
+      ========================================================================== */
 
   .sek--lys {
     background-color: var(--color-bg);
@@ -2575,12 +2575,12 @@
   }
 
   /* ==========================================================================
-   BRØDSTI
-   Erstatter Tailwind-kjeden i Breadcrumbs.astro. text-[var(--color-text-s)]
-   var en arbitrary value og forsvant med Tailwind — brødstien sto igjen uten
-   egen farge og arvet fra forelderen. På den mørke prosjekt-heroen ga det
-   nesten usynlig tekst.
-   ========================================================================== */
+      BRØDSTI
+      Erstatter Tailwind-kjeden i Breadcrumbs.astro. text-[var(--color-text-s)]
+      var en arbitrary value og forsvant med Tailwind — brødstien sto igjen uten
+      egen farge og arvet fra forelderen. På den mørke prosjekt-heroen ga det
+      nesten usynlig tekst.
+      ========================================================================== */
 
   .brodsti {
     padding-block: 0.75rem;
@@ -2623,7 +2623,7 @@
   }
 
   /* På mørk bakgrunn — f.eks. prosjekt-heroen. Kontrasten her var det som ga
-   den uleselige brødstien i skjermbildet. */
+      den uleselige brødstien i skjermbildet. */
   .brodsti--inv {
     color: rgba(255, 255, 255, 0.75);
   }
@@ -2636,8 +2636,8 @@
   }
 
   /* ==========================================================================
-   TJENESTESIDER
-   ========================================================================== */
+      TJENESTESIDER
+      ========================================================================== */
 
   .tjeneste-hero {
     position: relative;
@@ -2662,17 +2662,17 @@
   }
 
   /* Gradienten er tyngre nederst enn øverst. Brødsti og ingress ligger i det
-   nedre feltet, og det er der kontrasten må holde uansett hvilket bilde
-   klienten laster opp senere. */
+      nedre feltet, og det er der kontrasten må holde uansett hvilket bilde
+      klienten laster opp senere. */
   .tjeneste-hero__bg::after {
     content: "";
     position: absolute;
     inset: 0;
     background: linear-gradient(
       180deg,
-      rgba(44, 66, 81, 0.55) 0%,
-      rgba(44, 66, 81, 0.72) 45%,
-      rgba(38, 42, 16, 0.9) 100%
+      rgba(var(--rgb-dark), 0.55) 0%,
+      rgba(var(--rgb-dark), 0.72) 45%,
+      rgba(var(--rgb-khaki), 0.9) 100%
     );
   }
 
@@ -2878,10 +2878,10 @@
   }
 
   /* ==========================================================================
-   STICKY KONTAKTBAR — kun mobil
-   Uten kontaktskjema er tel: og mailto: de eneste konverteringspunktene.
-   Da må de være tilgjengelige uansett hvor langt ned brukeren har scrollet.
-   ========================================================================== */
+      STICKY KONTAKTBAR — kun mobil
+      Uten kontaktskjema er tel: og mailto: de eneste konverteringspunktene.
+      Da må de være tilgjengelige uansett hvor langt ned brukeren har scrollet.
+      ========================================================================== */
 
   .kontaktbar {
     display: none;
@@ -2946,11 +2946,11 @@
 
 @layer components {
   /* ==========================================================================
-   FORSIDEBLOKKER
-   Stiler for blokkene klienten setter sammen forsiden av. Alle arver
-   tekstfarge fra sek--*-klassen på SeksjonsSkall, så de fungerer på alle fem
-   temaer uten egne varianter.
-   ========================================================================== */
+      FORSIDEBLOKKER
+      Stiler for blokkene klienten setter sammen forsiden av. Alle arver
+      tekstfarge fra sek--*-klassen på SeksjonsSkall, så de fungerer på alle fem
+      temaer uten egne varianter.
+      ========================================================================== */
 
   .stats-rad {
     display: grid;
