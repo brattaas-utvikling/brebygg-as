@@ -263,13 +263,12 @@ async function migrerNavigasjon() {
  * siden sin når hun åpner Studio første gang — ikke møte en tom liste.
  */
 async function migrerForside() {
-  const { FAQ_ITEMS, NOKKELTALL, HOVEDKOMMUNER, NAP } = await import("../src/config/site.js");
+  const { FAQ_ITEMS, NAP } = await import("../src/config/site.js");
 
   await skriv({
     _id:   "forside",
     _type: "forside",
     hero: {
-      eyebrow: `Totalentreprenør i ${HOVEDKOMMUNER.join(", ")}`,
       tittel:  "Totalentreprenør i Vestfold",
       ingress: "BRE Bygg tar fullt ansvar for byggeprosessen — fra prosjektering til du får nøklene. Enten det er nybygg i Tønsberg, rehabilitering i Sandefjord eller næringsbygg i Larvik.",
       bilde:   await lastOppBilde("/images/hero-forside.webp", "Byggeplass i Vestfold"),
@@ -277,15 +276,14 @@ async function migrerForside() {
         { _key: "k1", tekst: "Se prosjekter",  url: "/prosjekter/", stil: "primary" },
         { _key: "k2", tekst: NAP.phoneDisplay, url: NAP.phoneHref,  stil: "outline" },
       ],
-      tall: NOKKELTALL.map((t, i) => ({ _key: `t${i}`, label: t.label, verdi: t.num })),
     },
     seksjoner: [
       { _type: "tjenesterBento",   _key: "s1", tema: "mork",
-        eyebrow: "Hva vi gjør", overskrift: "Tre typer oppdrag. Én ansvarlig." },
+        overskrift: "Tre typer oppdrag. Én ansvarlig." },
       { _type: "prosjektKarusell", _key: "s2", tema: "lys",
-        eyebrow: "Utvalgte prosjekter", overskrift: "Bygg vi har levert i Vestfold", antall: 8 },
+        overskrift: "Bygg vi har levert i Vestfold", antall: 8 },
       { _type: "faqBlokk",         _key: "s3", tema: "seksjon",
-        eyebrow: "Vanlige spørsmål", overskrift: "Det folk lurer på",
+        overskrift: "Det folk lurer på",
         sporsmaal: FAQ_ITEMS.map((f, i) => ({ _type: "faq", _key: `q${i}`, sporsmaal: f.question, svar: f.answer })) },
       { _type: "ctaBanner",        _key: "s4", tema: "mork",
         overskrift: "Skal du bygge i Vestfold?",

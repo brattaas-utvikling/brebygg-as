@@ -5,18 +5,16 @@
 
 import { BRUKER_SANITY, sanityKlient } from "./client";
 import { Q_FORSIDE } from "./queries";
-import { FAQ_ITEMS, NOKKELTALL, HOVEDKOMMUNER, NAP } from "@config/site";
+import { FAQ_ITEMS, NAP } from "@config/site";
 
 export type Seksjon = Record<string, any> & { _type: string; _key: string; tema?: string };
 
 export type ForsideData = {
   hero: {
-    eyebrow?: string;
     tittel: string;
     ingress: string;
     bilde?: unknown;
     knapper?: { tekst: string; url: string; stil?: string }[];
-    tall?: { label: string; verdi: string }[];
   };
   seksjoner: Seksjon[];
   seo?: { tittel?: string; beskrivelse?: string; skjulFraSok?: boolean };
@@ -32,21 +30,19 @@ export type ForsideData = {
 function fallback(): ForsideData {
   return {
     hero: {
-      eyebrow: `Totalentreprenør i ${HOVEDKOMMUNER.join(", ")}`,
       tittel:  "Totalentreprenør i Vestfold",
       ingress: "BRE Bygg tar fullt ansvar for byggeprosessen — fra prosjektering til du får nøklene. Enten det er nybygg i Tønsberg, rehabilitering i Sandefjord eller næringsbygg i Larvik.",
       knapper: [
         { tekst: "Se prosjekter",           url: "/prosjekter/", stil: "primary" },
         { tekst: NAP.phoneDisplay,          url: NAP.phoneHref,  stil: "outline" },
       ],
-      tall: NOKKELTALL.map((t) => ({ label: t.label, verdi: t.num })),
     },
     seksjoner: [
       { _type: "tjenesterBento",   _key: "f1", tema: "mork" },
       { _type: "prosjektKarusell", _key: "f2", tema: "lys",
-        eyebrow: "Utvalgte prosjekter", overskrift: "Bygg vi har levert i Vestfold", antall: 8 },
+        overskrift: "Bygg vi har levert i Vestfold", antall: 8 },
       { _type: "faqBlokk",         _key: "f3", tema: "seksjon",
-        eyebrow: "Vanlige spørsmål", overskrift: "Det folk lurer på",
+        overskrift: "Det folk lurer på",
         sporsmaal: FAQ_ITEMS.map((f) => ({ sporsmaal: f.question, svar: f.answer })) },
       { _type: "ctaBanner",        _key: "f4", tema: "mork",
         overskrift: "Skal du bygge i Vestfold?",

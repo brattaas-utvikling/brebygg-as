@@ -4,7 +4,7 @@ interface Props { blokk: Record<string, any> }
 const { blokk } = Astro.props;
 const sporsmaal = Array.isArray(blokk.sporsmaal) ? blokk.sporsmaal : [];
 ---
-<SeksjonsSkall tema={blokk.tema} eyebrow={blokk.eyebrow} overskrift={blokk.overskrift}>
+<SeksjonsSkall tema={blokk.tema} overskrift={blokk.overskrift}>
   <div class="tjeneste-faq__liste">
     {sporsmaal.map((f: any) => (
       <details class="tjeneste-faq__item">

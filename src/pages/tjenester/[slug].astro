@@ -118,7 +118,6 @@ const schema = getTjenesteSchema(
     <section class="section sek--hvit" aria-labelledby="inkludert-tittel">
       <div class="container tjeneste-todelt">
         <div>
-          <span class="eyebrow">Dette inngår</span>
           <h2 class="section-title mt-2" id="inkludert-tittel">
             Hva du får når vi tar totalentreprisen
           </h2>
@@ -143,7 +142,6 @@ const schema = getTjenesteSchema(
     {/* Prosess */}
     <section class="section sek--seksjon" aria-labelledby="prosess-tittel">
       <div class="container">
-        <span class="eyebrow">Slik går vi fram</span>
         <h2 class="section-title mt-2" id="prosess-tittel">Fra første befaring til overlevering</h2>
 
         <ol class="tjeneste-prosess">
@@ -166,7 +164,6 @@ const schema = getTjenesteSchema(
         <div class="container">
           <div class="tjeneste-toprad">
             <div>
-              <span class="eyebrow">Fra arkivet</span>
               <h2 class="section-title mt-2" id="relaterte-tittel">
                 {data.kortTittel ?? data.title} vi har levert
               </h2>
@@ -200,7 +197,6 @@ const schema = getTjenesteSchema(
     {data.faq.length > 0 && (
       <section class="section sek--seksjon" aria-labelledby="faq-tittel">
         <div class="container tjeneste-faq">
-          <span class="eyebrow">Vanlige spørsmål</span>
           <h2 class="section-title mt-2" id="faq-tittel">
             Om {(data.kortTittel ?? data.title).toLowerCase()}
           </h2>

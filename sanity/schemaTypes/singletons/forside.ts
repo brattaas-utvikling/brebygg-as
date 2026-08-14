@@ -31,7 +31,6 @@ export const forside = defineType({
       name: "hero", title: "Hero", type: "object", group: "hero",
       description: "Alltid øverst på siden. Kan ikke flyttes — se kommentaren i skjemaet.",
       fields: [
-        defineField({ name: "eyebrow",   title: "Liten overskrift over tittelen", type: "string" }),
         defineField({
           name: "tittel", title: "Tittel", type: "string",
           description: "Blir sidens <h1>. Én per side.",
@@ -48,7 +47,6 @@ export const forside = defineType({
           validation: (r) => r.required(),
         }),
         defineField({ name: "knapper", title: "Knapper", type: "array", of: [{ type: "cta" }], validation: (r) => r.max(2) }),
-        defineField({ name: "tall",    title: "Nøkkeltall under heroen", type: "array", of: [{ type: "nokkeltall" }], validation: (r) => r.max(3) }),
       ],
     }),
 

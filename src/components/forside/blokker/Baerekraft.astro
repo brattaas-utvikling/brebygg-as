@@ -4,7 +4,7 @@ interface Props { blokk: Record<string, any> }
 const { blokk } = Astro.props;
 const punkter = Array.isArray(blokk.punkter) ? blokk.punkter : [];
 ---
-<SeksjonsSkall tema={blokk.tema} eyebrow={blokk.eyebrow} overskrift={blokk.overskrift}>
+<SeksjonsSkall tema={blokk.tema} overskrift={blokk.overskrift}>
   <ul class="baerekraft-liste" role="list">
     {punkter.map((p: any) => (
       <li class="baerekraft-liste__post">

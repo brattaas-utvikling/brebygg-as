@@ -5,9 +5,7 @@
 // Seksjonsrekkefølge (fra spec):
 //   1. Header      (i PageLayout)
 //   2. HeroPage    — mørk page-header med eyebrow + H1
-//   3. OngoingBanner
 //   4. ProsjektGalleri (Astro + ~1 KB vanilla, ingen hydrering)
-//   5. CtaSeksjon
 //   6. Footer      (i PageLayout)
 //
 // Datahåndtering:
@@ -21,8 +19,6 @@
 
 import PageLayout from "@layouts/PageLayout.astro";
 import HeroPage from "@components/sections/HeroPage.astro";
-import OngoingBanner from "@components/sections/OngoingBanner.astro";
-import CtaSeksjon from "@components/sections/CtaSeksjon.astro";
 import ProsjektGalleri from "@components/prosjekter/ProsjektGalleri.astro";
 import { getCollection } from "astro:content";
 
@@ -58,23 +54,6 @@ const sorterte = [...alleRaw].sort((a, b) => {
 // islands-grensen til React. Med Astro-komponenten er det unødvendig — vi
 // sender CollectionEntry-ene direkte, og sparer både koden og JS-en.
 
-// Finn pågående prosjekt for OngoingBanner (første pågående, eller ingen)
-const pågående = sorterte.find((p) => p.data.status === "pagaende");
-const harPågående = pågående !== undefined;
-
-// Statistikk for hero-stats
-const antallFerdig = sorterte.filter((p) => p.data.status === "ferdig").length;
-const antallTotalt = sorterte.length;
-const kommuner = [...new Set(sorterte.map((p) => p.data.location))].length;
-
-const heroStats = [
-  {
-    num: `${antallTotalt}`,
-    label: antallTotalt === 1 ? "Prosjekt" : "Prosjekter",
-  },
-  { num: `${kommuner}+`, label: "Byer og kommuner" },
-  { num: `${antallFerdig}`, label: "Ferdigstilte" },
-] as const;
 ---
 
 <PageLayout meta={PAGE_META.prosjekter} schema={schema}>
@@ -82,38 +61,18 @@ const heroStats = [
     {/* 2. Page-hero — mørk header */}
     <HeroPage
       nesteTema="lys"
-      eyebrow="Referanseprosjekter"
       heading="Prosjekter<br />i Vestfold"
       lead="Vi viser hva vi tok på oss, hva som var krevende og hva vi faktisk leverte. Ingen prosjekter er identiske — men arbeidsmåten er den samme."
       imgSrc="/images/prosjekter-hero.webp"
       imgAlt="Byggeplass i Vestfold med kran og stålkonstruksjon"
       imgWidth={800}
       imgHeight={960}
-      stats={[...heroStats]}
     />
-
-    {/* 3. Pågående-banner — kun hvis det finnes pågående prosjekter */}
-    {
-      harPågående && pågående && (
-        <OngoingBanner
-          projectName={pågående.data.title}
-          location={pågående.data.location}
-          progress={70}
-          dueLabel="2025"
-        />
-      )
-    }
 
     {/* 4. Prosjektgalleri — ren Astro, ~1 KB vanilla JS.
          Alle kort ligger alltid i DOM; filtrering skjer med hidden.
          Uten JS: alle prosjekter vises, filterlinja skjules. */}
     <ProsjektGalleri prosjekter={sorterte} />
 
-    {/* 5. CTA — lys variant */}
-    <CtaSeksjon
-      variant="light"
-      heading="Ser du noe du liker?"
-      sub="Ta kontakt for å høre om vi har ledig kapasitet til ditt prosjekt i Vestfold."
-    />
   </main>
 </PageLayout>

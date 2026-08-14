@@ -247,24 +247,13 @@ export const FAQ_ITEMS: readonly FaqItem[] = [
 ] as const;
 
 // --------------------------------------------------------------------------
-// Nøkkeltall
+// NOKKELTALL er fjernet på kundens ønske.
 //
-// Erstatter «120+ fullførte prosjekter» og «18 år i bransjen» fra v1. Begge
-// tallene var oppdiktet, og de var dessuten svak copy: hver konkurrent i
-// Vestfold har en variant av samme påstand, og ingen av dem kan etterprøves.
+// Blokken erstattet i sin tid de oppdiktede tallene («120+ prosjekter»,
+// «18 år i bransjen»). Kunden vil ikke ha en tallrad i det hele tatt, så både
+// heroen på forsiden, /om-oss/ og OmOssTeaser står nå uten.
 //
-// Tallene under kan etterprøves, og de sier noe konkurrentene ikke sier:
-// selskapet er lite nok til at du snakker med samme person hele veien.
+// Trenger dere den tilbake senere: statsRad-blokken i Sanity gjør det samme,
+// og lar klienten skrive tallene selv.
 // --------------------------------------------------------------------------
 
-export type Nokkeltall = {
-  num:    string;
-  label:  string;
-  sub?:   string;
-};
-
-export const NOKKELTALL: readonly Nokkeltall[] = [
-  { num: String(FAKTA_BEKREFTET.ansatte), label: "Faste ansatte",  sub: "du snakker med den som bygger" },
-  { num: "1",                             label: "Kontaktpunkt",   sub: "én prosjektleder hele veien"    },
-  { num: String(HOVEDKOMMUNER.length),    label: "Hovedkommuner",  sub: HOVEDKOMMUNER.join(" · ")        },
-] as const;

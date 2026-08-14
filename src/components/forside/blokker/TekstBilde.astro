@@ -9,7 +9,6 @@ const cta = blokk.cta;
 <SeksjonsSkall tema={blokk.tema}>
   <div class:list={["tekstbilde", `tekstbilde--${layout}`]}>
     <div class="tekstbilde__tekst">
-      {blokk.eyebrow    && <span class="eyebrow">{blokk.eyebrow}</span>}
       {blokk.overskrift && <h2 class="section-title mt-2">{blokk.overskrift}</h2>}
       {blokk.tekst      && <p class="section-desc mt-3">{blokk.tekst}</p>}
       {cta && (

@@ -47,7 +47,16 @@ export const structure: StructureResolver = (S) =>
         ),
 
       S.listItem().title("Personer").child(S.documentTypeList("teamMedlem").title("Personer")),
-      S.listItem().title("Sider").child(S.documentTypeList("side").title("Sider")),
+
+      // «Sider» er bevisst tatt ut.
+      //
+      // Typen fantes, men ingen rute rendret den: /om-oss/ og /kontakt/ leser
+      // fra src/config/. En tom mappe som ser funksjonell ut inviterer til at
+      // noen legger inn innhold som aldri vises noe sted.
+      //
+      // Skal den tilbake, må /om-oss/ og /kontakt/ først kobles til
+      // `side`-dokumenter med sluggene «om-oss» og «kontakt», og
+      // migreringsskriptet må opprette begge.
 
       S.divider(),
       singleton(S, "navigasjon", "Meny"),

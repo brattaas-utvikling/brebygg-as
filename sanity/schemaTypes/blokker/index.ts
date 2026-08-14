@@ -53,7 +53,6 @@ export const tjenesterBento = defineType({
   name: "tjenesterBento", title: "Tjenester", type: "object",
   fields: [
     temaFelt(),
-    defineField({ name: "eyebrow",   title: "Liten overskrift", type: "string" }),
     defineField({ name: "overskrift", title: "Overskrift",      type: "string", validation: (r) => r.required() }),
     defineField({ name: "ingress",    title: "Ingress",         type: "text", rows: 3 }),
   ],
@@ -64,7 +63,6 @@ export const prosjektKarusell = defineType({
   name: "prosjektKarusell", title: "Prosjektkarusell", type: "object",
   fields: [
     temaFelt(),
-    defineField({ name: "eyebrow",    title: "Liten overskrift", type: "string" }),
     defineField({ name: "overskrift", title: "Overskrift",       type: "string", validation: (r) => r.required() }),
     defineField({
       name: "antall", title: "Maks antall", type: "number", initialValue: 8,
@@ -81,7 +79,6 @@ export const omOssTeaser = defineType({
   name: "omOssTeaser", title: "Om oss", type: "object",
   fields: [
     temaFelt(),
-    defineField({ name: "eyebrow",    title: "Liten overskrift", type: "string" }),
     defineField({ name: "overskrift", title: "Overskrift",       type: "string", validation: (r) => r.required() }),
     defineField({ name: "tekst",      title: "Tekst",            type: "text", rows: 5 }),
     defineField({ name: "bilde",      title: "Bilde",            type: "bilde" }),
@@ -94,7 +91,6 @@ export const baerekraft = defineType({
   name: "baerekraft", title: "Bærekraft", type: "object",
   fields: [
     temaFelt(),
-    defineField({ name: "eyebrow",    title: "Liten overskrift", type: "string" }),
     defineField({ name: "overskrift", title: "Overskrift",       type: "string", validation: (r) => r.required() }),
     defineField({ name: "punkter",    title: "Punkter", type: "array", of: [{ type: "nokkeltall" }],
       description: "Konkrete tiltak, ikke intensjoner." }),
@@ -107,7 +103,6 @@ export const faqBlokk = defineType({
   description: "FAQPage-schema legges kun ut når denne blokken faktisk står på siden.",
   fields: [
     temaFelt(),
-    defineField({ name: "eyebrow",    title: "Liten overskrift", type: "string" }),
     defineField({ name: "overskrift", title: "Overskrift",       type: "string", validation: (r) => r.required() }),
     defineField({ name: "sporsmaal",  title: "Spørsmål", type: "array", of: [{ type: "faq" }],
       validation: (r) => r.min(3).max(10) }),
@@ -131,7 +126,6 @@ export const tekstBilde = defineType({
   description: "Generisk blokk til innhold som ikke passer i de andre.",
   fields: [
     temaFelt(),
-    defineField({ name: "eyebrow",    title: "Liten overskrift", type: "string" }),
     defineField({ name: "overskrift", title: "Overskrift",       type: "string", validation: (r) => r.required() }),
     defineField({ name: "tekst",      title: "Tekst", type: "array", of: [defineArrayMember({ type: "block" })] }),
     defineField({ name: "bilde",      title: "Bilde", type: "bilde" }),

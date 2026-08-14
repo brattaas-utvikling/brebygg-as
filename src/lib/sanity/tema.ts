@@ -22,7 +22,7 @@ export function temaKlasse(tema: string | undefined | null): string {
   return TEMA_KLASSE[(tema ?? "lys") as Tema] ?? TEMA_KLASSE.lys;
 }
 
-/** True når temaet har lys tekst. Styrer knappevariant og eyebrow-farge. */
+/** True når temaet har lys tekst. Styrer knappevariant. */
 export function erMorkt(tema: string | undefined | null): boolean {
   return MORKE_TEMAER.includes((tema ?? "lys") as Tema);
 }

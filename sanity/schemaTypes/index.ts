@@ -11,7 +11,6 @@ import { forside } from "./singletons/forside";
 import { prosjekt } from "./dokumenter/prosjekt";
 import { tjeneste } from "./dokumenter/tjeneste";
 import { teamMedlem } from "./dokumenter/teamMedlem";
-import { side } from "./dokumenter/side";
 
 import { alleBlokker } from "./blokker";
 
@@ -21,7 +20,7 @@ export const schemaTypes = [
   // Blokker — forsidens byggeklosser
   ...alleBlokker,
   // Dokumenter
-  prosjekt, tjeneste, teamMedlem, side,
+  prosjekt, tjeneste, teamMedlem,
   // Singletons
   nettstedInnstillinger, navigasjon, forside,
 ];

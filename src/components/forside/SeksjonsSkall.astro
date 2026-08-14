@@ -12,7 +12,6 @@ import { temaKlasse } from "@lib/sanity/tema";
 
 interface Props {
   tema?:      string | null;
-  eyebrow?:   string | null;
   overskrift?: string | null;
   ingress?:   string | null;
   /** id på <h2>, for aria-labelledby. */
@@ -20,7 +19,7 @@ interface Props {
   class?:     string;
 }
 
-const { tema, eyebrow, overskrift, ingress, id, class: klasse } = Astro.props;
+const { tema, overskrift, ingress, id, class: klasse } = Astro.props;
 const overskriftId = id ?? (overskrift ? `s-${overskrift.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 40)}` : undefined);
 ---
 
@@ -29,10 +28,9 @@ const overskriftId = id ?? (overskrift ? `s-${overskrift.toLowerCase().replace(/
   aria-labelledby={overskriftId}
 >
   <div class="container">
-    {(eyebrow || overskrift || ingress) && (
+    {(overskrift || ingress) && (
       <header class="seksjon-topp">
-        {eyebrow    && <span class="eyebrow">{eyebrow}</span>}
-        {overskrift && <h2 class="section-title mt-2" id={overskriftId}>{overskrift}</h2>}
+        {overskrift && <h2 class="section-title" id={overskriftId}>{overskrift}</h2>}
         {ingress    && <p class="section-desc mt-3">{ingress}</p>}
       </header>
     )}

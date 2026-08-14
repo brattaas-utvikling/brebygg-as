@@ -3,12 +3,10 @@
 // Gjenbrukbar hero-seksjon for innersider (om-oss, prosjekter).
 //
 // Layout:
-//   Venstre (55 %): eyebrow + H1 + ingress + valgfritt sitat + stats
 //   Høyre  (45 %): bilde i avrundet ramme
 //   Bakgrunn: Charcoal Blue (var(--color-bg-dark))
 //
 // Props:
-//   eyebrow   — tekst over H1
 //   heading   — H1-tekst (støtter HTML via set:html for linjeskift)
 //   lead      — ingress (maks 2 setninger, konkret)
 //   sitat?    — sitattekst
@@ -24,7 +22,6 @@ interface Stat {
 }
 
 interface Props {
-  eyebrow: string;
   heading: string;
   lead: string;
   sitat?: string;
@@ -57,7 +54,6 @@ const TEMA_BAKGRUNN = {
 } as const;
 
 const {
-  eyebrow,
   heading,
   lead,
   sitat,
@@ -78,7 +74,6 @@ const {
   >
     {/* Venstre: tekst */}
     <div class="page-hero__text">
-      <span class="eyebrow eyebrow--inv">{eyebrow}</span>
 
       <h1 class="page-hero__heading" set:html={heading} />
 

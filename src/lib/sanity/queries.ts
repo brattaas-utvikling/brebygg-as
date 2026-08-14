@@ -43,14 +43,13 @@ export const Q_NAVIGASJON = `*[_type == "navigasjon"][0]{
  */
 export const Q_FORSIDE = `*[_type == "forside"][0]{
   hero {
-    eyebrow, tittel, ingress,
+    tittel, ingress,
     bilde ${BILDE},
-    knapper[] ${CTA},
-    tall[]{ label, verdi }
+    knapper[] ${CTA}
   },
   seksjoner[]{
     _type, _key, tema,
-    eyebrow, overskrift, ingress, tekst, layout,
+    overskrift, ingress, tekst, layout,
     bilde ${BILDE},
     cta ${CTA},
     knapper[] ${CTA},
@@ -91,9 +90,6 @@ export const Q_TEAM = `*[_type == "teamMedlem"] | order(sortering asc) {
   navn, rolle, epost, telefon, sortering, foto ${BILDE}
 }`;
 
-export const Q_SIDE = `*[_type == "side" && slug.current == $slug][0]{
-  tittel, eyebrow, ingress, innhold, sitat, sitatKilde,
-  verdier[]{ nr, kategori, tittel, tekst, bilde ${BILDE} },
-  heroBilde ${BILDE},
-  ${SEO}
-}`;
+// Q_SIDE er fjernet sammen med `side`-typen. Trengs den igjen, må både
+// skjemaet, desk-oppføringen og rutene for /om-oss/ og /kontakt/ på plass
+// samtidig — en spørring uten en rute som bruker den er bare dødvekt.

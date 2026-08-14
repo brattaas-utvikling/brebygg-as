@@ -10,7 +10,7 @@
 //   Heading, lead, knapper og stats bruker .fade-up med forsinkelse.
 //   CSS-only — ingen JS.
 
-import { NAP, NOKKELTALL, HOVEDKOMMUNER } from "@config/site";
+import { NAP } from "@config/site";
 import Bilde from "@components/sanity/Bilde.astro";
 import type { Bilde as BildeType } from "@/content.config";
 
@@ -20,16 +20,13 @@ import type { Bilde as BildeType } from "@/content.config";
  * moduser uten en eneste if i malen.
  */
 interface Props {
-  eyebrow?: string;
   tittel?:  string;
   ingress?: string;
   bilde?:   BildeType | unknown;
   knapper?: { tekst: string; url: string; stil?: string }[];
-  tall?:    { label: string; verdi: string }[];
 }
 
 const {
-  eyebrow = `Totalentreprenør i ${HOVEDKOMMUNER.join(", ")}`,
   tittel  = "Totalentreprenør i Vestfold",
   ingress = "BRE Bygg tar fullt ansvar for byggeprosessen — fra prosjektering til du får nøklene.",
   bilde,
@@ -37,10 +34,8 @@ const {
     { tekst: "Se prosjekter",  url: "/prosjekter/", stil: "primary" },
     { tekst: NAP.phoneDisplay, url: NAP.phoneHref,  stil: "outline" },
   ],
-  tall,
 } = Astro.props;
 
-const heroStats = tall ?? NOKKELTALL.map((t) => ({ verdi: t.num, label: t.label }));
 ---
 
 <section class="hero" aria-label="Introduksjon">
@@ -58,10 +53,6 @@ const heroStats = tall ?? NOKKELTALL.map((t) => ({ verdi: t.num, label: t.label 
   <div class="hero__content">
     <div class="container">
       {/* Eyebrow */}
-      <p class="hero__eyebrow" aria-hidden="false">
-        <span class="eyebrow-dot" aria-hidden="true"></span>
-        {eyebrow}
-      </p>
 
       {/* H1 */}
       <h1 class="hero__heading">{tittel}</h1>
@@ -92,17 +83,6 @@ const heroStats = tall ?? NOKKELTALL.map((t) => ({ verdi: t.num, label: t.label 
         ))}
       </div>
 
-      {/* Hero-stats */}
-      <div class="hero__stats" role="list" aria-label="Nøkkeltall">
-        {
-          heroStats.map((stat) => (
-            <div class="hero-stat" role="listitem">
-              <div class="hero-stat__num">{stat.verdi}</div>
-              <div class="hero-stat__label">{stat.label}</div>
-            </div>
-          ))
-        }
-      </div>
     </div>
   </div>
 
@@ -114,33 +94,7 @@ const heroStats = tall ?? NOKKELTALL.map((t) => ({ verdi: t.num, label: t.label 
 
 <style>
   /* ── Eyebrow ──────────────────────────────────────────────────────── */
-  .hero__eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.8125rem;
-    font-weight: 600;
-    letter-spacing: 0.09em;
-    text-transform: uppercase;
-    /* Var var(--color-primary-l) — #9a9b82 over foto gir 1,66:1.
-       Oliven er en mellomtone og når aldri 4,5:1 mot en mellommørk bakgrunn,
-       uansett hvor mye scrim vi legger på. Den olivengrønne aksenten
-       beholdes som prikken foran teksten, der kontrast ikke er et krav. */
-    color: var(--color-text-inv);
-    margin-bottom: 1.25rem;
-    /* Fade-in med forsinkelse 0 */
-    opacity: 0;
-    animation: hero-fade-up 0.7s var(--ease-out) 0.1s forwards;
-  }
 
-  .eyebrow-dot {
-    display: inline-block;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background-color: var(--color-primary);
-    animation: pulse-dot 2.5s ease-in-out 1s infinite;
-  }
 
   /* ── Heading, lead, actions, stats — staggered fade-up ─────────── */
   .hero__heading {
@@ -158,30 +112,11 @@ const heroStats = tall ?? NOKKELTALL.map((t) => ({ verdi: t.num, label: t.label 
     animation: hero-fade-up 0.7s var(--ease-out) 0.48s forwards;
   }
 
-  .hero__stats {
-    opacity: 0;
-    animation: hero-fade-up 0.7s var(--ease-out) 0.6s forwards;
-  }
 
   /* ── Stat-separator ─────────────────────────────────────────────── */
-  .hero-stat {
-    position: relative;
-  }
 
-  .hero-stat + .hero-stat::before {
-    content: "";
-    position: absolute;
-    left: calc(-1 * clamp(0.75rem, 1.5vw, 1.25rem));
-    top: 10%;
-    height: 80%;
-    width: 1px;
-    background: rgba(245, 243, 239, 0.15);
-  }
 
   @media (max-width: 479px) {
-    .hero-stat + .hero-stat::before {
-      display: none;
-    }
   }
 
   /* ── Scroll-indikator ───────────────────────────────────────────── */
