@@ -1000,7 +1000,8 @@
     transition: transform 0.7s var(--ease-out);
   }
 
-  .tjeneste-card:hover .tjeneste-card__img-wrap {
+  .tjeneste-card:hover .tjeneste-card__img-wrap,
+  .tjeneste-card:focus-within .tjeneste-card__img-wrap {
     transform: scale(1.1);
   }
 
@@ -1023,7 +1024,8 @@
     transition: background var(--transition-slow);
   }
 
-  .tjeneste-card:hover .tjeneste-card__overlay {
+  .tjeneste-card:hover .tjeneste-card__overlay,
+  .tjeneste-card:focus-within .tjeneste-card__overlay {
     background: linear-gradient(
       to top,
       color-mix(in srgb, var(--color-bg-dark-2) 96%, transparent) 0%,
@@ -1065,7 +1067,8 @@
       margin 0.3s var(--ease-out);
   }
 
-  .tjeneste-card:hover .tjeneste-card__desc {
+  .tjeneste-card:hover .tjeneste-card__desc,
+  .tjeneste-card:focus-within .tjeneste-card__desc {
     max-height: 130px;
     opacity: 1;
     margin-bottom: 1rem;
@@ -1088,7 +1091,14 @@
       color var(--transition-fast);
   }
 
-  .tjeneste-card:hover .tjeneste-card__link {
+  .tjeneste-card__link::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+  }
+
+  .tjeneste-card:hover .tjeneste-card__link,
+  .tjeneste-card:focus-within .tjeneste-card__link {
     opacity: 1;
     transform: translateY(0);
     transition-delay: 0.05s;
