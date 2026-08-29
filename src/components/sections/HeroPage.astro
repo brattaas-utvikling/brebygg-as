@@ -46,11 +46,11 @@ interface Props {
 }
 
 const TEMA_BAKGRUNN = {
-  lys:     "var(--color-bg)",
-  hvit:    "var(--color-bg-white)",
+  lys: "var(--color-bg)",
+  hvit: "var(--color-bg-white)",
   seksjon: "var(--color-bg-section)",
-  mork:    "var(--color-bg-dark)",
-  khaki:   "var(--color-bg-dark-2)",
+  mork: "var(--color-bg-dark)",
+  khaki: "var(--color-bg-dark-2)",
 } as const;
 
 const {
@@ -74,7 +74,6 @@ const {
   >
     {/* Venstre: tekst */}
     <div class="page-hero__text">
-
       <h1 class="page-hero__heading" set:html={heading} />
 
       <div class="page-hero__divider" aria-hidden="true"></div>
@@ -238,7 +237,8 @@ const {
     margin: 1.75rem 0 0;
     padding: 1.25rem 1.5rem;
     border-left: 3px solid var(--color-primary);
-    background-color: rgba(var(--rgb-primary), 0.08);
+    /* background-color: rgba(var(--rgb-primary), 0.08); */
+    background-color: var(--color-bg-dark-2);
     border-radius: 0 var(--r-md) var(--r-md) 0;
     opacity: 0;
     animation: hero-fade-up 0.7s var(--ease-out) 0.48s forwards;

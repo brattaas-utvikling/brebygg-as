@@ -251,7 +251,12 @@
   em {
     font-style: italic;
   }
-
+  .p-italic {
+    font-style: italic;
+  }
+  .p-semibold {
+    font-weight: 600;
+  }
   /* Eyebrow-label over seksjonstitler */
   .eyebrow {
     display: inline-flex;
