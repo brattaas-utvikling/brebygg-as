@@ -152,22 +152,6 @@ const {
     padding-bottom: clamp(4rem, 8vw, 7rem);
   }
 
-  /* Subtil radial-glød bak teksten */
-  .page-hero::before {
-    content: "";
-    position: absolute;
-    top: -20%;
-    left: -5%;
-    width: 55%;
-    height: 140%;
-    background: radial-gradient(
-      ellipse at 30% 40%,
-      rgba(var(--rgb-primary), 0.09) 0%,
-      transparent 65%
-    );
-    pointer-events: none;
-  }
-
   /* ── Split-grid ────────────────────────────────────────────────────── */
   .page-hero__inner {
     display: grid;

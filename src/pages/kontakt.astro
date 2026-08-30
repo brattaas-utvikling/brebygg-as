@@ -194,22 +194,6 @@ const schema = getKontaktSchema(PAGE_META.kontakt.canonical);
     padding-bottom: clamp(3rem, 5vw, 4.5rem);
   }
 
-  /* Subtil glød bak headingen */
-  .kontakt-banner::before {
-    content: "";
-    position: absolute;
-    top: -30%;
-    left: -5%;
-    width: 50%;
-    height: 160%;
-    background: radial-gradient(
-      ellipse at 25% 50%,
-      rgba(132, 133, 110, 0.08) 0%,
-      transparent 60%
-    );
-    pointer-events: none;
-  }
-
   .kontakt-banner__inner {
     position: relative;
     z-index: 1;
