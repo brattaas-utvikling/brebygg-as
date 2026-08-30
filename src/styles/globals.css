@@ -73,7 +73,9 @@
     --color-bg: var(--bandicoot-100);
     --color-bg-white: #ffffff;
     --color-bg-section: var(--bandicoot-200);
-    --color-bg-green: var(--bandicoot-500); /* Green Leaf — header. Kun mørk tekst */
+    --color-bg-green: var(
+      --bandicoot-500
+    ); /* Green Leaf — header. Kun mørk tekst */
     --color-bg-dark: var(--bandicoot-600); /* mørke seksjoner */
     --color-bg-dark-2: var(--bandicoot-800); /* footer, hero-bunn */
 
@@ -1451,7 +1453,6 @@
 
   /* Pågående-merke */
 
-
   /* Tom tilstand */
   .galleri-tom {
     grid-column: 1 / -1;
@@ -1475,7 +1476,7 @@
   .strip {
     background-color: var(--color-bg-white);
     border-bottom: 1px solid var(--color-border);
-    border-top: 3px solid var(--color-primary);
+    /* border-top: 1px solid var(--color-border); */
   }
 
   .strip__grid {
@@ -1501,8 +1502,8 @@
     display: flex;
     flex-direction: column;
     gap: 0.375rem;
-    border-right: 1px solid var(--color-border);
-    transition: background-color var(--transition-fast);
+    /* border-right: 1px solid var(--color-border); */
+    /* transition: background-color var(--transition-fast); */
     position: relative;
   }
 
@@ -1534,9 +1535,9 @@
     }
   }
 
-  .strip__item:hover {
+  /* .strip__item:hover {
     background-color: var(--color-bg-section);
-  }
+  } */
 
   /* Ikon-sirkel */
   .strip__icon-wrap {
@@ -1551,10 +1552,6 @@
     color: var(--color-primary);
     transition: background-color var(--transition-fast);
     margin-bottom: 0.75rem;
-  }
-
-  .strip__item:hover .strip__icon-wrap {
-    background-color: rgba(var(--rgb-primary), 0.18);
   }
 
   @media (max-width: 479px) {
@@ -1588,8 +1585,12 @@
     transition: color var(--transition-fast);
     line-height: 1.35;
     letter-spacing: -0.01em;
-    display: flex;
-    align-items: center;
+    /* block, IKKE flex. Klassen sitter både på telefon-/e-postlenkene og på
+       <address>-blokka, og flex gjør hvert barn til et flex-item: <br> blir
+       forkastet, og tekstnoden med mellomrommet mellom postnummer og poststed
+       kollapser. Adressen ble «Nordre / Fokserød 3241Sandefjord / 21».
+       min-height virker like godt på block og dekker klikkflatekravet. */
+    display: block;
     min-height: 24px; /* WCAG 2.5.8 */
   }
 
