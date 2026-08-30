@@ -12,10 +12,7 @@ interface Props {
 const { text, class: extra = "", inverted = false } = Astro.props;
 ---
 
-<span
-  class={`eyebrow ${inverted ? "eyebrow--inv" : ""} ${extra}`}
-  aria-hidden="false"
->
+<span class={`eyebrow ${inverted ? "eyebrow--inv" : ""} ${extra}`}>
   {text}
 </span>
 

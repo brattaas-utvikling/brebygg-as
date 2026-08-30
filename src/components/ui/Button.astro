@@ -3,7 +3,7 @@
 // Gjenbrukbar knapp som støtter alle .btn-varianter fra globals.css.
 // Rendres som <a> hvis href er satt, ellers <button>.
 
-type Variant = "primary" | "outline" | "outline-inv" | "dark";
+type Variant = "primary" | "outline" | "outline-inv" | "dark" | "pa-gronn";
 type Size    = "sm" | "md" | "lg";
 
 interface Props {
@@ -36,6 +36,9 @@ const variantClass: Record<Variant, string> = {
   outline:      "btn--outline",
   "outline-inv": "btn--outline-inv",
   dark:         "btn--dark",
+  // For Green Leaf-flater (headeren). Rust er 1,70:1 mot Green Leaf og kan
+  // ikke brukes der — se aksentblokka i globals.css.
+  "pa-gronn":   "btn--pa-gronn",
 };
 
 const sizeClass: Record<Size, string> = {

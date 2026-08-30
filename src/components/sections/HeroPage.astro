@@ -4,7 +4,7 @@
 //
 // Layout:
 //   Høyre  (45 %): bilde i avrundet ramme
-//   Bakgrunn: Charcoal Blue (var(--color-bg-dark))
+//   Bakgrunn: bandicoot-600 (var(--color-bg-dark))
 //
 // Props:
 //   heading   — H1-tekst (støtter HTML via set:html for linjeskift)
@@ -108,7 +108,7 @@ const {
     </div>
 
     {/* Høyre: bilde */}
-    <div class="page-hero__img-col" aria-hidden="false">
+    <div class="page-hero__img-col">
       <div
         class={`page-hero__img-wrap ${imgFade ? "page-hero__img-wrap--fade" : ""}`}
       >
@@ -120,7 +120,7 @@ const {
           fetchpriority="high"
           decoding="async"
         />
-        {/* Subtil Dusty Olive-ramme øverst til venstre — gir dybde */}
+        {/* Subtil rustramme øverst til venstre — gir dybde */}
         <div class="page-hero__img-frame" aria-hidden="true"></div>
       </div>
     </div>
@@ -358,7 +358,7 @@ const {
     object-position: center top;
   }
 
-  /* Dusty Olive-ramme — posisjonert bak bildet */
+  /* rustramme — posisjonert bak bildet */
   .page-hero__img-frame {
     position: absolute;
     inset: -10px -10px 10px 10px;

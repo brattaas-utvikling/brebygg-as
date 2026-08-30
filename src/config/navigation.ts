@@ -15,7 +15,11 @@ export type NavItem = {
 // Hovednavigasjon (vises i Header)
 // --------------------------------------------------------------------------
 
+// Tjenester først: det er der en kunde som søker «rehabilitering kontorbygg
+// Vestfold» skal lande, og sidene fantes allerede — de var bare ikke nåbare
+// fra menyen, kun via footeren og bento-blokka på forsiden.
 export const MAIN_NAV: NavItem[] = [
+  { label: "Tjenester",  href: "/tjenester/" },
   { label: "Prosjekter", href: "/prosjekter/" },
   { label: "Om oss",     href: "/om-oss/" },
   { label: "Kontakt",    href: "/kontakt/", cta: true },

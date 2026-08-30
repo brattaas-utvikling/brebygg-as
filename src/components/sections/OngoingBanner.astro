@@ -27,12 +27,14 @@ const {
 const safeProgress = Math.max(0, Math.min(100, progress));
 ---
 
-<div class="ongoing-banner" aria-label="Pågående prosjekt">
+<div class="ongoing-banner" role="region" aria-label="Pågående prosjekt">
   <div class="container">
     <div class="ongoing-banner__inner">
 
       {/* Pulserende "live"-badge */}
-      <span class="badge-dot" aria-label="Pågående">Pågående</span>
+      {/* Ingen aria-label her: den ville dublert den synlige teksten, og på en
+          <span> uten rolle blir den uansett ignorert. */}
+      <span class="badge-dot">Pågående</span>
 
       {/* Prosjektinfo */}
       <p class="ongoing-banner__text">
