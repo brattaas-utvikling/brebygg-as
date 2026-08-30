@@ -200,6 +200,29 @@
     /* --- Nav --- */
     --nav-height: 72px;
 
+    /* --- Hero ---
+       Felles gulv for heroene på undersidene. Forsiden er med vilje utenfor:
+       den er sidens tese og skal være høyest — det hierarkiet bærer mening.
+
+       Gulv og ikke tak. En max-height på en tekstflate klipper når tittelen
+       blir lang fra Sanity, eller når brukeren zoomer til 200 % (WCAG 1.4.4).
+       Taket hører hjemme på bildet, ikke på seksjonen — se --hero-bilde-maks.
+
+       svh og ikke vh: vh regner med adresselinja utslått, så heroen hopper i
+       høyde når mobilnettleseren skjuler den under scroll. .tjeneste-hero
+       brukte vh og .slug-hero svh, med 20 px ulikt gulv i tillegg. */
+    --hero-min: clamp(420px, 52svh, 600px);
+
+    /* Taket på hero-bildet. Uten det bestemmer bildets aspect-ratio
+       seksjonshøyden: 5/6 på en 60 %-kolonne ga 739 px på /om-oss/ mot 600 på
+       /tjenester/, der kolonnen er 45 %. Hele forskjellen på 139 px var
+       kolonnebredden, ikke en beslutning om hvor høy heroen skulle være.
+
+       600 og ikke 620: 620 kappet bare /om-oss/ og lot de to andre ligge på
+       600, så de tre sidene ble stående 20 px fra hverandre. 600 er høyden
+       den smale kolonnen gir av seg selv, og gjør alle tre like. */
+    --hero-bilde-maks: 600px;
+
     /* --- RGB-komponenter for rgba() ---
         rgba() kan ikke ta en hex-variabel, så de hardkodede fargene i scrim,
         skygger og overlays fulgte ikke med når tokenene ble endret. Med disse
@@ -2030,7 +2053,7 @@
 
   .slug-hero {
     position: relative;
-    min-height: clamp(400px, 55svh, 620px);
+    min-height: var(--hero-min);
     display: flex;
     align-items: flex-end;
     overflow: hidden;
@@ -2739,7 +2762,7 @@
   .tjeneste-hero {
     position: relative;
     isolation: isolate;
-    min-height: clamp(420px, 55vh, 620px);
+    min-height: var(--hero-min);
     display: flex;
     align-items: flex-end;
     padding-block: clamp(3rem, 8vw, 6rem);

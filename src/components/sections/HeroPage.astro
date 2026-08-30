@@ -144,6 +144,9 @@ const {
   /* ── Seksjonsramme ─────────────────────────────────────────────────── */
   .page-hero {
     background-color: var(--color-bg-dark);
+    min-height: var(--hero-min);
+    display: flex;
+    align-items: center;
     position: relative;
     overflow: hidden;
     /* Padding-top: nav-høyde + rom */
@@ -309,12 +312,19 @@ const {
     }
   }
 
+  /* max-height + width: 100% gjør at aspect-ratio gir etter ved taket i
+     stedet for å diktere seksjonshøyden. Uten det ble /om-oss/ 139 px høyere
+     enn /tjenester/ utelukkende fordi imgFade-varianten gir bildekolonnen
+     60 % bredde i stedet for 45 %. */
   .page-hero__img-wrap {
     position: relative;
     border-radius: var(--r-xl);
     overflow: hidden;
     /* Portrettformat på desktop */
     aspect-ratio: 5 / 6;
+    max-height: var(--hero-bilde-maks);
+    width: 100%;
+    margin-inline: auto;
     box-shadow: var(--shadow-xl);
     /* Animasjon inn fra høyre */
     opacity: 0;
