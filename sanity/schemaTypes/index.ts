@@ -5,7 +5,6 @@ import { bilde } from "./objekter/bilde";
 import { cta, nokkeltall, faq, verdi } from "./objekter/smaating";
 
 import { nettstedInnstillinger } from "./singletons/nettstedInnstillinger";
-import { navigasjon } from "./singletons/navigasjon";
 import { forside } from "./singletons/forside";
 
 import { prosjekt } from "./dokumenter/prosjekt";
@@ -22,8 +21,8 @@ export const schemaTypes = [
   // Dokumenter
   prosjekt, tjeneste, teamMedlem,
   // Singletons
-  nettstedInnstillinger, navigasjon, forside,
+  nettstedInnstillinger, forside,
 ];
 
 /** Dokumenttyper det kun skal finnes ett av. Låses i desk-strukturen. */
-export const SINGLETONS = ["nettstedInnstillinger", "navigasjon", "forside"] as const;
+export const SINGLETONS = ["nettstedInnstillinger", "forside"] as const;

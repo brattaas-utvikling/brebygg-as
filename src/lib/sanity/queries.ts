@@ -28,12 +28,6 @@ export const Q_INNSTILLINGER = `*[_type == "nettstedInnstillinger"][0]{
   logo ${BILDE}, standardOgBilde ${BILDE}
 }`;
 
-export const Q_NAVIGASJON = `*[_type == "navigasjon"][0]{
-  hovedmeny[]{ label, sti, erCta },
-  footerGrupper[]{ overskrift, lenker[]{ label, sti } },
-  footerTekst
-}`;
-
 /**
  * Forsiden.
  *

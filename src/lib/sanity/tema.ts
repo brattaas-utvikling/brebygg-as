@@ -5,6 +5,9 @@
 // sek--*-klassene i globals.css. Union-typen gjør at TypeScript stopper et
 // tema som ikke finnes — legger noen til en sjette verdi i Sanity uten å
 // oppdatere CSS, feiler bygget i stedet for å rendre en seksjon uten bakgrunn.
+//
+// Titlene klienten ser står i sanity/lib/tema.ts. Bare verdiene lever her,
+// og de skal ikke endres — de ligger lagret på publiserte dokumenter.
 
 export const TEMA_KLASSE = {
   lys:     "sek--lys",

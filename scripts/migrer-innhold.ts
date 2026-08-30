@@ -260,25 +260,6 @@ async function migrerProsjekter() {
   }
 }
 
-async function migrerNavigasjon() {
-  const { MAIN_NAV, FOOTER_NAV } = await import("../src/config/navigation.js");
-  await skriv({
-    _id:   "navigasjon",
-    _type: "navigasjon",
-    hovedmeny: MAIN_NAV.map((l: any, i: number) => ({
-      _key: `m${i}`, label: l.label, sti: l.href, erCta: l.isCta ?? false,
-    })),
-    // FOOTER_NAV er et array av { heading, items }, ikke et objekt.
-    // Fanget i tørrkjøring — Object.entries() ga [nøkkel, gruppe] og
-    // gruppe.map() fantes ikke.
-    footerGrupper: FOOTER_NAV.map((g: any, i: number) => ({
-      _key: `g${i}`,
-      overskrift: g.heading,
-      lenker: (g.items ?? []).map((l: any, j: number) => ({ _key: `l${j}`, label: l.label, sti: l.href })),
-    })),
-  });
-}
-
 /**
  * Forsiden.
  *
@@ -324,7 +305,6 @@ async function main() {
   // Rekkefølgen betyr noe: prosjekter refererer til teamMedlem og tjeneste,
   // så de må finnes først.
   await migrerInnstillinger();
-  await migrerNavigasjon();
   await migrerTeam();
   await migrerTjenester();
   await migrerProsjekter();
