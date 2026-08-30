@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<title>Designprofil — BRE Bygg AS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<style>
+  :root {
+    --green-leaf: #81816b;
+    --mose:       #585a4b;
+    --tjaere:     #2b2922;
+    --rust:       #9a3f1f;
+    --rust-lys:   #f3c9b7;
+    --kalk:       #f4f5f4;
+    --puss:       #e8e8e3;
+    --kull:       #0d0d08;
+    --tekst:      #2b2922;
+    --tekst-m:    #464739;
+    --tekst-s:    #585a4b;
+    --linje:      #d8d8cf;
+    --ff: "Plus Jakarta Sans", -apple-system, "Segoe UI", system-ui, sans-serif;
+  }
+
+  @page { size: A4; margin: 16mm 15mm 14mm; }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: var(--ff);
+    font-size: 10.5pt;
+    line-height: 1.55;
+    color: var(--tekst-m);
+    margin: 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  h1, h2, h3 { color: var(--tekst); margin: 0; }
+
+  /* ── Forside-blokk ────────────────────────────────────────── */
+  /* Ingen negativ marg: den skjøv blokka utenfor utskriftsområdet og
+     klippet overskriften i venstre kant. Blokka holder seg innenfor margene. */
+  .topp {
+    background: var(--green-leaf);
+    color: var(--kull);
+    padding: 14mm 13mm 13mm;
+    border-radius: 2mm;
+    margin: 0 0 10mm;
+  }
+  .topp .merke {
+    font-size: 8pt; font-weight: 700; letter-spacing: .18em;
+    text-transform: uppercase; margin-bottom: 6mm; color: var(--kull);
+  }
+  .topp h1 {
+    font-size: 27pt; font-weight: 700; line-height: 1.05;
+    letter-spacing: -.03em; color: var(--kull); margin-bottom: 4mm;
+  }
+  .topp p {
+    font-size: 11pt; line-height: 1.5; max-width: 105mm;
+    color: var(--kull); margin: 0; opacity: .82;
+  }
+
+  /* ── Seksjoner ────────────────────────────────────────────── */
+  section { margin-bottom: 9mm; }
+  h2 {
+    break-after: avoid;
+    font-size: 15pt; font-weight: 700; letter-spacing: -.02em;
+    padding-bottom: 2mm; margin-bottom: 4mm;
+    border-bottom: 2px solid var(--tjaere);
+  }
+  h3 {
+    break-after: avoid;
+    font-size: 10.5pt; font-weight: 700; margin: 5mm 0 1.5mm;
+    letter-spacing: -.01em;
+  }
+  p { margin: 0 0 3mm; max-width: 165mm; }
+  p:last-child { margin-bottom: 0; }
+  .liten { font-size: 9pt; color: var(--tekst-s); }
+
+  /* ── Fargekort ────────────────────────────────────────────── */
+  .palett {
+    break-inside: avoid;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 3.5mm;
+    margin-bottom: 5mm;
+  }
+  .farge { break-inside: avoid; }
+  .farge .flate {
+    height: 20mm; border-radius: 1.5mm; margin-bottom: 2mm;
+    border: .3mm solid rgba(13,13,8,.14);
+  }
+  .farge .navn {
+    font-weight: 700; font-size: 9.5pt; color: var(--tekst);
+    line-height: 1.2; margin-bottom: .8mm;
+  }
+  .farge .hex {
+    font-size: 8pt; font-weight: 600; letter-spacing: .06em;
+    color: var(--tekst-s); font-variant-numeric: tabular-nums;
+  }
+  .farge .rolle { font-size: 8pt; line-height: 1.35; color: var(--tekst-s); margin-top: 1mm; }
+
+  /* ── Kontrastdemo ─────────────────────────────────────────── */
+  .demo { break-inside: avoid; display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; margin: 4mm 0; }
+  .demo-rad {
+    background: var(--green-leaf);
+    padding: 5mm 6mm; border-radius: 1.5mm;
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 4mm;
+  }
+  .demo-rad .etikett { font-size: 11pt; font-weight: 600; }
+  .demo-rad .tall { font-size: 8.5pt; font-weight: 700; letter-spacing: .04em; white-space: nowrap; }
+  .hvit-tekst  .etikett, .hvit-tekst  .tall { color: #ffffff; }
+  .svart-tekst .etikett, .svart-tekst .tall { color: var(--kull); }
+  .dom { font-size: 8pt; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; margin-top: 1.5mm; }
+  .dom-nei { color: #ad2b21; }
+  .dom-ja  { color: #1c6440; }
+
+  /* ── Skriftprøve ──────────────────────────────────────────── */
+  .skrift { break-inside: avoid; border: .3mm solid var(--linje); border-radius: 1.5mm; padding: 5mm 6mm; margin-bottom: 4mm; }
+  .skrift .prove { font-size: 24pt; font-weight: 700; letter-spacing: -.03em; color: var(--tekst); line-height: 1.1; margin-bottom: 3mm; }
+  .vekter { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3mm; }
+  .vekt .v { font-size: 12pt; color: var(--tekst); line-height: 1.2; }
+  .vekt .n { font-size: 7.5pt; color: var(--tekst-s); letter-spacing: .05em; margin-top: .5mm; }
+
+  /* ── Punktliste ───────────────────────────────────────────── */
+  ul { margin: 0 0 3mm; padding-left: 5mm; max-width: 165mm; }
+  li { margin-bottom: 1.8mm; }
+  li strong { color: var(--tekst); font-weight: 700; }
+
+  /* ── Regelboks ────────────────────────────────────────────── */
+  .regel {
+    background: var(--puss); border-left: 1.2mm solid var(--rust);
+    padding: 4mm 5mm; border-radius: 0 1.5mm 1.5mm 0; margin: 4mm 0 0;
+    break-inside: avoid;
+  }
+  .regel p { margin: 0; font-size: 9.5pt; }
+  .regel strong { color: var(--tekst); }
+
+  footer {
+    margin-top: 10mm; padding-top: 3mm;
+    border-top: .3mm solid var(--linje);
+    font-size: 8pt; color: var(--tekst-s);
+    display: flex; justify-content: space-between;
+  }
+
+  .sideskift { break-before: page; }
+</style>
+</head>
+<body>
+
+<div class="topp">
+  <div class="merke">Designprofil</div>
+  <h1>BRE Bygg AS</h1>
+  <p>Fargene, skriften og valgene bak nettstedet — og hvorfor de er som de er.</p>
+</div>
+
+<!-- ══════════ FARGER ══════════ -->
+<section>
+  <h2>Fargene</h2>
+
+  <h3>Merkevarefargene</h3>
+  <div class="palett">
+    <div class="farge">
+      <div class="flate" style="background:#81816b"></div>
+      <div class="navn">Green Leaf</div>
+      <div class="hex">#81816B</div>
+      <div class="rolle">Hovedfargen. Menyen øverst på hver side.</div>
+    </div>
+    <div class="farge">
+      <div class="flate" style="background:#585a4b"></div>
+      <div class="navn">Mose</div>
+      <div class="hex">#585A4B</div>
+      <div class="rolle">Green Leaf mørknet. Mørke seksjoner.</div>
+    </div>
+    <div class="farge">
+      <div class="flate" style="background:#2b2922"></div>
+      <div class="navn">Tjære</div>
+      <div class="hex">#2B2922</div>
+      <div class="rolle">Bunnfeltet og all vanlig tekst.</div>
+    </div>
+    <div class="farge">
+      <div class="flate" style="background:#9a3f1f"></div>
+      <div class="navn">Rust</div>
+      <div class="hex">#9A3F1F</div>
+      <div class="rolle">Eneste aksent. Knapper og lenker.</div>
+    </div>
+  </div>
+
+  <h3>Flatene under</h3>
+  <div class="palett">
+    <div class="farge">
+      <div class="flate" style="background:#f4f5f4"></div>
+      <div class="navn">Kalk</div>
+      <div class="hex">#F4F5F4</div>
+      <div class="rolle">Sidens grunnflate.</div>
+    </div>
+    <div class="farge">
+      <div class="flate" style="background:#e8e8e3"></div>
+      <div class="navn">Puss</div>
+      <div class="hex">#E8E8E3</div>
+      <div class="rolle">Annenhver seksjon, for rytme.</div>
+    </div>
+    <div class="farge">
+      <div class="flate" style="background:#0d0d08"></div>
+      <div class="navn">Kull</div>
+      <div class="hex">#0D0D08</div>
+      <div class="rolle">Tekst som står på Green Leaf.</div>
+    </div>
+    <div class="farge">
+      <div class="flate" style="background:#f3c9b7"></div>
+      <div class="navn">Rust lys</div>
+      <div class="hex">#F3C9B7</div>
+      <div class="rolle">Lenker og detaljer på mørk bunn.</div>
+    </div>
+  </div>
+
+  <div class="regel">
+    <p><strong>Én aksent, og bare én.</strong> Rust brukes til knapper og lenker — ikke til overskrifter, ikke som bakgrunn på en hel seksjon. Det er nettopp fordi den brukes så sparsomt at et rustfarget element leser som «her kan du trykke».</p>
+  </div>
+</section>
+
+<!-- ══════════ HVORFOR DISSE FARGENE ══════════ -->
+<section>
+  <h2>Hvorfor disse fargene</h2>
+
+  <p><strong>Grønt roer og forankrer.</strong> Vi leser grønt som natur, vekst og noe som står støtt. For et byggefirma sier det «solid og til å stole på» før noen har lest et ord. Green Leaf er dessuten dempet, ikke skarp — den roper ikke, den holder seg i ro og lar bildene av byggene få oppmerksomheten.</p>
+
+  <p><strong>Rust er varme og håndverk.</strong> Fargen finnes i murstein, cortenstål og rust — materialer folk forbinder med å bygge. Den er varm og menneskelig der grønnfargen er kjølig og saklig, og gir energi uten å bli støyende. Den ligger også langt nok fra grønt til at øyet oppfatter den som «noe annet», og det er akkurat det en knapp skal være.</p>
+
+  <p><strong>De mørke og lyse flatene er scenen, ikke skuespilleren.</strong> Tjære og Kull gir tyngde og alvor. Kalk og Puss gir luft. Sammen lager de rolige flater som bildene og teksten kan stå på uten å konkurrere.</p>
+
+  <div class="regel">
+    <p><strong>Merk:</strong> fargeopplevelse er ikke en eksakt vitenskap. Den varierer mellom mennesker og kulturer. Dette er begrunnede valg for norske kunder i Vestfold og Telemark — ikke naturlover.</p>
+  </div>
+</section>
+
+<!-- ══════════ NESTEN SVART I MENYEN ══════════ -->
+<section>
+  <h2>Hvorfor teksten i menyen er nesten svart</h2>
+
+  <p>Green Leaf er en <strong>mellomtone</strong> — verken lys eller mørk. Det er det som gjør den behagelig å se på, og det er også det som gjør den vanskelig å sette tekst på.</p>
+
+  <p>Kravet til lesbarhet (WCAG AA) er at tekst må skille seg minst <strong>4,5 ganger</strong> fra bakgrunnen. Slik måler de to alternativene seg på Green Leaf:</p>
+
+  <div class="demo">
+    <div>
+      <div class="demo-rad hvit-tekst">
+        <span class="etikett">Prosjekter</span>
+        <span class="tall">4,0</span>
+      </div>
+      <div class="dom dom-nei">Hvit tekst — for svak</div>
+    </div>
+    <div>
+      <div class="demo-rad svart-tekst">
+        <span class="etikett">Prosjekter</span>
+        <span class="tall">4,9</span>
+      </div>
+      <div class="dom dom-ja">Nesten svart — godkjent</div>
+    </div>
+  </div>
+
+  <p>Hvit tekst kommer aldri høyere enn 4,0 på denne fargen — heller ikke helt ren hvit. Den er altså under kravet uansett hva vi gjør. Nesten svart lander på 4,9 og er godkjent.</p>
+
+  <p>Valget sto derfor mellom to ting: <strong>bytte ut merkevarefargen</strong> på nettstedets mest synlige flate, eller <strong>snu teksten</strong>. Vi snudde teksten. Green Leaf blir stående øverst på hver eneste side, og menyen ble samtidig lettere og mer åpen i uttrykket.</p>
+
+  <p>Logoen følger samme logikk: mørk mot Green Leaf i menyen, lys mot Tjære i bunnfeltet.</p>
+</section>
+
+<!-- ══════════ SKRIFTEN ══════════ -->
+<section>
+  <h2>Skriften</h2>
+
+  <div class="skrift">
+    <div class="prove">Totalentreprenør i Vestfold</div>
+    <div class="vekter">
+      <div class="vekt"><div class="v" style="font-weight:400">Aa Bb Cc</div><div class="n">400 — brødtekst</div></div>
+      <div class="vekt"><div class="v" style="font-weight:500">Aa Bb Cc</div><div class="n">500 — meny</div></div>
+      <div class="vekt"><div class="v" style="font-weight:600">Aa Bb Cc</div><div class="n">600 — knapper</div></div>
+      <div class="vekt"><div class="v" style="font-weight:700">Aa Bb Cc</div><div class="n">700 — overskrifter</div></div>
+    </div>
+  </div>
+
+  <p><strong>Plus Jakarta Sans</strong> er den eneste skriften på nettstedet. Den brukes i fire tykkelser — det er nok til å skille overskrift fra brødtekst, og lite nok til at siden henger sammen.</p>
+
+  <h3>Hvorfor denne</h3>
+
+  <p><strong>Den er geometrisk.</strong> Bokstavene er bygget på rette linjer og rene sirkler. Det leses som orden og presisjon — at ting er målt opp og står i vinkel. Passende for noen som bygger hus.</p>
+
+  <p><strong>Men ikke kald.</strong> Rene geometriske skrifter kan bli tekniske og distanserte. Denne har mykere detaljer som gjør den vennlig å lese. Et byggefirma skal virke ordentlig, men ikke utilnærmelig.</p>
+
+  <p><strong>Ingen føtter.</strong> Skriften har ikke seriffer — de små tverrstrekene på bokstavene i for eksempel Times. Serifskrifter signaliserer tradisjon og historie. Uten dem virker det moderne og nåtidig, som er riktigere for et selskap som leverer nybygg.</p>
+
+  <p class="liten">Skriften ligger på nettstedets egen server, ikke hos Google. Det gjør siden raskere og sender ikke besøkendes data videre.</p>
+</section>
+
+<!-- ══════════ ANDRE VALG ══════════ -->
+<section>
+  <h2>Andre valg verdt å vite om</h2>
+
+  <ul>
+    <li><strong>Fem faste bakgrunner.</strong> Når du setter sammen forsiden i Sanity, velger du bakgrunn per seksjon fra en liste på fem. Du kan ikke sette farger fritt — og det er med vilje. Alle fem er målt og godkjent for lesbarhet, så det er umulig å lage en kombinasjon som blir vanskelig å lese. Veksle gjerne mellom lyse og mørke; to mørke på rad flater ut siden.</li>
+
+    <li><strong>Bildene bærer budskapet.</strong> Designet holder seg bevisst rolig rundt fotografiene. Gode bilder av egne bygg er det sterkeste salgsargumentet dere har — resten skal ikke stjele oppmerksomhet fra dem.</li>
+
+    <li><strong>Alt kan trykkes på med tommelen.</strong> Hver lenke og knapp er minst 24 × 24 piksler. Det er kravet for at det skal fungere på telefon uten at man bommer.</li>
+
+    <li><strong>Menyen er lik overalt.</strong> Tjenester, Prosjekter, Om oss og Kontakt — fire punkter, i samme rekkefølge på hver side. Ingen av dem er fremhevet som knapp. Gjenkjennelse er verdt mer enn å presse ett valg.</li>
+
+    <li><strong>Telefonnummeret er en knapp på mobil.</strong> Der kan man trykke og ringe med det samme. På datamaskin er det tatt bort — der kan man ikke ringe fra siden likevel, og nummeret står tydelig både på kontaktsiden og i bunnfeltet.</li>
+
+    <li><strong>Roligere for dem som trenger det.</strong> Har den besøkende slått på «reduser bevegelse» i telefonen eller nettleseren sin, står innholdet stille. Ingen animasjoner, ingen ting som glir inn.</li>
+  </ul>
+
+  <div class="regel">
+    <p><strong>Det viktigste å ta med seg:</strong> systemet er laget slik at det er vanskelig å gjøre feil. Farger kan ikke settes fritt, kontrastene er målt på forhånd, og hver seksjon har en bakgrunn som allerede er godkjent. Bytt gjerne innhold, bilder og rekkefølge — rammene tåler det.</p>
+  </div>
+</section>
+
+<footer>
+  <span>Designprofil — BRE Bygg AS</span>
+  <span>brebygg.no</span>
+</footer>
+
+</body>
+</html>
