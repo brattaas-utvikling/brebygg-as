@@ -188,6 +188,16 @@ const schema = getKontaktSchema(PAGE_META.kontakt.canonical);
   /* ── Page-banner: kompakt mørk header ─────────────────────────────── */
   .kontakt-banner {
     min-height: var(--hero-min);
+    /* -1px: heroens underkant lander på en brøkdels CSS-piksel (målt til
+       samme mekanisme som .page-hero), og på DPR 2 antialiaseres den siste raden mot
+       seksjonen under — en hårstrek på tvers av hele bredden. Bølgen dekker
+       den ikke: kurven starter på y=56 ytterst til venstre og høyre, så der
+       er det hvite feltet null høyt og det olivne går helt ned.
+
+       bottom: -1px på selve bølgen løser bare heltallsavrunding. Her må de to
+       flatene faktisk overlappe, slik at den hvite seksjonen males over
+       heroens siste rad. Bølgen har z-index: 2 og blir liggende øverst. */
+    margin-bottom: -1px;
     display: flex;
     align-items: center;
     background-color: var(--color-bg-dark);
