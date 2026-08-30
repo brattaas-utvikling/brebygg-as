@@ -17,8 +17,9 @@ function isActive(href: string): boolean {
   return current === target || current.startsWith(target + "/");
 }
 
-const navLinks = MAIN_NAV.filter((item) => !item.cta);
-const ctaItem = MAIN_NAV.find((item) => item.cta);
+// Alle punktene rendres likt, Kontakt inkludert. Telefonen er den eneste
+// knappen, og den finnes bare på mobil — der den faktisk ringer noen.
+const navLinks = MAIN_NAV;
 ---
 
 <header class="nav" id="site-header">
@@ -42,7 +43,7 @@ const ctaItem = MAIN_NAV.find((item) => item.cta);
       />
     </a>
 
-    {/* Senterlenker */}
+    {/* Hovedlenker. Ligger til høyre nå som telefonkolonnen er borte. */}
     <nav aria-label="Hovednavigasjon" class="nav__center">
       <ul class="nav__links" role="list" id="main-nav-list">
         {
@@ -58,11 +59,11 @@ const ctaItem = MAIN_NAV.find((item) => item.cta);
           ))
         }
 
-        {/* Mobilmeny: telefon */}
+        {/* Mobilmeny: telefonen som knapp, nederst */}
         <li class="mobile-only-item phone-item">
           <a
             href={`tel:${NAP.phone.replace(/\s/g, "")}`}
-            class="phone-link"
+            class="btn btn--pa-gronn phone-link"
             aria-label={`Ring oss: ${NAP.phoneDisplay}`}
           >
             <svg
@@ -79,49 +80,8 @@ const ctaItem = MAIN_NAV.find((item) => item.cta);
             {NAP.phoneDisplay}
           </a>
         </li>
-
-        {/* Mobilmeny: CTA */}
-        {
-          ctaItem && (
-            <li class="mobile-only-item cta-item">
-              <a href={ctaItem.href} class="btn btn--primary mobile-cta">
-                {ctaItem.label}
-              </a>
-            </li>
-          )
-        }
       </ul>
     </nav>
-
-    {/* Desktop høyre: telefon + CTA */}
-    <div class="nav__right">
-      <a
-        href={`tel:${NAP.phone.replace(/\s/g, "")}`}
-        class="nav__phone"
-        aria-label={`Ring oss: ${NAP.phoneDisplay}`}
-      >
-        <svg
-          width="13"
-          height="13"
-          viewBox="0 0 13 13"
-          fill="none"
-          aria-hidden="true"
-        >
-          <path
-            d="M11 8.8 9.2 8.6c-.45-.05-.9.1-1.2.4L6.65 10.3C4.72 9.34 3.14 7.76 2.18 5.83L3.5 4.5c.3-.3.45-.74.4-1.19L3.72 1.2A1.25 1.25 0 0 0 2.48.1H1.27A1.27 1.27 0 0 0 0 1.38C.38 7.32 5.18 12.12 11.12 12.5a1.27 1.27 0 0 0 1.38-1.27v-1.2A1.27 1.27 0 0 0 11 8.8Z"
-            fill="currentColor"></path>
-        </svg>
-        {NAP.phoneDisplay}
-      </a>
-
-      {
-        ctaItem && (
-          <a href={ctaItem.href} class="btn btn--pa-gronn nav__cta">
-            {ctaItem.label}
-          </a>
-        )
-      }
-    </div>
 
     {/* Hamburger */}
     <button
@@ -213,99 +173,50 @@ const ctaItem = MAIN_NAV.find((item) => item.cta);
     opacity: 0.92;
   }
 
-  /* ── Desktop høyre ────────────────────────────────────────────────── */
-  .nav__right {
-    display: flex;
-    align-items: center;
-    gap: 0.875rem;
-    flex-shrink: 0;
-  }
-
-  .nav__phone {
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-    font-size: 0.8125rem;
-    font-weight: 600;
-    /* Var rgba(inv, 0.6) = 2,20:1 mot Green Leaf. Full dekkevne gir 4,90. */
-    color: var(--color-text-on-green);
-    text-decoration: none;
-    white-space: nowrap;
-    transition: opacity 0.2s ease;
-    border-radius: var(--r-sm);
-    padding: 0.375rem;
-    min-height: 24px;
-  }
-  .nav__phone svg {
-    flex-shrink: 0;
-  }
-  .nav__phone:hover {
-    opacity: 0.72;
-  }
-
-  .nav__phone:focus-visible {
-    outline: 2px solid var(--color-text-on-green);
-    outline-offset: 3px;
-  }
-
-  /* CTA-knapp i nav */
-  .nav__cta {
-    padding: 0.5rem 1.125rem;
-    font-size: 0.875rem;
-  }
-
   /* ── Mobilmeny-ekstraelementer ───────────────────────────────────── */
   .mobile-only-item {
     display: none;
   }
 
   @media (max-width: 767px) {
-    .nav__right {
-      display: none;
-    }
     .mobile-only-item {
       display: list-item;
     }
 
-    /* Mobilpanelet ligger på bandicoot-800, ikke på Green Leaf. Lenkene der
-       må derfor tilbake til lys tekst — arver de headerens bandicoot-950,
-       blir de 1,15:1 mot panelet. :global() her og ikke i globals.css fordi
-       astro-cid-attributtet gir høyere spesifisitet enn den globale regelen. */
-    :global(.nav__links a),
-    :global(.nav__links a[aria-current="page"]) {
+    /* Panelet har samme Green Leaf som headeren, så lenkene arver riktig
+       tekstfarge fra globals.css uten overstyring her. */
+
+    /* Ingen border-top: li-en over har allerede border-bottom, og de to
+       stablet seg til en dobbel hårlinje. Luften gjør skillet. */
+    .phone-item {
+      border-bottom: none;
+      padding-top: 1.25rem;
+    }
+
+    /* Telefonen er eneste knapp i menyen. bandicoot-950 og ikke rust:
+       rust er 1,70:1 mot Green Leaf og ville ikke hatt synlig grense.
+
+       Selektoren må være .nav__links .phone-link og ikke bare .phone-link:
+       .nav__links a i globals.css er 0-1-1 og slår .btn--pa-gronn på 0-1-0,
+       så knappeteksten arvet bandicoot-950 og ble svart på svart. */
+    .nav__links .phone-link {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem;
+      width: 100%;
+      padding: 0.875rem 1.5rem;
+      color: var(--color-text-inv);
+      font-size: 0.9375rem;
+      font-weight: 600;
+    }
+    .nav__links .phone-link:hover {
       color: var(--color-text-inv);
       opacity: 1;
     }
-
-    :global(.nav__links a::after) {
-      background-color: var(--color-primary-l);
-    }
-
-    .phone-item {
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-      border-bottom: none;
-      padding-top: 0.625rem;
-      margin-top: 0.25rem;
-    }
-
-    .cta-item {
-      border-bottom: none;
-      padding-top: 0.25rem;
-    }
-
-    .mobile-cta {
-      display: block;
-      width: 100%;
-      text-align: center;
-    }
-
-    .phone-link {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: var(--color-primary-l);
-      font-size: 0.9375rem;
-      font-weight: 500;
+    /* Understreken hører til tekstlenkene, ikke til knappen. */
+    .nav__links .phone-link::after {
+      display: none;
     }
     .phone-link svg {
       flex-shrink: 0;

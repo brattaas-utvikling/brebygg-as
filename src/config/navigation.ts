@@ -7,8 +7,6 @@ export type NavItem = {
   href:    string;
   // Om lenken skal åpnes i ny fane
   external?: boolean;
-  // Om den skal fremheves som CTA i nav
-  cta?: boolean;
 };
 
 // --------------------------------------------------------------------------
@@ -22,7 +20,7 @@ export const MAIN_NAV: NavItem[] = [
   { label: "Tjenester",  href: "/tjenester/" },
   { label: "Prosjekter", href: "/prosjekter/" },
   { label: "Om oss",     href: "/om-oss/" },
-  { label: "Kontakt",    href: "/kontakt/", cta: true },
+  { label: "Kontakt",    href: "/kontakt/" },
 ] as const;
 
 // --------------------------------------------------------------------------

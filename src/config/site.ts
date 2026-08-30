@@ -21,11 +21,11 @@ export const NAP = {
   // de skal aldri inn i LocalBusiness, fordi en sitering som peker på en person
   // brekker den dagen personen bytter rolle.
   email:        "kontakt@brebygg.no",
-  phone:        "+4745222385",     // E.164 — formatet schema.org forventer
-  phoneDisplay: "452 22 385",      // visningsformat
+  phone:        "+4745222385",
+  phoneDisplay: "452 22 385",
   phoneHref:    "tel:+4745222385",
   address: {
-    street:      "Nordre Fokserød 21",   // rettet: sto «Foksrød» i v1
+    street:      "Nordre Fokserød 21",
     postalCode:  "3241",
     city:        "Sandefjord",
     region:      "Vestfold",
@@ -33,8 +33,7 @@ export const NAP = {
     countryFull: "Norge",
   },
   geo: {
-    // Verifisert mot Nordre Fokserød 21. v1 hadde 59.1354 / 10.2161, som peker
-    // på Sandefjord sentrum — omtrent 5,5 km unna.
+
     latitude:  59.1830952,
     longitude: 10.2120834,
   },
@@ -69,14 +68,16 @@ export const AREA_SERVED = [
   "Tønsberg",
   "Sandefjord",
   "Larvik",
+  "Skien",
   "Horten",
   "Stokke",
   "Andebu",
   "Vestfold",
+  "Telemark"
 ] as const;
 
 /** De fire hovedkommunene — brukt der lista skal være kort og konkret. */
-export const HOVEDKOMMUNER = ["Tønsberg", "Sandefjord", "Larvik", "Horten"] as const;
+export const HOVEDKOMMUNER = ["Tønsberg", "Sandefjord", "Larvik", "Skien"] as const;
 
 // --------------------------------------------------------------------------
 // FAKTAGRUNNLAG
@@ -84,12 +85,6 @@ export const HOVEDKOMMUNER = ["Tønsberg", "Sandefjord", "Larvik", "Horten"] as 
 // Delt i to med vilje. jsonld.ts og llms.txt.ts importerer KUN det bekreftede
 // settet. Da er det strukturelt umulig å få en ubekreftet påstand inn i schema
 // eller inn i det AI-crawlerne leser som fasit.
-//
-// Bakgrunn: v1 inneholdt «120+ prosjekter», «18 år i drift», «15–20 ansatte» og
-// «levert innen avtalt tid i mer enn åtte av ti tilfeller». Ingen av tallene har
-// dekning. Falske tall i LocalBusiness treffer nøyaktig det Googles spampolicy
-// er laget for, og «Sentral godkjenning tiltaksklasse 2» er dessuten en
-// lovregulert påstand.
 // --------------------------------------------------------------------------
 
 /** Bekreftet av BRE Bygg. Trygt i schema, llms.txt og synlig tekst. */
@@ -109,8 +104,7 @@ export const FAKTA_BEKREFTET = {
  * Bekreft eller slett før lansering:
  */
 export const FAKTA_UBEKREFTET = {
-  /** Oppgitt som 2007 i v1. Kryssjekk mot Brønnøysund før bruk. */
-  stiftetAar: 2007,
+  stiftetAar: 2024,
   /** «120+» var oppdiktet. Reelt tall ukjent. */
   antallProsjekter: null,
   /** «Mesterbrev», «Sentral godkjenning tiltaksklasse 2», «Godkjent lærebedrift»
@@ -125,7 +119,7 @@ export const FAKTA_UBEKREFTET = {
 
 export const SEO_DEFAULTS = {
   title:       "BRE Bygg — Totalentreprenør i Vestfold",
-  description: "BRE Bygg bygger i Vestfold. Nybygg, rehabilitering og næringsbygg — med fullt ansvar fra første møte til du får nøklene.",
+  description: "BRE Bygg bygger i Vestfold og Telemark. Nybygg, rehabilitering og næringsbygg — med fullt ansvar fra første møte til du får nøklene.",
   ogImage:     `${SITE_URL}/images/brebygg_logo.webp`,
   locale:      "nb_NO",
   twitterCard: "summary_large_image",

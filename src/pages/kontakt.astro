@@ -32,13 +32,12 @@ const schema = getKontaktSchema(PAGE_META.kontakt.canonical);
 
         {/* Innhold */}
         <div class="kontakt-banner__content">
-
           <h1 class="kontakt-banner__heading" id="kontakt-h1">Ta kontakt</h1>
 
           <p class="kontakt-banner__lead">
-            BRE Bygg svarer på henvendelser om byggeprosjekter i Vestfold innen
-            én arbeidsdag. Ring direkte eller send en e-post — så setter vi opp
-            et møte uten forpliktelser.
+            BRE Bygg svarer på henvendelser om byggeprosjekter i Vestfold og
+            Telemark innen én arbeidsdag. Ring direkte eller send en e-post — så
+            setter vi opp et møte uten forpliktelser.
           </p>
 
           {/* Nøkkelinfo: geografi */}
@@ -48,9 +47,6 @@ const schema = getKontaktSchema(PAGE_META.kontakt.canonical);
                 (a) => a !== "Vestfold" && a !== "Stokke" && a !== "Andebu"
               ).map((sted) => <li class="kontakt-banner__area-tag">{sted}</li>)
             }
-            <li class="kontakt-banner__area-tag kontakt-banner__area-tag--more">
-              + omegn
-            </li>
           </ul>
         </div>
       </div>
