@@ -7,18 +7,20 @@ export type NavItem = {
   href:    string;
   // Om lenken skal åpnes i ny fane
   external?: boolean;
-  // Om den skal fremheves som CTA i nav
-  cta?: boolean;
 };
 
 // --------------------------------------------------------------------------
 // Hovednavigasjon (vises i Header)
 // --------------------------------------------------------------------------
 
+// Tjenester først: det er der en kunde som søker «rehabilitering kontorbygg
+// Vestfold» skal lande, og sidene fantes allerede — de var bare ikke nåbare
+// fra menyen, kun via footeren og bento-blokka på forsiden.
 export const MAIN_NAV: NavItem[] = [
+  { label: "Tjenester",  href: "/tjenester/" },
   { label: "Prosjekter", href: "/prosjekter/" },
   { label: "Om oss",     href: "/om-oss/" },
-  { label: "Kontakt",    href: "/kontakt/", cta: true },
+  { label: "Kontakt",    href: "/kontakt/" },
 ] as const;
 
 // --------------------------------------------------------------------------

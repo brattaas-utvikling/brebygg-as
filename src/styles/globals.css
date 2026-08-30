@@ -3,18 +3,33 @@
 @layer base {
   /* ==========================================================================
       globals.css — BRE Bygg AS Design System
-      Tailwind v4 + CSS Custom Properties
+      Rene CSS Custom Properties. Tailwind ble fjernet i v2.
       ========================================================================== */
 
   /* --------------------------------------------------------------------------
          1. DESIGN TOKENS — CSS CUSTOM PROPERTIES
-         Autoriteten for alle farger, typografi og dimensjoner.
-         Tailwind-klassene i tailwind.config.mjs refererer til disse.
+         Autoriteten for alle farger, typografi og dimensjoner. Ingen farge
+         skrives som literal utenfor denne blokka — det var slik forrige
+         paletts blåfiolett ble stående igjen i --rgb-primary og lekket ut på
+         tre sider etter at aksenten var byttet.
          -------------------------------------------------------------------------- */
 
   :root {
     /* ── Bandicoot — bærer nettstedet ──────────────────────────────────────
-     Flater, tekst, kantlinjer, header. Uendret fra den monokrome varianten. */
+     Flater, tekst, kantlinjer, header. Rampen er forankret i Green Leaf på
+     trinn 500 — firmaets hovedfarge.
+
+     Green Leaf er det eneste trinnet i rampen som ikke kan bære hvit tekst:
+     taket er 3,97:1 selv med ren hvit, altså under AA uansett. Den bærer
+     derimot bandicoot-950 på 4,90:1, og passerer 3:1 som kantlinje. Derfor
+     er reglene for den:
+
+       JA   headerflate med bandicoot-950-tekst · kantlinjer · dividers
+            · ikonstrek · dekorflater
+       NEI  bakgrunn for hvit tekst, i noen størrelse, noe sted.
+
+     bandicoot-400 (2,11:1 mot bakgrunn) er for svak til grenseflater etter
+     WCAG 1.4.11 og skal aldri brukes som kant på noe interaktivt. */
 
     --bandicoot-50: #f9faf9;
     --bandicoot-100: #f4f5f4;
@@ -28,24 +43,29 @@
     --bandicoot-900: #1e1e15;
     --bandicoot-950: #0d0d08;
 
-    /* ── Cloud Burst — eneste aksent ───────────────────────────────────────
-     Kun knapper, lenker og fokusringer. Aldri som bakgrunn på en seksjon —
-     da blir det to merkevarefarger som konkurrerer.
- 
-     700 og ikke 900 som fargegeneratoren valgte: 900 er så mørk at den leser
-     som svart ved siden av Bandicoot 800, og aksenteffekten forsvinner. */
+    /* ── Rust — eneste aksent ──────────────────────────────────────────────
+     Kun knapper, lenker, fokusringer og dekor. Aldri som bakgrunn på en hel
+     seksjon — da konkurrerer den med Green Leaf om å være merkevarefargen.
 
-    --kournikova-50: #fefbe8;
-    --kournikova-100: #fff7c2;
-    --kournikova-200: #ffe66d;
-    --kournikova-300: #ffd845;
-    --kournikova-400: #fcc113;
-    --kournikova-500: #eca806;
-    --kournikova-600: #cc8002;
-    --kournikova-700: #a25a06;
-    --kournikova-800: #86470d;
-    --kournikova-900: #723a11;
-    --kournikova-950: #431d05;
+     Hvorfor rust og ikke gult: Green Leaf ligger på hue 60. Den forrige
+     aksenten lå på hue 32, altså analogt — for nær til å lese som en aksent
+     i det hele tatt. Rust ligger på hue 16, split-komplementært til Green
+     Leaf, og er dessuten byggnært: murstein, corten, rust.
+
+     Rampen holder hue 13–18 hele veien. Det er poenget med en ramp — trinnene
+     skal være samme farge i ulik lyshet, ikke ulike farger. */
+
+    --rust-50: #fdf4f0;
+    --rust-100: #fae5dc;
+    --rust-200: #f3c9b7; /* eneste trinn som klarer AA på BÅDE b600 og b800 */
+    --rust-300: #e9a385;
+    --rust-400: #d97a52;
+    --rust-500: #c25c32;
+    --rust-600: #ad4d26;
+    --rust-700: #9a3f1f; /* aksenten */
+    --rust-800: #7d321a;
+    --rust-900: #652a17;
+    --rust-950: #3a150b;
 
     /* ── Bakgrunner ─────────────────────────────────────────────────────────
      100 og ikke 50: hvite kort mot 50 gir 1,05:1 og forsvinner. */
@@ -53,37 +73,67 @@
     --color-bg: var(--bandicoot-100);
     --color-bg-white: #ffffff;
     --color-bg-section: var(--bandicoot-200);
-    --color-bg-dark: var(--bandicoot-600); /* header, mørke seksjoner */
+    --color-bg-green: var(
+      --bandicoot-500
+    ); /* Green Leaf — header. Kun mørk tekst */
+    --color-bg-dark: var(--bandicoot-600); /* mørke seksjoner */
     --color-bg-dark-2: var(--bandicoot-800); /* footer, hero-bunn */
 
     /* ── Tekst ──────────────────────────────────────────────────────────────
-     800 overskrift 13,32:1 · 700 brødtekst 8,65:1 · 600 småtekst 6,45:1 */
+     Målt mot --color-bg (bandicoot-100):
+       800 overskrift 13,32:1 · 700 brødtekst 8,65:1 · 600 småtekst 6,45:1
+     950 er reservert for tekst på Green Leaf, der den gir 4,90:1. 900 gir
+     4,22 og 800 gir 3,66 på den flaten — begge under AA. */
 
     --color-text: var(--bandicoot-800);
     --color-text-m: var(--bandicoot-700);
     --color-text-s: var(--bandicoot-600);
+    --color-text-on-green: var(--bandicoot-950);
     --color-text-inv: var(--bandicoot-50);
-    --color-text-inv-m: rgba(249, 250, 249, 0.72);
+    /* 0,80 og ikke 0,72. Tokenet brukes på begge mørke flater, og b600 er den
+       lyseste av dem: ved 0,72 ga den 4,41:1 — under AA. 0,80 gir 5,02 på
+       b600 og 9,42 på b800. */
+    --color-text-inv-m: rgba(249, 250, 249, 0.8);
 
     /* ── Aksent ─────────────────────────────────────────────────────────────
-     CB700 som knappe- og lenkefarge:
-       hvit tekst på knapp   7,35:1
-       lenke på bakgrunn     6,72:1
-       lenke på seksjon      5,98:1
-       lenke på hvitt kort   7,35:1
-     Hover går til CB800, som gir 9,08:1 — knappen blir dypere, ikke lysere. */
+     Rust 700 som knappe- og lenkefarge. Målt:
+       hvit tekst på knapp   6,76:1
+       lenke på bakgrunn     6,19:1
+       lenke på hvitt kort   6,76:1
+       lenke på seksjon      5,50:1   (forrige aksent lå på 4,27 her — under AA)
+     Hover går til Rust 800 på 8,96:1 — knappen blir dypere, ikke lysere.
 
-    --color-primary: var(--kournikova-700);
-    --color-primary-l: var(--kournikova-500); /* KUN dekor, aldri tekst */
-    --color-primary-d: var(--kournikova-700);
-    --color-accent: var(--kournikova-700);
-    --color-accent-d: var(--kournikova-800); /* hover på CTA */
+     primary-l er lys-varianten for mørke flater, og den ER tekstfarge:
+       på bandicoot-800   9,60:1
+       på bandicoot-600   4,65:1
+     Rust 300 ble vurdert, men gir bare 3,37:1 på bandicoot-600.
+
+     MERK: rust kan ikke brukes i headeren. Mot Green Leaf er den 1,70:1,
+     langt under grenseflatekravet. Header-CTA bruker .btn--pa-gronn. */
+
+    --color-primary: var(--rust-700);
+    --color-primary-l: var(--rust-200); /* for mørke flater — tåler tekst */
+    --color-primary-d: var(--rust-700);
+    --color-accent: var(--rust-700);
+    --color-accent-d: var(--rust-800); /* hover på CTA */
     --color-support: var(--bandicoot-900);
+
+    /* ── Semantiske farger ──────────────────────────────────────────────────
+     Utfordring / Løsning / Resultat i casestudie-kortene. Egne tokens fordi
+     de betyr noe — de er ikke merkevare, og skal ikke følge aksenten.
+     Løsning ER aksenten, siden det er BRE Byggs bidrag i historien.
+     Målt som tekst på hvitt kort: 5,26 og 7,39. Verdiene sto tidligere som
+     literaler nede i fila på 3,08 og 3,99 — begge under AA. */
+
+    --color-utfordring: #96601f;
+    --color-resultat: #276044;
 
     /* ── Kantlinjer ─────────────────────────────────────────────────────────
      500 og ikke 300. Et prosjektkort er en lenke, og WCAG 1.4.11 krever 3:1
      for grensen til et interaktivt element. 300 gir 1,31:1 — ingen synlig
-     kant. 500 gir 3,63:1 mot bakgrunnen. */
+     kant. 500 gir 3,63:1 mot bakgrunnen.
+
+     border-m (400) er 2,11:1 og er dekorativ. Aldri på noe interaktivt. */
 
     --color-border: var(--bandicoot-500);
     --color-border-m: var(--bandicoot-400);
@@ -94,7 +144,7 @@
     --rgb-dark: 88, 90, 75; /* B600 */
     --rgb-dark-2: 43, 41, 34; /* B800 */
     --rgb-deepest: 13, 13, 8; /* B950 — bunnen av hero-gradienten */
-    --rgb-primary: 72, 74, 173; /* CB700 */
+    --rgb-primary: 154, 63, 31; /* Rust 700 — MÅ følge --color-primary */
     --rgb-inv: 249, 250, 249; /* B50 */
     --rgb-khaki: 30, 30, 21; /* B900 */
 
@@ -109,7 +159,7 @@
     --r-xl: 28px;
     --r-full: 9999px;
 
-    /* --- Skygger (Charcoal Blue-tonede) --- */
+    /* --- Skygger, tonet med bandicoot-600 --- */
     --shadow-sm:
       0 1px 4px rgba(var(--rgb-dark), 0.07),
       0 1px 2px rgba(var(--rgb-dark), 0.05);
@@ -143,19 +193,50 @@
     --container-max: 1280px;
     --container-padding: clamp(1.25rem, 5vw, 3rem);
     --section-padding-y: clamp(4rem, 8vw, 7rem);
-    --reading-width: 680px;
+    /* ch og ikke px: 680px ga 76 tegn ved 18px og 84 ved 15px. Idealet er
+       50–60. Med ch følger bredden grada i stedet for å være konstant. */
+    --reading-width: 58ch;
 
     /* --- Nav --- */
     --nav-height: 72px;
+
+    /* --- Hero ---
+       Felles gulv for heroene på undersidene. Forsiden er med vilje utenfor:
+       den er sidens tese og skal være høyest — det hierarkiet bærer mening.
+
+       Gulv og ikke tak. En max-height på en tekstflate klipper når tittelen
+       blir lang fra Sanity, eller når brukeren zoomer til 200 % (WCAG 1.4.4).
+       Taket hører hjemme på bildet, ikke på seksjonen — se --hero-bilde-maks.
+
+       svh og ikke vh: vh regner med adresselinja utslått, så heroen hopper i
+       høyde når mobilnettleseren skjuler den under scroll. .tjeneste-hero
+       brukte vh og .slug-hero svh, med 20 px ulikt gulv i tillegg. */
+    --hero-min: clamp(420px, 52svh, 600px);
+
+    /* Taket på hero-bildet. Uten det bestemmer bildets aspect-ratio
+       seksjonshøyden: 5/6 på en 60 %-kolonne ga 739 px på /om-oss/ mot 600 på
+       /tjenester/, der kolonnen er 45 %. Hele forskjellen på 139 px var
+       kolonnebredden, ikke en beslutning om hvor høy heroen skulle være.
+
+       600 og ikke 620: 620 kappet bare /om-oss/ og lot de to andre ligge på
+       600, så de tre sidene ble stående 20 px fra hverandre. 600 er høyden
+       den smale kolonnen gir av seg selv, og gjør alle tre like. */
+    --hero-bilde-maks: 600px;
 
     /* --- RGB-komponenter for rgba() ---
         rgba() kan ikke ta en hex-variabel, så de hardkodede fargene i scrim,
         skygger og overlays fulgte ikke med når tokenene ble endret. Med disse
         kan de skrives rgba(var(--rgb-dark) / 0.85) og følge paletten. */
 
-    --rgb-nav: 129, 129, 107; /* bandicoot-500 #81816b */
-    --rgb-nav-scrolled:
-      88, 90, 75; /* bandicoot-600 #585a4b — litt mørkere ved scroll */
+    --rgb-nav: 129, 129, 107; /* Green Leaf #81816b */
+
+    /* Headeren er UGJENNOMSIKTIG, og det er ikke et stilvalg.
+       Green Leaf med bandicoot-950-tekst gir 4,90:1 på ren flate. Ligger den
+       med 0,92 dekkevne over et mørkt hero-motiv, faller den til 4,33 — under
+       AA. Først ved full dekkevne holder den uansett hvilket bilde kunden
+       laster opp i Sanity, som er samme prinsipp som hero-scrimet bygger på.
+       Derfor er backdrop-filter også fjernet: den gjorde ingenting på en
+       ugjennomsiktig flate, men kostet et kompositorlag på hver scroll. */
 
     /* Forhindrer CLS ved bilde-loading */
     img {
@@ -178,7 +259,9 @@
   }
 
   html {
-    font-size: 16px;
+    /* 100% og ikke 16px: absolutt px på rotelementet overstyrer tekststørrelsen
+       brukeren har satt i nettleseren, og drar hele rem-skalaen med seg. */
+    font-size: 100%;
     scroll-behavior: smooth;
     /* Forhindrer layout-shift ved scrollbar */
     scrollbar-gutter: stable;
@@ -228,8 +311,14 @@
   }
 
   p {
-    max-width: var(--reading-width);
     color: var(--color-text-m);
+  }
+
+  /* Lesebredden hører til løpende tekst, ikke til elementet. Som base-regel på
+     p kjempet den mot komponentlayout — .hero__lead måtte allerede overstyre
+     den tilbake. .section-desc og .prose setter den der den gjelder. */
+  .prose {
+    max-width: var(--reading-width);
   }
 
   a {
@@ -369,31 +458,33 @@
     top: 0;
     z-index: 100;
     height: var(--nav-height);
-    background-color: rgba(var(--rgb-nav), 0.92);
-    backdrop-filter: blur(12px) saturate(180%);
-    -webkit-backdrop-filter: blur(12px) saturate(180%);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    /* transform er med slik at scroll-hide glir smooth (fra KIL) */
+    /* Ugjennomsiktig med vilje — se --rgb-nav i tokenblokka. */
+    background-color: rgb(var(--rgb-nav));
+    color: var(--color-text-on-green);
+    border-bottom: 1px solid rgba(var(--rgb-deepest), 0.14);
     transition:
-      background-color var(--transition-base),
       box-shadow var(--transition-base),
       transform 0.3s ease-in-out;
-    will-change: transform;
   }
 
-  .nav .btn--primary {
-    background-color: var(--bandicoot-50);
-    color: var(--bandicoot-800);
-    border-color: var(--bandicoot-50);
+  /* Headeren står på Green Leaf, og rust er 1,70:1 mot den — ubrukelig som
+     flate der. Header-CTA er derfor en egen, navngitt variant og ikke en
+     overstyring av .btn--primary. Da har primærknappen fortsatt én identitet,
+     og unntaket står i klassenavnet i stedet for å være skjult i en override. */
+  .btn--pa-gronn {
+    background-color: var(--bandicoot-950);
+    color: var(--color-text-inv);
+    border-color: var(--bandicoot-950);
   }
 
-  .nav .btn--primary:hover {
-    background-color: #ffffff;
-    border-color: #ffffff;
+  .btn--pa-gronn:hover {
+    background-color: var(--bandicoot-800);
+    border-color: var(--bandicoot-800);
+    color: var(--color-text-inv);
+    box-shadow: var(--shadow-md);
   }
 
   .nav.scrolled {
-    background-color: rgba(var(--rgb-nav-scrolled), 0.97);
     box-shadow: var(--shadow-md);
   }
 
@@ -413,7 +504,7 @@
     font-family: var(--ff-display);
     font-size: 1.25rem;
     font-weight: 700;
-    color: var(--color-text-inv);
+    color: var(--color-text-on-green);
     letter-spacing: -0.01em;
     text-decoration: none;
     transition: opacity var(--transition-fast);
@@ -423,16 +514,20 @@
 
   .nav__logo:hover {
     opacity: 0.85;
-    color: var(--color-text-inv);
+    color: var(--color-text-on-green);
   }
 
-  /* Logobilde (nar <img> brukes) */
+  /* Logobilde. Kildefila er ren hvit på transparent, laget for den gamle
+     mørke headeren. brightness(0) gjør den svart og beholder alfakanalen —
+     5,29:1 mot Green Leaf. Byttes ut med en ekte mørk variant den dagen
+     logoen finnes som vektor. */
   .nav__logo-img {
     height: 48px;
     width: auto;
     max-width: 200px;
     display: block;
     object-fit: contain;
+    filter: brightness(0);
   }
 
   .nav__links {
@@ -443,15 +538,22 @@
   }
 
   .nav__links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px; /* WCAG 2.5.8 — teksten alene er 18px høy */
     font-size: 0.9rem;
     font-weight: 500;
-    color: rgba(var(--rgb-inv), 0.8);
+    /* Full dekkevne. Alfa på 0,8 ga 3,05:1 mot Green Leaf. */
+    color: var(--color-text-on-green);
     text-decoration: none;
     transition: color var(--transition-fast);
     position: relative;
     white-space: nowrap;
   }
 
+  /* Understreken er bandicoot-950 og ikke aksenten: rust mot Green Leaf er
+     1,70:1 og ville vært usynlig. Aktiv side markeres uansett med både
+     understrek og full tekstvekt, så farge er ikke eneste signal. */
   .nav__links a::after {
     content: "";
     position: absolute;
@@ -459,14 +561,20 @@
     left: 0;
     width: 0;
     height: 2px;
-    background-color: var(--color-primary);
+    background-color: var(--color-text-on-green);
     border-radius: var(--r-full);
     transition: width var(--transition-base);
   }
 
-  .nav__links a:hover,
+  /* Vektendringen gjelder KUN aria-current, ikke hover: 500 → 600 gjør teksten
+     bredere, og på hover ville det dyttet nabolenkene sidelengs hver gang
+     musa passerte. Aktiv side er statisk, så der skjer ingen bevegelse. */
   .nav__links a[aria-current="page"] {
-    color: var(--color-text-inv);
+    font-weight: 600;
+  }
+
+  .nav__links a:hover {
+    opacity: 0.7;
   }
 
   .nav__links a:hover::after,
@@ -493,18 +601,11 @@
   .nav-burger__bar {
     width: 22px;
     height: 2px;
-    background-color: var(--color-text-inv);
+    background-color: var(--color-text-on-green);
     border-radius: var(--r-full);
     transition:
       transform var(--transition-base),
       opacity var(--transition-fast);
-  }
-
-  /* Tablet: 768-900px -- skjul telefon, behold CTA */
-  @media (max-width: 900px) and (min-width: 768px) {
-    .nav__phone {
-      display: none !important;
-    }
   }
 
   /* Mobil: 767px og ned */
@@ -519,21 +620,24 @@
       display: contents;
     }
 
+    /* Samme Green Leaf som headeren — panelet skal lese som en forlengelse av
+       baren, ikke som et fremmed mørkt lag. Tekstfargen arves da fra
+       .nav__links a (bandicoot-950, 4,90:1) uten en eneste overstyring. */
     .nav__links {
       position: fixed;
       top: var(--nav-height);
       left: 0;
       right: 0;
       z-index: 99;
-      background-color: var(--color-bg-dark-2);
+      background-color: var(--color-bg-green);
       flex-direction: column;
       padding: 1.25rem var(--container-padding) 2rem;
       gap: 0;
       /* Bruk 100vh i stedet for 110% -- fungerer uavhengig av menyens høyde */
       transform: translateY(-100vh);
       transition: transform 0.3s var(--ease-out);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      border-bottom: 1px solid rgba(var(--rgb-deepest), 0.16);
+      box-shadow: 0 8px 32px rgba(var(--rgb-deepest), 0.28);
       width: 100%;
       /* Skjul også visuelt før åpning */
       visibility: hidden;
@@ -546,13 +650,21 @@
 
     .nav__links li {
       width: 100%;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      border-bottom: 1px solid rgba(var(--rgb-deepest), 0.12);
     }
 
     .nav__links a {
       display: block;
       padding: 0.875rem 0;
       font-size: 1rem;
+    }
+
+    /* Understreken er en desktop-affordanse. Her er lenka full bredde, så
+       ::after blir en heldekkende svart strek som leser som en skillelinje
+       oppå li-ens egen. Aktiv side markeres av fontvekten alene — som også
+       er et ikke-fargebasert signal. */
+    .nav__links a::after {
+      display: none;
     }
 
     body:has(.nav__links.is-open) {
@@ -594,15 +706,9 @@
     transform: translateY(0);
   }
 
-  /* Primær: Dusty Olive bakgrunn, hvit tekst */
-  /* Hvit tekst på #84856e gir 3,78:1. En knapp på 16px/600 er ikke «stor tekst»
-      etter WCAG, så kravet er 4,5:1. --color-primary-d har samme fargetone og
-      metning, kun 6 prosentpoeng mørkere, og lander på 4,78:1.
-   
-      MERK: dette er et lite avvik fra merkevarespesifikasjonen, som sier «Dusty
-      Olive bakgrunn, hvit tekst» på CTA-knapper. Alternativet er å beholde
-      #84856e og akseptere at hovedknappen ikke oppfyller AA. Si fra hvis du heller
-      vil det — det er en beslutning for kunden, ikke for meg. */
+  /* Primær: Rust 700, hvit tekst — 6,76:1.
+      Flaten er også 6,19:1 mot sidebakgrunnen, så knappens grense er synlig
+      uten kant (WCAG 1.4.11). Hover går til Rust 800 på 8,96:1. */
   .btn--primary {
     background-color: var(--color-primary-d);
     color: #ffffff;
@@ -616,7 +722,7 @@
     box-shadow: var(--shadow-md);
   }
 
-  /* Outline: gjennomsiktig, Dusty Olive kant */
+  /* Outline: gjennomsiktig, rustkant — 6,19:1 mot bakgrunnen */
   .btn--outline {
     background-color: transparent;
     color: var(--color-primary);
@@ -642,7 +748,7 @@
     color: var(--color-text-inv);
   }
 
-  /* Mørk: Charcoal bakgrunn */
+  /* Mørk: bandicoot-600 */
   .btn--dark {
     background-color: var(--color-bg-dark);
     color: var(--color-text-inv);
@@ -669,9 +775,12 @@
          7. HERO-SEKSJON
          -------------------------------------------------------------------------- */
 
+  /* min-height trekker fra nav-høyden. Headeren var transparent og lå OVER
+     bildet; nå er den ugjennomsiktig og ligger FORAN det, så 100svh ville
+     gjort heroen én headerhøyde for høy og dyttet alt under folden. */
   .hero {
     position: relative;
-    min-height: 100svh;
+    min-height: calc(100svh - var(--nav-height));
     display: flex;
     align-items: flex-end;
     overflow: hidden;
@@ -688,8 +797,6 @@
     height: 100%;
     object-fit: cover;
     object-position: center 30%;
-    /* CSS parallax hint */
-    will-change: transform;
   }
 
   /* To gradienter, ikke én.
@@ -752,7 +859,9 @@
     z-index: 2;
     width: 100%;
     padding-bottom: clamp(3rem, 6vw, 5rem);
-    padding-top: calc(var(--nav-height) + 2rem);
+    /* Var calc(--nav-height + 2rem) for å komme klar av den transparente
+       headeren. Den overlapper ikke lenger, så kompensasjonen er borte. */
+    padding-top: 2rem;
   }
 
   .hero__heading {
@@ -1083,6 +1192,7 @@
   .tjeneste-card__link {
     display: inline-flex;
     align-items: center;
+    min-height: 24px; /* WCAG 2.5.8 — var 22px */
     gap: 0.4rem;
     font-size: 0.875rem;
     font-weight: 600;
@@ -1369,30 +1479,6 @@
   }
 
   /* Pågående-merke */
-  .prosjekt-card__pågående {
-    display: inline-flex;
-    align-self: flex-start;
-    align-items: center;
-    gap: 0.3rem;
-    font-size: 0.6875rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    color: var(--color-primary);
-    background-color: rgba(var(--rgb-primary), 0.1);
-    padding: 0.2rem 0.55rem;
-    border-radius: var(--r-full);
-    margin-bottom: 0.5rem;
-  }
-
-  .prosjekt-card__pågående::before {
-    content: "";
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background-color: var(--color-primary);
-    animation: pulse-dot 2s ease-in-out infinite;
-  }
 
   /* Tom tilstand */
   .galleri-tom {
@@ -1417,7 +1503,7 @@
   .strip {
     background-color: var(--color-bg-white);
     border-bottom: 1px solid var(--color-border);
-    border-top: 3px solid var(--color-primary);
+    /* border-top: 1px solid var(--color-border); */
   }
 
   .strip__grid {
@@ -1443,8 +1529,8 @@
     display: flex;
     flex-direction: column;
     gap: 0.375rem;
-    border-right: 1px solid var(--color-border);
-    transition: background-color var(--transition-fast);
+    /* border-right: 1px solid var(--color-border); */
+    /* transition: background-color var(--transition-fast); */
     position: relative;
   }
 
@@ -1476,9 +1562,9 @@
     }
   }
 
-  .strip__item:hover {
+  /* .strip__item:hover {
     background-color: var(--color-bg-section);
-  }
+  } */
 
   /* Ikon-sirkel */
   .strip__icon-wrap {
@@ -1493,10 +1579,6 @@
     color: var(--color-primary);
     transition: background-color var(--transition-fast);
     margin-bottom: 0.75rem;
-  }
-
-  .strip__item:hover .strip__icon-wrap {
-    background-color: rgba(var(--rgb-primary), 0.18);
   }
 
   @media (max-width: 479px) {
@@ -1530,7 +1612,13 @@
     transition: color var(--transition-fast);
     line-height: 1.35;
     letter-spacing: -0.01em;
+    /* block, IKKE flex. Klassen sitter både på telefon-/e-postlenkene og på
+       <address>-blokka, og flex gjør hvert barn til et flex-item: <br> blir
+       forkastet, og tekstnoden med mellomrommet mellom postnummer og poststed
+       kollapser. Adressen ble «Nordre / Fokserød 3241Sandefjord / 21».
+       min-height virker like godt på block og dekker klikkflatekravet. */
     display: block;
+    min-height: 24px; /* WCAG 2.5.8 */
   }
 
   .strip__value:hover {
@@ -1682,14 +1770,31 @@
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 0.625rem;
+    gap: 0.125rem;
   }
 
+  /* padding-block for å nå 24px klikkflate (WCAG 2.5.8). Lenkene var 19px.
+     gap på .footer__links er redusert tilsvarende så avstanden ser lik ut. */
   .footer__links a {
+    display: inline-block;
     font-size: 0.9375rem;
+    padding-block: 0.25rem;
     color: var(--color-text-inv-m);
     text-decoration: none;
     transition: color var(--transition-fast);
+  }
+
+  .footer__kontaktlenke {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    color: var(--color-text-inv-m);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+  }
+
+  .footer__kontaktlenke:hover {
+    color: var(--color-text-inv);
   }
 
   .footer__links a:hover {
@@ -1704,11 +1809,12 @@
     flex-wrap: wrap;
     gap: 0.75rem 1.5rem;
     font-size: 0.8125rem;
-    color: rgba(var(--rgb-inv), 0.32);
+    /* Var 0,32 = 2,77:1 på footerflaten. Fin trykk er fortsatt normal tekst. */
+    color: rgba(var(--rgb-inv), 0.62);
     letter-spacing: 0.01em;
   }
   .footer__logo-img {
-    max-height: 128px;
+    height: 48px;
     width: auto;
     max-width: 200px;
     display: block;
@@ -1838,11 +1944,6 @@
     letter-spacing: 0.04em;
   }
 
-  .badge--olive {
-    background-color: rgba(var(--rgb-primary), 0.12);
-    color: var(--color-primary);
-  }
-
   .badge--charcoal {
     background-color: rgba(var(--rgb-dark), 0.1);
     color: var(--color-bg-dark);
@@ -1952,7 +2053,7 @@
 
   .slug-hero {
     position: relative;
-    min-height: clamp(400px, 55svh, 620px);
+    min-height: var(--hero-min);
     display: flex;
     align-items: flex-end;
     overflow: hidden;
@@ -2151,13 +2252,13 @@
   }
 
   .casestudie-kort--utfordring::before {
-    background: #c8843c;
+    background: var(--color-utfordring);
   }
   .casestudie-kort--losning::before {
     background: var(--color-primary);
   }
   .casestudie-kort--resultat::before {
-    background: #4a8c6e;
+    background: var(--color-resultat);
   }
 
   .casestudie-kort__label {
@@ -2169,13 +2270,13 @@
   }
 
   .casestudie-kort--utfordring .casestudie-kort__label {
-    color: #c8843c;
+    color: var(--color-utfordring);
   }
   .casestudie-kort--losning .casestudie-kort__label {
     color: var(--color-primary);
   }
   .casestudie-kort--resultat .casestudie-kort__label {
-    color: #4a8c6e;
+    color: var(--color-resultat);
   }
 
   .casestudie-kort__tekst {
@@ -2264,6 +2365,7 @@
   .casestudie-sidebar__tilbake {
     display: flex;
     align-items: center;
+    min-height: 24px; /* WCAG 2.5.8 */
     gap: 0.5rem;
     font-size: 0.875rem;
     font-weight: 600;
@@ -2624,6 +2726,9 @@
   }
 
   .brodsti__lenke {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px; /* WCAG 2.5.8 */
     color: inherit;
     text-decoration: none;
     transition: color var(--transition-fast);
@@ -2657,7 +2762,7 @@
   .tjeneste-hero {
     position: relative;
     isolation: isolate;
-    min-height: clamp(420px, 55vh, 620px);
+    min-height: var(--hero-min);
     display: flex;
     align-items: flex-end;
     padding-block: clamp(3rem, 8vw, 6rem);
@@ -2992,5 +3097,54 @@
     margin: 0;
     font-size: 0.9rem;
     opacity: 0.8;
+  }
+}
+
+@layer utilities {
+  /* ==========================================================================
+      REDUSERT BEVEGELSE
+      Én blokk for hele nettstedet. Før denne fantes bare tre lokale hensyn —
+      .scroll-smooth, .kontaktbar og en JS-sjekk i OngoingBanner — mens alle
+      reveal-animasjonene, hele hero-sekvensen og den uendelige scroll-linja
+      kjørte uansett hva brukeren hadde bedt om.
+
+      Regelen er den samme som sikkerhetsnettet i BaseLayout bygger på:
+      innhold vinner over bevegelse. Alt som starter på opacity: 0 må derfor
+      settes eksplisitt synlig her — å bare nulle animasjonen ville låst
+      elementet i sin usynlige starttilstand.
+      ========================================================================== */
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+
+    html {
+      scroll-behavior: auto;
+    }
+
+    /* Innhold som ellers venter på en animasjon for å bli synlig. */
+    .reveal,
+    .reveal-d1,
+    .reveal-d2,
+    .reveal-d3,
+    .hero__heading,
+    .hero__lead,
+    .hero__actions,
+    .hero__scroll-hint {
+      opacity: 1 !important;
+      transform: none !important;
+      animation: none !important;
+    }
+
+    /* Ren dekor som ikke bærer innhold — den kjørte infinite. */
+    .hero__scroll-line {
+      display: none;
+    }
   }
 }

@@ -25,6 +25,19 @@ interface Props {
   class?:  string;
   /** Overstyr høyde/bredde-forhold, f.eks. "16/9" på et kort. */
   forhold?: string;
+  /**
+   * Fyll forelderen i stedet for å følge bildets eget forhold.
+   *
+   * Må settes her, ikke i en global regel. `.sanity-bilde { height: auto }`
+   * nedenfor er scoped, altså ULAGDELT, og ulagdelte deklarasjoner slår alt
+   * som ligger i et @layer uansett spesifisitet. `.hero__bg img { height:
+   * 100% }` i globals.css lå i @layer components og hadde derfor aldri noen
+   * effekt: hero-bildet beholdt sitt eget forhold og dekket bare toppen av
+   * seksjonen. Målt på 420x1000 var bildet 420x360 i en container på 420x928.
+   *
+   * Forelderen må ha en definert høyde for at dette skal gi mening.
+   */
+  fyll?: boolean;
 }
 
 const {
@@ -34,6 +47,7 @@ const {
   prioritet = false,
   class: klasse,
   forhold,
+  fyll = false,
 } = Astro.props;
 
 const meta   = kilde?.asset?.metadata;
@@ -56,6 +70,7 @@ const maksBredde = dim?.width ?? 2000;
   decoding={prioritet ? "sync" : "async"}
   fetchpriority={prioritet ? "high" : "auto"}
   class:list={["sanity-bilde", klasse]}
+  data-fyll={fyll ? "" : undefined}
   style={{
     ...(lqip ? { backgroundImage: `url(${lqip})` } : {}),
     ...(forhold ? { aspectRatio: forhold } : {}),
@@ -72,5 +87,15 @@ const maksBredde = dim?.width ?? 2000;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+  }
+
+  /* Attributt og ikke en egen klasse, så selektoren henger på .sanity-bilde
+     som står statisk i malen. Kommer etter regelen over og vinner på
+     rekkefølge — samme stilblokk, samme lag. */
+  .sanity-bilde[data-fyll] {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
   }
 </style>

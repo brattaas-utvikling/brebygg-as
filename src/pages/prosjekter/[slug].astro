@@ -139,7 +139,7 @@ const harCasestudie  = data.utfordring  || data.losning  || data.resultat;
 
       {/* Bakgrunnsbilde — preloadet via heroImage-prop i PageLayout */}
       <div class="slug-hero__bg" aria-hidden="true">
-        <Bilde kilde={data.heroImage} alt="" prioritet bredde={1600} hoyde={900} />
+        <Bilde kilde={data.heroImage} alt="" prioritet fyll bredde={1600} hoyde={900} />
       </div>
 
       {/* Gradient-overlay */}
@@ -199,7 +199,7 @@ const harCasestudie  = data.utfordring  || data.losning  || data.resultat;
          ================================================================ */}
          {/* {data.nokkeltall!.map(({ label, verdi }) => ( */}
     {harNøkkeltall && (
-      <div class="nokkeltall-strip reveal" aria-label="Nøkkeltall for prosjektet">
+      <div class="nokkeltall-strip reveal" role="group" aria-label="Nøkkeltall for prosjektet">
         <div class="container">
           <dl class="nokkeltall-strip__grid">
             {data.nokkeltall!.map(({ label, verdi }: { label: string; verdi: string }) => (

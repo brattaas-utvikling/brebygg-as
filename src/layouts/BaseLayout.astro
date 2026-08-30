@@ -133,7 +133,13 @@ const ogImageUrl   = absoluteUrl(resolved.ogImage);
       // fortsatt usynlig etter at siden har lastet, fjernes reveal-klassen og
       // elementet vises. Da kan en dekorativ effekt aldri skjule noe.
 
-      const REVEAL = ".reveal, .reveal-d1, .reveal-d2, .reveal-d3";
+      // Heroen er med her fordi den har nøyaktig samme feilmodus: h1, ingress
+      // og knapper starter på opacity: 0 med sin egen animasjon i Hero.astro.
+      // Går den aldri i gang, står sidens viktigste element usynlig — og det
+      // er nettopp det denne funksjonen finnes for å hindre.
+      const REVEAL =
+        ".reveal, .reveal-d1, .reveal-d2, .reveal-d3, " +
+        ".hero__heading, .hero__lead, .hero__actions";
 
       const harScrollTimeline =
         typeof CSS !== "undefined" && CSS.supports("animation-timeline", "view()");
@@ -157,6 +163,17 @@ const ogImageUrl   = absoluteUrl(resolved.ogImage);
       function tvingSynlig() {
         for (const el of document.querySelectorAll<HTMLElement>(REVEAL)) {
           if (parseFloat(getComputedStyle(el).opacity) > 0.05) continue;
+
+          // Er det en animasjon i gang på elementet, gjør den jobben sin —
+          // da er lav opacity bare et mellomsteg. Uten denne sjekken avbrøt
+          // nettet hero-sekvensen mens den fortsatt spilte, fordi den starter
+          // med 0,2 s forsinkelse og fill-mode forwards: i forsinkelsen står
+          // elementet på sin egen opacity: 0, og så ut som om det hang.
+          const gaar = el
+            .getAnimations()
+            .some((a) => a.playState === "running" || a.playState === "finished");
+          if (gaar) continue;
+
           el.classList.remove("reveal", "reveal-d1", "reveal-d2", "reveal-d3");
           el.classList.add("is-visible");
           el.style.opacity = "1";

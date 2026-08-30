@@ -9,7 +9,7 @@ import { FOOTER_NAV } from "@config/navigation";
 const currentYear = new Date().getFullYear();
 ---
 
-<footer class="footer" role="contentinfo" aria-label="Sidefot">
+<footer class="footer" aria-label="Sidefot">
   <div class="container">
     {/* Øvre grid: merkevare + navigasjonskolonner */}
     <div class="footer__grid">
@@ -20,13 +20,16 @@ const currentYear = new Date().getFullYear();
           class="nav__logo"
           aria-label={`${NAP.name} — tilbake til forsiden`}
         >
+          {/* alt="" — <a> har allerede aria-label og vinner over alt-teksten.
+              width/height rettet: kilden er 1,478:1, ikke 2,5:1 som 120×48 sa.
+              lazy fordi den står nederst på siden. */}
           <img
-            src="/favicon.svg"
-            alt={NAP.name}
+            src="/images/logo-brebygg.webp"
+            alt=""
             class="footer__logo-img"
-            width="120"
+            width="71"
             height="48"
-            loading="eager"
+            loading="lazy"
             decoding="async"
           />
         </a>
@@ -81,7 +84,7 @@ const currentYear = new Date().getFullYear();
             <a
               href={`tel:${NAP.phone.replace(/\s/g, "")}`}
               itemprop="telephone"
-              class="hover:text-white transition-colors duration-150"
+              class="footer__kontaktlenke"
               style="color: var(--color-text-inv-m);"
             >
               {NAP.phoneDisplay}
@@ -108,7 +111,7 @@ const currentYear = new Date().getFullYear();
             <a
               href={`mailto:${NAP.email}`}
               itemprop="email"
-              class="hover:text-white transition-colors duration-150"
+              class="footer__kontaktlenke"
               style="color: var(--color-text-inv-m);"
             >
               {NAP.email}
@@ -168,7 +171,7 @@ const currentYear = new Date().getFullYear();
         {NAP.name}. Alle rettigheter forbeholdt.
       </span>
       <span>
-        Organisasjonsnummer: {/* Fyll inn etter oppstart */}XXX XXX XXX
+        Organisasjonsnummer: {NAP.orgNumber}
       </span>
     </div>
   </div>

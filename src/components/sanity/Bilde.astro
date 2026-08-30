@@ -23,6 +23,9 @@ interface Props {
   prioritet?: boolean;
   class?:     string;
   forhold?:   string;
+  /** Fyll forelderen (object-fit: cover). Se SanityBilde for hvorfor det må
+      settes her og ikke i en global regel. */
+  fyll?:      boolean;
   /** Fallback-dimensjoner for lokale bilder uten width/height i frontmatter. */
   bredde?:    number;
   hoyde?:     number;
@@ -30,7 +33,7 @@ interface Props {
 
 const {
   kilde, alt, sizes, prioritet = false,
-  class: klasse, forhold, bredde = 800, hoyde = 500,
+  class: klasse, forhold, fyll = false, bredde = 800, hoyde = 500,
 } = Astro.props;
 
 const altTekst = alt ?? kilde.alt;
@@ -44,6 +47,7 @@ const altTekst = alt ?? kilde.alt;
     prioritet={prioritet}
     class={klasse}
     forhold={forhold}
+    fyll={fyll}
   />
 ) : (
   <img
@@ -55,6 +59,18 @@ const altTekst = alt ?? kilde.alt;
     decoding={prioritet ? "sync" : "async"}
     fetchpriority={prioritet ? "high" : "auto"}
     class={klasse}
+    data-fyll={fyll ? "" : undefined}
     style={forhold ? `aspect-ratio:${forhold}` : undefined}
   />
 )}
+
+<style>
+  /* Samme som i SanityBilde, for den lokale grenen. */
+  img[data-fyll] {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+  }
+</style>

@@ -5,7 +5,7 @@
 // Design:
 //   Bildebredde = 38.2 % av kortet (det gylne snitt: 1/φ²)
 //   Diagonal clip-path: topp 100% → bunn 84% — ca. 16 % skrå
-//   Dusty Olive-linje langs diagonalkanten
+//   rustlinje langs diagonalkanten
 //   Hover: bilde zoomer lett inn
 //
 // Bilder:
@@ -50,7 +50,7 @@ import { VERDIER } from "@config/om-oss";
                 width="600"
                 height="400"
               />
-              {/* Dusty Olive-strek langs diagonalkanten */}
+              {/* ruststrek langs diagonalkanten */}
               <div class="vd-diagonal-linje" aria-hidden="true" />
             </div>
 
@@ -236,13 +236,15 @@ import { VERDIER } from "@config/om-oss";
     max-width: none;
   }
 
+  /* primary-l og ikke primary: kortet står på bandicoot-800, og rust-700 er
+     en lys-flate-farge — den ga 2,15:1 her. opacity 0.75 er også borte; den
+     dro tallet ned igjen etter at fargen var rettet. */
   .vd-nr {
     font-family: var(--ff-display);
     font-size: 0.6875rem;
     font-weight: 700;
-    color: var(--color-primary);
+    color: var(--color-primary-l);
     letter-spacing: 0.08em;
-    opacity: 0.75;
     flex-shrink: 0;
   }
 
@@ -258,7 +260,8 @@ import { VERDIER } from "@config/om-oss";
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: rgba(var(--rgb-inv), 0.4);
+    /* Var 0,4 = 3,52:1. 11px er normal tekst, så kravet er 4,5. */
+    color: rgba(var(--rgb-inv), 0.66);
   }
 
   /* Tittel */
@@ -301,7 +304,7 @@ import { VERDIER } from "@config/om-oss";
 ---
 // src/components/sections/VerdierSeksjon.astro
 // Selskapets fire verdier i 2×2-grid.
-// Mørk bakgrunn (Charcoal Blue) med Dusty Olive-aksenter.
+// Mørk bakgrunn (bandicoot-800) med rustaksenter.
 
 import { VERDIER } from "@config/om-oss";
 ---

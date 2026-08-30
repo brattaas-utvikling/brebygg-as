@@ -4,7 +4,7 @@
 //
 // Layout:
 //   Høyre  (45 %): bilde i avrundet ramme
-//   Bakgrunn: Charcoal Blue (var(--color-bg-dark))
+//   Bakgrunn: bandicoot-600 (var(--color-bg-dark))
 //
 // Props:
 //   heading   — H1-tekst (støtter HTML via set:html for linjeskift)
@@ -108,7 +108,7 @@ const {
     </div>
 
     {/* Høyre: bilde */}
-    <div class="page-hero__img-col" aria-hidden="false">
+    <div class="page-hero__img-col">
       <div
         class={`page-hero__img-wrap ${imgFade ? "page-hero__img-wrap--fade" : ""}`}
       >
@@ -120,7 +120,7 @@ const {
           fetchpriority="high"
           decoding="async"
         />
-        {/* Subtil Dusty Olive-ramme øverst til venstre — gir dybde */}
+        {/* Subtil rustramme øverst til venstre — gir dybde */}
         <div class="page-hero__img-frame" aria-hidden="true"></div>
       </div>
     </div>
@@ -144,28 +144,25 @@ const {
   /* ── Seksjonsramme ─────────────────────────────────────────────────── */
   .page-hero {
     background-color: var(--color-bg-dark);
+    min-height: var(--hero-min);
+    /* -1px: heroens underkant lander på en brøkdels CSS-piksel (målt til
+       735,390625 på 375x812), og på DPR 2 antialiaseres den siste raden mot
+       seksjonen under — en hårstrek på tvers av hele bredden. Bølgen dekker
+       den ikke: kurven starter på y=56 ytterst til venstre og høyre, så der
+       er det hvite feltet null høyt og det olivne går helt ned.
+
+       bottom: -1px på selve bølgen løser bare heltallsavrunding. Her må de to
+       flatene faktisk overlappe, slik at den hvite seksjonen males over
+       heroens siste rad. Bølgen har z-index: 2 og blir liggende øverst. */
+    margin-bottom: -1px;
+    display: flex;
+    align-items: center;
     position: relative;
     overflow: hidden;
     /* Padding-top: nav-høyde + rom */
     padding-top: calc(var(--nav-height) + clamp(3rem, 6vw, 5rem));
     /* Padding-bottom: rom til bølgen */
     padding-bottom: clamp(4rem, 8vw, 7rem);
-  }
-
-  /* Subtil radial-glød bak teksten */
-  .page-hero::before {
-    content: "";
-    position: absolute;
-    top: -20%;
-    left: -5%;
-    width: 55%;
-    height: 140%;
-    background: radial-gradient(
-      ellipse at 30% 40%,
-      rgba(var(--rgb-primary), 0.09) 0%,
-      transparent 65%
-    );
-    pointer-events: none;
   }
 
   /* ── Split-grid ────────────────────────────────────────────────────── */
@@ -325,12 +322,19 @@ const {
     }
   }
 
+  /* max-height + width: 100% gjør at aspect-ratio gir etter ved taket i
+     stedet for å diktere seksjonshøyden. Uten det ble /om-oss/ 139 px høyere
+     enn /tjenester/ utelukkende fordi imgFade-varianten gir bildekolonnen
+     60 % bredde i stedet for 45 %. */
   .page-hero__img-wrap {
     position: relative;
     border-radius: var(--r-xl);
     overflow: hidden;
     /* Portrettformat på desktop */
     aspect-ratio: 5 / 6;
+    max-height: var(--hero-bilde-maks);
+    width: 100%;
+    margin-inline: auto;
     box-shadow: var(--shadow-xl);
     /* Animasjon inn fra høyre */
     opacity: 0;
@@ -358,7 +362,7 @@ const {
     object-position: center top;
   }
 
-  /* Dusty Olive-ramme — posisjonert bak bildet */
+  /* rustramme — posisjonert bak bildet */
   .page-hero__img-frame {
     position: absolute;
     inset: -10px -10px 10px 10px;
