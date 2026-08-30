@@ -10,16 +10,16 @@
 // prosjektsidene i løse lufta, som de har gjort til nå.
 
 import { getCollection, render, type CollectionEntry } from "astro:content";
-import PageLayout   from "@layouts/PageLayout.astro";
-import Breadcrumbs  from "@components/seo/Breadcrumbs.astro";
-import CtaSeksjon   from "@components/sections/CtaSeksjon.astro";
+import PageLayout from "@layouts/PageLayout.astro";
+import Breadcrumbs from "@components/seo/Breadcrumbs.astro";
+import CtaSeksjon from "@components/sections/CtaSeksjon.astro";
 import { SITE_URL, NAP, HOVEDKOMMUNER, type PageMeta } from "@config/site";
 import { getTjenesteSchema } from "@lib/seo/jsonld";
 import { KATEGORI_LABEL, bildeSrc } from "@/content.config";
 import Bilde from "@components/sanity/Bilde.astro";
 
 export async function getStaticPaths() {
-  const tjenester  = await getCollection("tjenester");
+  const tjenester = await getCollection("tjenester");
   const prosjekter = await getCollection("prosjekter");
 
   return tjenester
@@ -28,28 +28,27 @@ export async function getStaticPaths() {
       // Valider relaterteProsjekter mot faktiske slugger ved bygg. Zod kan ikke
       // gjøre dette — den kjenner ikke de andre collection-ene. En feilstavet
       // slug ville ellers blitt en stille tom liste i produksjon.
-      const treff = entry.data.relaterteProsjekter
-        .map((slug) => {
-          const p = prosjekter.find((x) => x.id === slug);
-          if (!p) {
-            throw new Error(
-              `[tjenester/${entry.id}] relaterteProsjekter viser til "${slug}", ` +
+      const treff = entry.data.relaterteProsjekter.map((slug) => {
+        const p = prosjekter.find((x) => x.id === slug);
+        if (!p) {
+          throw new Error(
+            `[tjenester/${entry.id}] relaterteProsjekter viser til "${slug}", ` +
               `som ikke finnes i prosjekter-collection. ` +
               `Tilgjengelige: ${prosjekter.map((x) => x.id).join(", ")}`
-            );
-          }
-          return p;
-        });
+          );
+        }
+        return p;
+      });
 
       return {
         params: { slug: entry.id },
-        props:  { entry, relaterte: treff },
+        props: { entry, relaterte: treff },
       };
     });
 }
 
 interface Props {
-  entry:     CollectionEntry<"tjenester">;
+  entry: CollectionEntry<"tjenester">;
   relaterte: CollectionEntry<"prosjekter">[];
 }
 
@@ -58,38 +57,47 @@ const { data } = entry;
 const { Content } = await render(entry);
 
 const canonicalPath = `/tjenester/${entry.id}/`;
-const canonical     = `${SITE_URL}${canonicalPath}`;
+const canonical = `${SITE_URL}${canonicalPath}`;
 
 const pageMeta: PageMeta = {
-  title:       data.seoTitle       ?? `${data.title} — ${NAP.name}`,
+  title: data.seoTitle ?? `${data.title} — ${NAP.name}`,
   description: data.seoDescription ?? data.description,
   canonical,
-  ogImage:     `${SITE_URL}${bildeSrc(data.heroImage)}`,
+  ogImage: `${SITE_URL}${bildeSrc(data.heroImage)}`,
 };
 
 const schema = getTjenesteSchema(
   {
-    navn:        data.title,
+    navn: data.title,
     beskrivelse: data.description,
     canonical,
-    kategori:    KATEGORI_LABEL[data.kategori],
+    kategori: KATEGORI_LABEL[data.kategori],
   },
   [
-    { label: "Hjem",      url: `${SITE_URL}/` },
+    { label: "Hjem", url: `${SITE_URL}/` },
     { label: "Tjenester", url: `${SITE_URL}/tjenester/` },
-    { label: data.title,  url: canonical },
+    { label: data.title, url: canonical },
   ],
-  data.faq.map((f) => ({ question: f.sporsmaal, answer: f.svar })),
+  data.faq.map((f) => ({ question: f.sporsmaal, answer: f.svar }))
 );
 ---
 
-<PageLayout meta={pageMeta} schema={schema} heroImage={bildeSrc(data.heroImage)}>
+<PageLayout
+  meta={pageMeta}
+  schema={schema}
+  heroImage={bildeSrc(data.heroImage)}
+>
   <main id="main-content">
-
     {/* Hero */}
     <section class="tjeneste-hero" aria-labelledby="tjeneste-tittel">
       <div class="tjeneste-hero__bg" aria-hidden="true">
-        <Bilde kilde={data.heroImage} alt="" prioritet bredde={1600} hoyde={900} />
+        <Bilde
+          kilde={data.heroImage}
+          alt=""
+          prioritet
+          bredde={1600}
+          hoyde={900}
+        />
       </div>
 
       <div class="tjeneste-hero__innhold">
@@ -99,14 +107,19 @@ const schema = getTjenesteSchema(
             labels={{ [entry.id]: data.title }}
             variant="inv"
           />
-          <h1 class="tjeneste-hero__tittel" id="tjeneste-tittel">{data.title}</h1>
+          <h1 class="tjeneste-hero__tittel" id="tjeneste-tittel">
+            {data.title}
+          </h1>
           <p class="tjeneste-hero__ingress">{data.ingress}</p>
 
           <div class="tjeneste-hero__knapper">
             <a href={NAP.phoneHref} class="btn btn--primary">
               Ring {NAP.phoneDisplay}
             </a>
-            <a href={`/prosjekter/?kategori=${data.kategori}`} class="btn btn--ghost-inv">
+            <a
+              href={`/prosjekter/?kategori=${data.kategori}`}
+              class="btn btn--ghost-inv"
+            >
               Se {KATEGORI_LABEL[data.kategori].toLowerCase()}-prosjekter
             </a>
           </div>
@@ -122,14 +135,29 @@ const schema = getTjenesteSchema(
             Hva du får når vi tar totalentreprisen
           </h2>
           <ul class="tjeneste-liste">
-            {data.inkludert.map((punkt) => (
-              <li class="tjeneste-liste__item">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" class="flex-shrink-0">
-                  <path d="M3.5 8.5L6.5 11.5L12.5 4.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path>
-                </svg>
-                <span>{punkt}</span>
-              </li>
-            ))}
+            {
+              data.inkludert.map((punkt) => (
+                <li class="tjeneste-liste__item">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    aria-hidden="true"
+                    class="flex-shrink-0"
+                  >
+                    <path
+                      d="M3.5 8.5L6.5 11.5L12.5 4.5"
+                      stroke="currentColor"
+                      stroke-width="1.75"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  <span>{punkt}</span>
+                </li>
+              ))
+            }
           </ul>
         </div>
 
@@ -142,76 +170,102 @@ const schema = getTjenesteSchema(
     {/* Prosess */}
     <section class="section sek--seksjon" aria-labelledby="prosess-tittel">
       <div class="container">
-        <h2 class="section-title mt-2" id="prosess-tittel">Fra første befaring til overlevering</h2>
+        <h2 class="section-title mt-2" id="prosess-tittel">
+          Fra første befaring til overlevering
+        </h2>
 
         <ol class="tjeneste-prosess">
-          {data.prosess.map((steg, i) => (
-            <li class="tjeneste-prosess__steg">
-              <span class="tjeneste-prosess__nr" aria-hidden="true">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <h3 class="tjeneste-prosess__tittel">{steg.tittel}</h3>
-              <p class="tjeneste-prosess__tekst">{steg.tekst}</p>
-            </li>
-          ))}
+          {
+            data.prosess.map((steg, i) => (
+              <li class="tjeneste-prosess__steg">
+                <span class="tjeneste-prosess__nr" aria-hidden="true">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <h3 class="tjeneste-prosess__tittel">{steg.tittel}</h3>
+                <p class="tjeneste-prosess__tekst">{steg.tekst}</p>
+              </li>
+            ))
+          }
         </ol>
       </div>
     </section>
 
     {/* Relaterte prosjekter */}
-    {relaterte.length > 0 && (
-      <section class="section sek--hvit" aria-labelledby="relaterte-tittel">
-        <div class="container">
-          <div class="tjeneste-toprad">
-            <div>
-              <h2 class="section-title mt-2" id="relaterte-tittel">
-                {data.kortTittel ?? data.title} vi har levert
-              </h2>
-            </div>
-            <a href={`/prosjekter/?kategori=${data.kategori}`} class="btn btn--outline btn--sm">
-              Alle prosjekter
-            </a>
-          </div>
-
-          <div class="tjeneste-relaterte" role="list">
-            {relaterte.map((p) => (
-              <a href={`/prosjekter/${p.id}/`} class="prosjekt-card" role="listitem">
-                <div class="prosjekt-card__img">
-                  <Bilde kilde={p.data.heroImage} alt={p.data.heroImage.alt} bredde={800} hoyde={500} />
-                </div>
-                <div class="prosjekt-card__body">
-                  <span class="prosjekt-card__tag">{KATEGORI_LABEL[p.data.kategori]}</span>
-                  <h3 class="prosjekt-card__title">{p.data.title}</h3>
-                  <p class="prosjekt-card__meta">
-                    {p.data.location}<span aria-hidden="true"> · </span>{p.data.aar}
-                  </p>
-                </div>
+    {
+      relaterte.length > 0 && (
+        <section class="section sek--hvit" aria-labelledby="relaterte-tittel">
+          <div class="container">
+            <div class="tjeneste-toprad">
+              <div>
+                <h2 class="section-title mt-2" id="relaterte-tittel">
+                  {data.kortTittel ?? data.title} vi har levert
+                </h2>
+              </div>
+              <a
+                href={`/prosjekter/?kategori=${data.kategori}`}
+                class="btn btn--outline btn--sm"
+              >
+                Alle prosjekter
               </a>
-            ))}
+            </div>
+
+            <div class="tjeneste-relaterte" role="list">
+              {relaterte.map((p) => (
+                <a
+                  href={`/prosjekter/${p.id}/`}
+                  class="prosjekt-card"
+                  role="listitem"
+                >
+                  <div class="prosjekt-card__img">
+                    <Bilde
+                      kilde={p.data.heroImage}
+                      alt={p.data.heroImage.alt}
+                      bredde={800}
+                      hoyde={500}
+                    />
+                  </div>
+                  <div class="prosjekt-card__body">
+                    <span class="prosjekt-card__tag">
+                      {KATEGORI_LABEL[p.data.kategori]}
+                    </span>
+                    <h3 class="prosjekt-card__title">{p.data.title}</h3>
+                    <p class="prosjekt-card__meta">
+                      {p.data.location}
+                      <span aria-hidden="true"> · </span>
+                      {p.data.aar}
+                    </p>
+                  </div>
+                </a>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
-    )}
+        </section>
+      )
+    }
 
     {/* FAQ */}
-    {data.faq.length > 0 && (
-      <section class="section sek--seksjon" aria-labelledby="faq-tittel">
-        <div class="container tjeneste-faq">
-          <h2 class="section-title mt-2" id="faq-tittel">
-            Om {(data.kortTittel ?? data.title).toLowerCase()}
-          </h2>
+    {
+      data.faq.length > 0 && (
+        <section class="section sek--seksjon" aria-labelledby="faq-tittel">
+          <div class="container tjeneste-faq">
+            <h2 class="section-title mt-2" id="faq-tittel">
+              Om {(data.kortTittel ?? data.title).toLowerCase()}
+            </h2>
 
-          <div class="tjeneste-faq__liste">
-            {data.faq.map((f) => (
-              <details class="tjeneste-faq__item">
-                <summary class="tjeneste-faq__sporsmaal">{f.sporsmaal}</summary>
-                <p class="tjeneste-faq__svar">{f.svar}</p>
-              </details>
-            ))}
+            <div class="tjeneste-faq__liste">
+              {data.faq.map((f) => (
+                <details class="tjeneste-faq__item">
+                  <summary class="tjeneste-faq__sporsmaal">
+                    {f.sporsmaal}
+                  </summary>
+                  <p class="tjeneste-faq__svar">{f.svar}</p>
+                </details>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
-    )}
+        </section>
+      )
+    }
 
     <CtaSeksjon
       variant="dark"

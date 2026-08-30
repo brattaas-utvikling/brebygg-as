@@ -4,21 +4,26 @@
 // /tjenester/ — uten denne ruten ville vi byttet tre 404 mot fire.
 
 import { getCollection } from "astro:content";
-import PageLayout  from "@layouts/PageLayout.astro";
-import HeroPage    from "@components/sections/HeroPage.astro";
-import CtaSeksjon  from "@components/sections/CtaSeksjon.astro";
+import PageLayout from "@layouts/PageLayout.astro";
+import HeroPage from "@components/sections/HeroPage.astro";
+import CtaSeksjon from "@components/sections/CtaSeksjon.astro";
 import { SITE_URL, NAP, HOVEDKOMMUNER, type PageMeta } from "@config/site";
-import { komponerGraf, buildBreadcrumbList, buildService } from "@lib/seo/jsonld";
+import {
+  komponerGraf,
+  buildBreadcrumbList,
+  buildService,
+} from "@lib/seo/jsonld";
 import { KATEGORI_LABEL } from "@/content.config";
 import Bilde from "@components/sanity/Bilde.astro";
 
-const tjenester = (await getCollection("tjenester"))
-  .sort((a, b) => a.data.sortOrder - b.data.sortOrder);
+const tjenester = (await getCollection("tjenester")).sort(
+  (a, b) => a.data.sortOrder - b.data.sortOrder
+);
 
 const canonical = `${SITE_URL}/tjenester/`;
 
 const pageMeta: PageMeta = {
-  title:       "Tjenester — totalentreprenør i Vestfold | BRE Bygg",
+  title: "Tjenester — totalentreprenør i Vestfold | BRE Bygg",
   description: `Nybygg, rehabilitering og næringsbygg i ${HOVEDKOMMUNER.join(", ")}. BRE Bygg tar totalentreprisen — én avtale, én prosjektleder.`,
   canonical,
 };
@@ -28,16 +33,16 @@ const pageMeta: PageMeta = {
 const schema = komponerGraf(
   ...tjenester.map((t) =>
     buildService({
-      navn:        t.data.title,
+      navn: t.data.title,
       beskrivelse: t.data.description,
-      canonical:   `${SITE_URL}/tjenester/${t.id}/`,
-      kategori:    KATEGORI_LABEL[t.data.kategori],
+      canonical: `${SITE_URL}/tjenester/${t.id}/`,
+      kategori: KATEGORI_LABEL[t.data.kategori],
     })
   ),
   buildBreadcrumbList([
-    { label: "Hjem",      url: `${SITE_URL}/` },
+    { label: "Hjem", url: `${SITE_URL}/` },
     { label: "Tjenester", url: canonical },
-  ]),
+  ])
 );
 ---
 
@@ -56,18 +61,33 @@ const schema = komponerGraf(
         <h2 class="sr-only" id="tjenester-tittel">Våre tjenester</h2>
 
         <div class="tjeneste-relaterte" role="list">
-          {tjenester.map((t) => (
-            <a href={`/tjenester/${t.id}/`} class="prosjekt-card" role="listitem">
-              <div class="prosjekt-card__img">
-                <Bilde kilde={t.data.heroImage} alt={t.data.heroImage.alt} bredde={800} hoyde={500} />
-              </div>
-              <div class="prosjekt-card__body">
-                <span class="prosjekt-card__tag">{KATEGORI_LABEL[t.data.kategori]}</span>
-                <h3 class="prosjekt-card__title">{t.data.kortTittel ?? t.data.title}</h3>
-                <p class="prosjekt-card__desc">{t.data.description}</p>
-              </div>
-            </a>
-          ))}
+          {
+            tjenester.map((t) => (
+              <a
+                href={`/tjenester/${t.id}/`}
+                class="prosjekt-card"
+                role="listitem"
+              >
+                <div class="prosjekt-card__img">
+                  <Bilde
+                    kilde={t.data.heroImage}
+                    alt={t.data.heroImage.alt}
+                    bredde={800}
+                    hoyde={500}
+                  />
+                </div>
+                <div class="prosjekt-card__body">
+                  <span class="prosjekt-card__tag">
+                    {KATEGORI_LABEL[t.data.kategori]}
+                  </span>
+                  <h3 class="prosjekt-card__title">
+                    {t.data.kortTittel ?? t.data.title}
+                  </h3>
+                  <p class="prosjekt-card__desc">{t.data.description}</p>
+                </div>
+              </a>
+            ))
+          }
         </div>
       </div>
     </section>
