@@ -58,8 +58,19 @@ export const structure: StructureResolver = (S) =>
       // `side`-dokumenter med sluggene «om-oss» og «kontakt», og
       // migreringsskriptet må opprette begge.
 
+      // «Meny» er tatt ut, av samme grunn som «Sider» over.
+      //
+      // Dokumenttypen fantes og hadde felter for hovedmeny, footerkolonner og
+      // footertekst, men ingenting leste dem: Header og Footer henter fra
+      // src/config/navigation.ts. Klienten kunne redigere en meny som aldri
+      // vistes noe sted, og et «Vis som knapp»-valg til en knapp som ikke
+      // finnes lenger.
+      //
+      // Menyen er fire punkter som speiler sidestrukturen. Skal den bli
+      // redigerbar, må src/config/navigation.ts først bytte kilde — ellers
+      // gjenoppstår fantomkontrollen.
+
       S.divider(),
-      singleton(S, "navigasjon", "Meny"),
       singleton(S, "nettstedInnstillinger", "Innstillinger"),
     ]);
 
