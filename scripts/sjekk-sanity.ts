@@ -92,15 +92,24 @@ if (utenToken === 0) {
     "  bygger produksjon et tomt nettsted."
   );
   feil++;
-} else if (utenToken > 0) {
-  console.log("\nDatasettet er lesbart uten token. Vercel trenger ikke SANITY_API_READ_TOKEN.");
 }
 
-if (medToken !== null && utenToken >= 0 && medToken !== utenToken) {
+// At det kom *noe* tilbake uten token er ikke nok til å si at tokenet er
+// overflødig — det holder at ett dokument er lesbart. Konklusjonen kan bare
+// trekkes når tallene er like.
+const likeTall = medToken !== null && utenToken >= 0 && medToken === utenToken;
+
+if (likeTall) {
+  console.log("\nLike tall med og uten token. Nettstedet er ikke avhengig av SANITY_API_READ_TOKEN.");
+} else if (medToken !== null && utenToken >= 0) {
   console.log(
     `\nADVARSEL: ulikt svar med og uten token (${medToken} mot ${utenToken}).\n` +
-    "  Det betyr at produksjon vil se noe annet enn maskinen din.\n" +
-    "  Legg tokenet inn i Vercel, eller gjør datasettet offentlig."
+    "  Produksjon ser noe annet enn maskinen din, og nettstedet står og faller\n" +
+    "  på at SANITY_API_READ_TOKEN ligger i Vercel.\n" +
+    "\n" +
+    "  Vanligste årsak er punktum i _id. Sanity leser punktum som en sti-\n" +
+    "  separator, og kun rot-stien er lesbar uten token — også på et offentlig\n" +
+    "  datasett. Kjør «npm run rett-id-er:torr» for å se om det er tilfellet."
   );
   feil++;
 }

@@ -15,6 +15,8 @@
     "lint": "tsc --noEmit",
     "migrer": "tsx scripts/migrer-innhold.ts",
     "migrer:torr": "tsx scripts/migrer-innhold.ts --torrkjor",
+    "rett-id-er": "tsx scripts/rett-id-er.ts",
+    "rett-id-er:torr": "tsx scripts/rett-id-er.ts --torrkjor",
     "studio": "sanity dev",
     "test:skjema": "tsx scripts/test-skjema.ts",
     "sjekk:sanity": "tsx scripts/sjekk-sanity.ts"

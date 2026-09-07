@@ -61,8 +61,14 @@ const klient = createClient({ projectId, dataset, token, apiVersion: "2026-08-01
 
 const logg = (melding: string) => console.log(`${TORRKJOR ? "[tørrkjøring] " : ""}${melding}`);
 
-/** Deterministisk id, så gjentatte kjøringer oppdaterer i stedet for å duplisere. */
-const idFor = (type: string, slug: string) => `${type}.${slug}`;
+/**
+ * Deterministisk id, så gjentatte kjøringer oppdaterer i stedet for å duplisere.
+ *
+ * Bindestrek og ikke punktum: Sanity leser punktum i _id som en sti-separator,
+ * og kun rot-stien er lesbar uten token — også på et offentlig datasett. Med
+ * punktum blir dokumentene usynlige for nettstedet med mindre et token er satt.
+ */
+const idFor = (type: string, slug: string) => `${type}-${slug}`;
 
 async function skriv(dok: Record<string, unknown> & { _id: string; _type: string }) {
   if (TORRKJOR) {
