@@ -4,7 +4,9 @@ import ProsjektKarusell from "@components/sections/ProsjektKarusell.astro";
 interface Props { blokk: Record<string, any> }
 const { blokk } = Astro.props;
 ---
-<SeksjonsSkall tema={blokk.tema} overskrift={blokk.overskrift}>
+{/* karusell-skall: kortene går ut til skjermkanten, og skallet kutter det
+    som stikker ut sideveis så siden ikke får horisontal scroll. */}
+<SeksjonsSkall tema={blokk.tema} overskrift={blokk.overskrift} class="karusell-skall">
   <ProsjektKarusell
     skjulTopp
     antall={typeof blokk.antall === "number" ? blokk.antall : 8}
