@@ -143,9 +143,30 @@ export const tekstBilde = defineType({
   preview: { select: { subtitle: "overskrift", media: "bilde" }, prepare: ({ subtitle, media }) => ({ title: "Tekst og bilde", subtitle, media }) },
 });
 
+/**
+ * Sosiale medier.
+ *
+ * Ingen tema-felt: blokken er alltid et bilde med mørkt slør over, og teksten
+ * er alltid lys. Rytmevalideringen på forsiden regner den derfor som mørk.
+ */
+export const someBlokk = defineType({
+  name: "someBlokk", title: "Sosiale medier", type: "object",
+  description: "Bilde over hele bredden med lenker til LinkedIn, Instagram og Facebook.",
+  fields: [
+    defineField({ name: "etikett",    title: "Liten tekst over overskriften", type: "string", initialValue: "Sosiale medier" }),
+    defineField({ name: "overskrift", title: "Overskrift", type: "string", initialValue: "Følg oss i sosiale medier", validation: (r) => r.required() }),
+    defineField({ name: "ingress",    title: "Ingress",    type: "text", rows: 3 }),
+    defineField({
+      name: "bilde", title: "Bakgrunnsbilde", type: "bilde",
+      description: "Et mørkt slør legges over automatisk, så teksten er lesbar uansett bilde. Står feltet tomt, brukes standardbildet av mobilen på trebordet.",
+    }),
+  ],
+  preview: { select: { subtitle: "overskrift", media: "bilde" }, prepare: ({ subtitle, media }) => ({ title: "Sosiale medier", subtitle, media }) },
+});
+
 export const alleBlokker = [
   statsRad, paagaendeBanner, tjenesterBento, prosjektKarusell,
-  omOssTeaser, baerekraft, faqBlokk, ctaBanner, tekstBilde,
+  omOssTeaser, baerekraft, faqBlokk, ctaBanner, tekstBilde, someBlokk,
 ];
 
 /** Navnene brukes både i forside-arrayet og i blokk-dispatcheren i Astro. */
