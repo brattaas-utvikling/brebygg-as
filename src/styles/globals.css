@@ -499,6 +499,26 @@
     gap: 1rem;
   }
 
+  /* Desktop: logo til venstre, menypunktene midtstilt i headeren.
+     To like 1fr-kolonner rundt lenkene holder dem på midten uansett logoens
+     bredde. Logoen står fortsatt i linje med innholdet under, som den ville
+     sluttet å gjøre om headeren i stedet ble gjort smalere enn containeren.
+     Under 768 px er det hamburger, og flex-oppsettet over gjelder. */
+  @media (min-width: 768px) {
+    .nav__inner {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+    }
+
+    .nav__logo {
+      justify-self: start;
+    }
+
+    .nav__center {
+      justify-self: center;
+    }
+  }
+
   /* Logo */
   .nav__logo {
     font-family: var(--ff-display);
@@ -533,15 +553,17 @@
   .nav__links {
     display: flex;
     align-items: center;
-    gap: 2rem;
+    gap: clamp(1.5rem, 2.5vw, 2.5rem);
     list-style: none;
   }
 
   .nav__links a {
     display: inline-flex;
     align-items: center;
-    min-height: 24px; /* WCAG 2.5.8 — teksten alene er 18px høy */
-    font-size: 0.9rem;
+    min-height: 24px; /* WCAG 2.5.8 */
+    /* 16 px på nettbrett, 17 px fra ca. 1150 px. Var 14,4 px — mindre enn
+       brødteksten, i menyen som er det første folk skanner etter. */
+    font-size: clamp(1rem, 0.85rem + 0.3vw, 1.0625rem);
     font-weight: 500;
     /* Full dekkevne. Alfa på 0,8 ga 3,05:1 mot Green Leaf. */
     color: var(--color-text-on-green);
@@ -1703,102 +1725,141 @@
          14. FOOTER
          -------------------------------------------------------------------------- */
 
+  /* Logo midtstilt over fire kolonner. Kolonnene er venstrejustert: sentrert
+     tekst i lister er tyngre å skanne, og logoen alene bærer symmetrien.
+     Tekst på 16 px (var 14–15) og overskrifter på 14 px (var 12). Kontrasten
+     var aldri problemet — --color-text-inv-m er 9,42:1 på flaten. */
   .footer {
     background-color: var(--color-bg-dark-2);
     color: var(--color-text-inv-m);
     padding-top: clamp(3rem, 6vw, 5rem);
   }
 
+  .footer__topp {
+    display: flex;
+    justify-content: center;
+    margin-bottom: clamp(2.5rem, 5vw, 3.5rem);
+  }
+
+  .footer__logo {
+    display: inline-flex;
+    border-radius: var(--r-sm);
+    transition: opacity var(--transition-fast);
+  }
+
+  .footer__logo:hover {
+    opacity: 0.85;
+  }
+
+  .footer__logo:focus-visible {
+    outline: 2px solid var(--color-primary-l);
+    outline-offset: 4px;
+  }
+
+  /* Samme høyde som logoen i headeren (maks 72 px). Kildefila er hvit på
+     transparent, så den står lys her uten filter. */
+  .footer__logo-img {
+    height: clamp(56px, 5vw, 72px);
+    width: auto;
+    display: block;
+  }
+
+  /* Mobil én kolonne, nettbrett 2 × 2, desktop fire. */
   .footer__grid {
     display: grid;
-    /* Merkevare-kolonne er bredere enn de to nav-kolonnene */
-    grid-template-columns: 1.6fr repeat(2, 1fr);
-    gap: 3rem;
-    padding-top: 3.5rem;
-    padding-bottom: 3rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    margin-bottom: 2.5rem;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2.5rem 2rem;
+    padding-bottom: clamp(2.5rem, 5vw, 3.5rem);
+    border-bottom: 1px solid rgba(var(--rgb-inv), 0.08);
   }
 
-  /* Tablet: merkevare full bredde, to nav-kolonner side om side */
-  @media (max-width: 1023px) and (min-width: 640px) {
+  @media (min-width: 640px) {
     .footer__grid {
-      grid-template-columns: 1fr 1fr;
-      gap: 2rem;
-    }
-    .footer__brand-col {
-      grid-column: 1 / -1;
-      max-width: 480px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 
-  /* Mobil: én kolonne */
-  @media (max-width: 639px) {
+  @media (min-width: 1024px) {
     .footer__grid {
-      grid-template-columns: 1fr;
-      gap: 2rem;
-      padding-top: 2.5rem;
-      padding-bottom: 2rem;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
     }
-  }
-
-  .footer__brand-name {
-    font-family: var(--ff-display);
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--color-text-inv);
-    margin-bottom: 0.75rem;
-  }
-
-  .footer__desc {
-    font-size: 0.9375rem;
-    line-height: 1.65;
-    color: var(--color-text-inv-m);
-    max-width: 340px;
   }
 
   .footer__heading {
-    font-size: 0.75rem;
+    font-size: 0.875rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     color: var(--color-text-inv);
-    margin-bottom: 1rem;
+    margin: 0 0 1.25rem;
   }
 
-  .footer__links {
-    list-style: none;
+  .footer__kontakt {
+    font-style: normal;
+  }
+
+  .footer__liste {
     display: flex;
     flex-direction: column;
-    gap: 0.125rem;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
 
-  /* padding-block for å nå 24px klikkflate (WCAG 2.5.8). Lenkene var 19px.
-     gap på .footer__links er redusert tilsvarende så avstanden ser lik ut. */
-  .footer__links a {
-    display: inline-block;
-    font-size: 0.9375rem;
-    padding-block: 0.25rem;
+  .footer__rad {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+    font-size: 1rem;
+    line-height: 1.5;
     color: var(--color-text-inv-m);
-    text-decoration: none;
-    transition: color var(--transition-fast);
+    overflow-wrap: anywhere;
   }
 
-  .footer__kontaktlenke {
+  .footer__rad > svg {
+    flex-shrink: 0;
+    margin-top: 0.25em;
+    color: var(--color-primary-l);
+  }
+
+  /* min-height 24 px: klikkflate etter WCAG 2.5.8. */
+  .footer__lenke {
     display: inline-flex;
     align-items: center;
+    gap: 0.625rem;
     min-height: 24px;
+    font-size: 1rem;
+    line-height: 1.5;
     color: var(--color-text-inv-m);
     text-decoration: none;
     transition: color var(--transition-fast);
   }
 
-  .footer__kontaktlenke:hover {
+  .footer__lenke:hover {
     color: var(--color-text-inv);
   }
 
-  .footer__links a:hover {
-    color: var(--color-text-inv);
+  .footer__lenke:focus-visible {
+    outline: 2px solid var(--color-primary-l);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  .footer__ikon {
+    width: 1.125rem;
+    height: 1.125rem;
+    flex-shrink: 0;
+    color: var(--color-primary-l);
+  }
+
+  .footer__sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 
   .footer__bottom {
@@ -1808,17 +1869,10 @@
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 0.75rem 1.5rem;
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
     /* Var 0,32 = 2,77:1 på footerflaten. Fin trykk er fortsatt normal tekst. */
     color: rgba(var(--rgb-inv), 0.62);
     letter-spacing: 0.01em;
-  }
-  .footer__logo-img {
-    height: 48px;
-    width: auto;
-    max-width: 200px;
-    display: block;
-    object-fit: contain;
   }
 
   /* --------------------------------------------------------------------------

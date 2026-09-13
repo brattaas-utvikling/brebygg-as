@@ -175,6 +175,13 @@ export const SOCIAL = {
   linkedin:  "https://www.linkedin.com/company/bre-bygg-as/",
 } as const;
 
+/** Rekkefølge og visningsnavn der lenkene vises: footer og SoMe-blokka. */
+export const SOME_KANALER = [
+  { id: "linkedin",  navn: "LinkedIn",  url: SOCIAL.linkedin },
+  { id: "instagram", navn: "Instagram", url: SOCIAL.instagram },
+  { id: "facebook",  navn: "Facebook",  url: SOCIAL.facebook },
+] as const;
+
 // --------------------------------------------------------------------------
 // Kart
 //

@@ -14,6 +14,7 @@
 import PageLayout from "@layouts/PageLayout.astro";
 import KontaktStrip from "@components/sections/KontaktStrip.astro";
 import KartSeksjon from "@components/sections/KartSeksjon.astro";
+import SomeBlokk from "@components/forside/blokker/SomeBlokk.astro";
 import Breadcrumbs from "@components/seo/Breadcrumbs.astro";
 
 import { PAGE_META, NAP, AREA_SERVED } from "@config/site";
@@ -70,6 +71,17 @@ const schema = getKontaktSchema(PAGE_META.kontakt.canonical);
 
     {/* 4. Kart */}
     <KartSeksjon />
+
+    {/* 5. Sosiale medier. Samme blokk som på forsiden, med faste tekster her
+        siden kontaktsiden ikke styres fra Sanity. Mørk mellom det grå kartet
+        og den lyse avslutningen. */}
+    <SomeBlokk
+      blokk={{
+        _key: "kontakt",
+        overskrift: "Følg oss i sosiale medier",
+        ingress: "Vi deler bilder og oppdateringer fra prosjektene våre underveis – fra grunnarbeid til overlevering.",
+      }}
+    />
 
     {/* Ekstra: kort avslutningsblokk med responstid */}
     <section class="kontakt-avslutning section" aria-label="Responstid">
