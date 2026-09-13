@@ -23,12 +23,14 @@
 import Bilde from "@components/sanity/Bilde.astro";
 import { SOCIAL } from "@config/site";
 
-interface Props { blokk: Record<string, any> }
+interface Props {
+  blokk: Record<string, any>;
+}
 const { blokk } = Astro.props;
 
 // Bildet er dekor bak teksten, så alt er tom uansett kilde.
 const bilde = blokk.bilde ?? {
-  src: "/images/folg-oss-sosiale-medier.jpg",
+  src: "/images/folg-oss-sosiale-medier.webp",
   alt: "",
   width: 952,
   height: 1024,
@@ -44,9 +46,9 @@ const IKON = {
 };
 
 const KANALER = [
-  { id: "linkedin",  navn: "LinkedIn",  url: SOCIAL.linkedin },
+  { id: "linkedin", navn: "LinkedIn", url: SOCIAL.linkedin },
   { id: "instagram", navn: "Instagram", url: SOCIAL.instagram },
-  { id: "facebook",  navn: "Facebook",  url: SOCIAL.facebook },
+  { id: "facebook", navn: "Facebook", url: SOCIAL.facebook },
 ] as const;
 ---
 
@@ -62,15 +64,22 @@ const KANALER = [
     {blokk.ingress && <p class="section-desc mt-3">{blokk.ingress}</p>}
 
     <ul class="some__knapper" role="list">
-      {KANALER.map((k) => (
-        <li>
-          <a href={k.url} class="btn btn--outline-inv some__knapp" target="_blank" rel="noopener noreferrer">
-            <span class="some__ikon" set:html={IKON[k.id]} />
-            {k.navn}
-            <span class="some__sr">(åpnes i ny fane)</span>
-          </a>
-        </li>
-      ))}
+      {
+        KANALER.map((k) => (
+          <li>
+            <a
+              href={k.url}
+              class="btn btn--outline-inv some__knapp"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span class="some__ikon" set:html={IKON[k.id]} />
+              {k.navn}
+              <span class="some__sr">(åpnes i ny fane)</span>
+            </a>
+          </li>
+        ))
+      }
     </ul>
   </div>
 </section>
@@ -91,7 +100,9 @@ const KANALER = [
   }
 
   @media (min-width: 640px) {
-    .some { min-height: clamp(32rem, 78vw, 42rem); }
+    .some {
+      min-height: clamp(32rem, 78vw, 42rem);
+    }
   }
 
   @media (min-width: 1024px) {
@@ -120,12 +131,18 @@ const KANALER = [
   }
 
   @media (min-width: 640px) {
-    .some__media :global(img) { object-position: 65% 38%; }
+    .some__media :global(img) {
+      object-position: 65% 38%;
+    }
   }
 
   @media (min-width: 1024px) {
-    .some__media { left: 38%; }
-    .some__media :global(img) { object-position: 50% 40%; }
+    .some__media {
+      left: 38%;
+    }
+    .some__media :global(img) {
+      object-position: 50% 40%;
+    }
   }
 
   /* ── Sløret ─────────────────────────────────────────────────────────
@@ -156,15 +173,21 @@ const KANALER = [
   }
 
   /* ── Innhold ────────────────────────────────────────────────────────── */
-  .some__innhold > * { max-width: 36rem; }
+  .some__innhold > * {
+    max-width: 36rem;
+  }
 
   /* Smalere på iPad liggende, så teksten holder seg på den mørke flaten. */
   @media (min-width: 1024px) {
-    .some__innhold > * { max-width: 30rem; }
+    .some__innhold > * {
+      max-width: 30rem;
+    }
   }
 
   @media (min-width: 1280px) {
-    .some__innhold > * { max-width: 34rem; }
+    .some__innhold > * {
+      max-width: 34rem;
+    }
   }
 
   .some__knapper {
@@ -192,7 +215,9 @@ const KANALER = [
   }
 
   @media (min-width: 640px) {
-    .some__knapp { width: auto; }
+    .some__knapp {
+      width: auto;
+    }
   }
 
   .some__knapp:focus-visible {
