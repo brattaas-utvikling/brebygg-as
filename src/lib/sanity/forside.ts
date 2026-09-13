@@ -46,7 +46,6 @@ function fallback(): ForsideData {
         overskrift: "Det folk lurer på",
         sporsmaal: FAQ_ITEMS.map((f) => ({ sporsmaal: f.question, svar: f.answer })) },
       { _type: "someBlokk",        _key: "f5",
-        etikett: "Sosiale medier",
         overskrift: "Følg oss i sosiale medier",
         ingress: "Vi deler bilder og oppdateringer fra prosjektene våre underveis – fra grunnarbeid til overlevering." },
       { _type: "ctaBanner",        _key: "f4", tema: "mork",

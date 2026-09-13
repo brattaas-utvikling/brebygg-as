@@ -153,7 +153,6 @@ export const someBlokk = defineType({
   name: "someBlokk", title: "Sosiale medier", type: "object",
   description: "Bilde over hele bredden med lenker til LinkedIn, Instagram og Facebook.",
   fields: [
-    defineField({ name: "etikett",    title: "Liten tekst over overskriften", type: "string", initialValue: "Sosiale medier" }),
     defineField({ name: "overskrift", title: "Overskrift", type: "string", initialValue: "Følg oss i sosiale medier", validation: (r) => r.required() }),
     defineField({ name: "ingress",    title: "Ingress",    type: "text", rows: 3 }),
     defineField({

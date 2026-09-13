@@ -32,7 +32,7 @@ const { blokk } = Astro.props;
 const bilde = blokk.bilde ?? {
   src: "/images/folg-oss-sosiale-medier.webp",
   alt: "",
-  width: 952,
+  width: 1536,
   height: 1024,
 };
 
@@ -59,8 +59,7 @@ const KANALER = [
   <div class="some__slor" aria-hidden="true"></div>
 
   <div class="container some__innhold text-inv">
-    {blokk.etikett && <span class="eyebrow">{blokk.etikett}</span>}
-    <h2 class="section-title mt-2" id={overskriftId}>{blokk.overskrift}</h2>
+    <h2 class="section-title" id={overskriftId}>{blokk.overskrift}</h2>
     {blokk.ingress && <p class="section-desc mt-3">{blokk.ingress}</p>}
 
     <ul class="some__knapper" role="list">
