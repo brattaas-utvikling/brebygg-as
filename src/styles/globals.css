@@ -1960,14 +1960,23 @@
     -ms-overflow-style: none;
     cursor: grab;
     scroll-snap-type: x mandatory;
+    /* Snappunktet må ta hensyn til paddingen på track, ellers legger første
+       kort seg helt inntil kanten og paddingen forsvinner ved første snap. */
+    scroll-padding-inline: var(--container-padding);
     -webkit-overflow-scrolling: touch;
+    /* Plass til skyggen og løftet på kortene ved hover. overflow-x: auto
+       kutter også vertikalt. */
+    padding-block: 0.5rem 1.25rem;
   }
 
   .karusell::-webkit-scrollbar {
     display: none;
   }
+
   .karusell.is-dragging {
     cursor: grabbing;
+    scroll-snap-type: none;
+    user-select: none;
   }
 
   .karusell__track {
@@ -1981,6 +1990,103 @@
     scroll-snap-align: start;
     flex-shrink: 0;
     width: clamp(280px, 28vw, 380px);
+  }
+
+  /* Ut til skjermkanten fra innsiden av en .container.
+     Innrykket er samme regnestykke som plasserer containerens innhold, så
+     første kort står i linje med overskriften. Står 100vw for en scrollbar,
+     forskyves både margin og padding like mye og treffer likevel riktig; det
+     som stikker ut til høyre kuttes av .karusell-skall. */
+  .karusell--bleed {
+    --karusell-innrykk: max(
+      var(--container-padding),
+      calc((100vw - var(--container-max)) / 2 + var(--container-padding))
+    );
+    margin-inline: calc(-1 * var(--karusell-innrykk));
+    scroll-padding-inline: var(--karusell-innrykk);
+  }
+
+  .karusell--bleed .karusell__track {
+    padding-inline: var(--karusell-innrykk);
+  }
+
+  /* clip og ikke hidden: hidden gjør seksjonen til en scrollcontainer og
+     kutter også vertikalt. */
+  .karusell-skall {
+    overflow-x: clip;
+  }
+
+  /* ── Kontroller: fremdrift og piler ───────────────────────────────────
+     Farger via currentColor, så de fungerer på både lyse og mørke temaer
+     uten å vite hvilket klienten har valgt i Sanity. */
+  .karusell-kontroller {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: 1rem;
+  }
+
+  /* display: grid over slår ut nettleserens [hidden]-regel. */
+  .karusell-kontroller[hidden] {
+    display: none;
+  }
+
+  .karusell-fremdrift {
+    position: relative;
+    height: 3px;
+    border-radius: var(--r-full);
+    background-color: color-mix(in srgb, currentColor 18%, transparent);
+    overflow: hidden;
+  }
+
+  .karusell-fremdrift__tommel {
+    position: absolute;
+    inset-block: 0;
+    left: 0;
+    width: 30%;
+    border-radius: var(--r-full);
+    background-color: currentColor;
+  }
+
+  .karusell-knapper {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .karusell-pil {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0;
+    border: 1px solid currentColor;
+    border-radius: var(--r-full);
+    background-color: transparent;
+    color: inherit;
+    cursor: pointer;
+    transition:
+      background-color var(--transition-fast),
+      opacity var(--transition-fast),
+      transform var(--transition-fast);
+  }
+
+  .karusell-pil:hover:not([aria-disabled="true"]) {
+    background-color: color-mix(in srgb, currentColor 12%, transparent);
+  }
+
+  .karusell-pil:active:not([aria-disabled="true"]) {
+    transform: scale(0.95);
+  }
+
+  .karusell-pil[aria-disabled="true"] {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  .karusell-pil:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
   }
 
   /* --------------------------------------------------------------------------
