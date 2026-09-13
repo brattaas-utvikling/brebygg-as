@@ -57,7 +57,11 @@ export const forside = defineType({
       validation: (Rule) =>
         Rule.custom((seksjoner) => {
           if (!Array.isArray(seksjoner)) return true;
-          const temaer = seksjoner.map((s) => (s as { tema?: string })?.tema ?? "lys");
+          // someBlokk har ikke tema-felt, men er alltid mørk (bilde med slør).
+          const temaer = seksjoner.map((s) => {
+            const blokk = s as { _type?: string; tema?: string };
+            return blokk?._type === "someBlokk" ? "khaki" : (blokk?.tema ?? "lys");
+          });
           for (let i = 1; i < temaer.length; i++) {
             const forrige = temaer[i - 1] as string;
             const naa     = temaer[i] as string;

@@ -17,6 +17,9 @@ export type TeamMedlem = {
   // Kontakt — vis kun om tilgjengelig
   epost?:  string;
   tlf?:    string;
+  // Kort sitat i personens egne ord. Vises stort i teamslideren.
+  // Står tomt til personen selv har godkjent ordlyden — ikke dikt opp.
+  sitat?:  string;
 };
 
 export const TEAM: TeamMedlem[] = [

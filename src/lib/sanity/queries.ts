@@ -43,7 +43,7 @@ export const Q_FORSIDE = `*[_type == "forside"][0]{
   },
   seksjoner[]{
     _type, _key, tema,
-    overskrift, ingress, tekst, layout,
+    overskrift, ingress, tekst, layout, etikett,
     bilde ${BILDE},
     cta ${CTA},
     knapper[] ${CTA},

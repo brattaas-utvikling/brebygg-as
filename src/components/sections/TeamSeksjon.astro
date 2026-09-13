@@ -1,15 +1,20 @@
 ---
 // src/components/sections/TeamSeksjon.astro
-// Teammedlemmer i kortgrid.
+// Teammedlemmer i en slider: stort portrett, navn og kontakt ved siden av,
+// miniatyrer av de andre til venstre.
 //
-// Bilder: /public/images/team/*.webp
-// Format: 400×500 px, portrett, maks 80 KB per bilde.
+// Vanilla i stedet for React + framer-motion. Prosjektet fjernet React-øyer i
+// v2 fordi de kostet 210 KB for enkel interaksjon; her gjør Web Animations API
+// samme jobb i et par KB inline.
 //
-// Tomme bilder: vis initialer i farget sirkel.
-// Alle tomme felter (navn, bilde) fylles inn i src/config/om-oss.ts.
+// Bilder: /public/images/team/*.webp, portrett 4:5.
+// Tomme bilder: vis initialer.
+// Alle data (navn, bilde, sitat) fylles inn i src/config/om-oss.ts.
+//
+// Uten JS vises første person, og kontaktinfo for alle står uansett i
+// JSON-LD og llms.txt.
 
 import { TEAM } from "@config/om-oss";
-import { NAP } from "@config/site";
 
 // Lag initialer fra navn (f.eks. "Ole Erik Hansen" → "OH")
 function initialer(navn: string): string {
@@ -20,6 +25,12 @@ function initialer(navn: string): string {
   const siste = deler[deler.length - 1]?.charAt(0) ?? "";
   return (første + siste).toUpperCase();
 }
+
+const tosifret = (n: number) => String(n).padStart(2, "0");
+
+// Viser initialene når bildet mangler. Samme mønster som før.
+const visInitialer =
+  "this.style.display='none'; this.nextElementSibling.style.display='flex';";
 ---
 
 <section class="team-seksjon section" aria-labelledby="team-heading">
@@ -55,59 +66,115 @@ function initialer(navn: string): string {
       </p>
     </div>
 
-    {/* Teamgrid */}
-    <div class="team-grid" role="list" aria-label="Teammedlemmer">
-      {
-        TEAM.map((person, i) => {
-          const ini = initialer(person.navn);
-          return (
-            <article
-              class={`team-kort reveal-d${Math.min(i, 3) as 0 | 1 | 2 | 3}`}
-              role="listitem"
-            >
-              {/* Bilde eller initialboble */}
-              <div class="team-kort__bilde-wrap">
+    {/* Slider */}
+    <div
+      class="team-slider reveal"
+      data-team-slider
+      role="region"
+      aria-roledescription="karusell"
+      aria-label="Teamet i BRE Bygg"
+    >
+      {/* Venstre: teller, etikett og miniatyrer */}
+      <div class="team-slider__meta">
+        <div class="team-slider__topp">
+          <p class="team-slider__teller" aria-hidden="true">
+            <span data-teller>01</span> / {tosifret(TEAM.length)}
+          </p>
+          <p class="team-slider__etikett" aria-hidden="true">Teamet</p>
+        </div>
+
+        <div class="team-slider__miniatyrer">
+          {
+            TEAM.map((person, i) => (
+              <button
+                type="button"
+                class="team-slider__miniatyr"
+                data-til={i}
+                hidden={i === 0}
+                aria-label={`Vis ${person.navn}`}
+              >
                 <img
                   src={person.bilde}
-                  alt={person.bildeAlt}
+                  alt=""
                   loading="lazy"
                   decoding="async"
-                  width="400"
-                  height="500"
-                  onerror={`
-                  this.style.display='none';
-                  this.nextElementSibling.style.display='flex';
-                `}
+                  width="80"
+                  height="100"
+                  onerror={visInitialer}
                 />
-                {/* Fallback: initialboble (skjult som standard) */}
-                <div
-                  class="team-kort__initialer"
-                  aria-hidden="true"
-                  style="display: none;"
-                >
-                  {ini}
-                </div>
-              </div>
+                <span class="team-slider__initialer" style="display: none;">
+                  {initialer(person.navn)}
+                </span>
+              </button>
+            ))
+          }
+        </div>
+      </div>
 
-              {/* Kortinnhold */}
-              <div class="team-kort__body">
-                <div class="team-kort__info">
-                  <h3 class="team-kort__navn">{person.navn}</h3>
-                  <p class="team-kort__rolle">{person.rolle}</p>
-                </div>
+      {/* Midten: portrett */}
+      <div class="team-slider__ramme" data-ramme>
+        {
+          TEAM.map((person, i) => (
+            <div
+              class="team-slider__bilde"
+              data-bilde
+              data-aktiv={i === 0 ? "" : undefined}
+              aria-hidden={i === 0 ? undefined : "true"}
+            >
+              <img
+                src={person.bilde}
+                alt={person.bildeAlt}
+                loading={i === 0 ? "eager" : "lazy"}
+                decoding="async"
+                width="1229"
+                height="1536"
+                onerror={visInitialer}
+              />
+              <span
+                class="team-slider__initialer team-slider__initialer--stor"
+                aria-hidden="true"
+                style="display: none;"
+              >
+                {initialer(person.navn)}
+              </span>
+            </div>
+          ))
+        }
+      </div>
 
-                {/* Kontaktlenker — vises kun om tilgjengelig */}
+      {/* Høyre: tekst og piler */}
+      <div class="team-slider__tekst">
+        <div class="team-slider__paneler" aria-live="polite">
+          {
+            TEAM.map((person, i) => (
+              <article
+                class="team-slider__panel"
+                data-panel
+                data-aktiv={i === 0 ? "" : undefined}
+                inert={i !== 0}
+                aria-roledescription="lysbilde"
+                aria-label={`${i + 1} av ${TEAM.length}`}
+              >
+                <p class="team-slider__rolle">{person.rolle}</p>
+                <h3 class="team-slider__navn">{person.navn}</h3>
+
+                {person.sitat && (
+                  <blockquote class="team-slider__sitat">
+                    «{person.sitat}»
+                  </blockquote>
+                )}
+
                 {(person.epost || person.tlf) && (
-                  <div class="team-kort__kontakt">
+                  <div class="team-slider__kontakt">
                     {person.epost && (
                       <a
                         href={`mailto:${person.epost}`}
-                        class="team-kort__kontakt-lenke"
+                        class="team-slider__lenke"
                         aria-label={`Send e-post til ${person.navn}`}
                       >
                         <svg
-                          width="13"
-                          height="13"
+                          width="14"
+                          height="14"
                           viewBox="0 0 13 13"
                           fill="none"
                           aria-hidden="true"
@@ -123,12 +190,12 @@ function initialer(navn: string): string {
                     {person.tlf && (
                       <a
                         href={`tel:${person.tlf.replace(/\s/g, "")}`}
-                        class="team-kort__kontakt-lenke"
+                        class="team-slider__lenke"
                         aria-label={`Ring ${person.navn}: ${person.tlf}`}
                       >
                         <svg
-                          width="12"
-                          height="12"
+                          width="14"
+                          height="14"
                           viewBox="0 0 13 13"
                           fill="none"
                           aria-hidden="true"
@@ -143,19 +210,45 @@ function initialer(navn: string): string {
                     )}
                   </div>
                 )}
-              </div>
-            </article>
-          );
-        })
-      }
-    </div>
+              </article>
+            ))
+          }
+        </div>
 
-    {/* Bunnlinje: ikke alle er med her */}
-    <!-- <p class="team-merknad reveal">
-      Du kan kontakte oss på{" "}
-      <a href={`mailto:${NAP.email}`}>{NAP.email}</a>{" "}
-      det du måtte lure på.
-    </p> -->
+        <div class="team-slider__nav">
+          <button
+            type="button"
+            class="team-slider__pil"
+            data-forrige
+            aria-label="Forrige person"
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path
+                d="M16 10H4m5-5-5 5 5 5"
+                stroke="currentColor"
+                stroke-width="1.75"
+                stroke-linecap="round"
+                stroke-linejoin="round"></path>
+            </svg>
+          </button>
+          <button
+            type="button"
+            class="team-slider__pil team-slider__pil--fylt"
+            data-neste
+            aria-label="Neste person"
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path
+                d="M4 10h12m-5-5 5 5-5 5"
+                stroke="currentColor"
+                stroke-width="1.75"
+                stroke-linecap="round"
+                stroke-linejoin="round"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -164,139 +257,456 @@ function initialer(navn: string): string {
     background-color: var(--color-bg-white);
   }
 
-  /* ── Grid ──────────────────────────────────────────────────────────── */
-  .team-grid {
+  /* ── Rammen ─────────────────────────────────────────────────────────
+     Mørk flate inne i den hvite seksjonen. Seksjonen selv forblir hvit, så
+     overgangen fra heroen (nesteTema="hvit") og til den mørke
+     VerdierSeksjon under stemmer fortsatt.
+
+     Én kolonne på mobil: bilde, tekst, miniatyrer. */
+  .team-slider {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2.5rem;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "bilde"
+      "tekst"
+      "meta";
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+    padding: clamp(1.25rem, 4vw, 3rem);
+    border-radius: var(--r-xl);
+    background-color: var(--color-bg-dark-2);
+    color: var(--color-text-inv);
   }
 
-  @media (max-width: 479px) {
-    .team-grid {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1rem;
+  @media (min-width: 640px) {
+    .team-slider {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+      grid-template-areas:
+        "bilde tekst"
+        "meta  meta";
     }
   }
 
-  /* ── Teamkort ──────────────────────────────────────────────────────── */
-  .team-kort {
-    background-color: var(--color-bg);
-    border-radius: var(--r-lg);
+  @media (min-width: 1024px) {
+    .team-slider {
+      grid-template-columns: minmax(0, 3fr) minmax(0, 4fr) minmax(0, 5fr);
+      grid-template-areas: "meta bilde tekst";
+    }
+  }
+
+  /* ── Venstre kolonne ──────────────────────────────────────────────── */
+  .team-slider__meta {
+    grid-area: meta;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+
+  .team-slider__teller {
+    margin: 0;
+    font-size: 0.875rem;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.06em;
+    color: var(--color-text-inv-m);
+  }
+
+  .team-slider__etikett {
+    display: none;
+    margin: 0;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-text-inv);
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+  }
+
+  @media (min-width: 1024px) {
+    .team-slider__meta {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .team-slider__topp {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .team-slider__etikett {
+      display: block;
+    }
+  }
+
+  .team-slider__miniatyrer {
+    display: flex;
+    gap: 0.625rem;
+  }
+
+  .team-slider__miniatyr {
+    position: relative;
+    display: block;
+    width: clamp(3.5rem, 8vw, 5rem);
+    aspect-ratio: 4 / 5;
+    padding: 0;
+    border: 0;
+    border-radius: var(--r-sm);
     overflow: hidden;
-    border: 1px solid var(--color-border);
+    background-color: var(--bandicoot-900);
+    cursor: pointer;
+    opacity: 0.7;
     transition:
-      box-shadow var(--transition-base),
+      opacity var(--transition-base),
       transform var(--transition-base);
   }
 
-  .team-kort:hover {
-    box-shadow: var(--shadow-md);
-    transform: translateY(-3px);
+  /* display: block over slår ut UA-regelen for [hidden]. */
+  .team-slider__miniatyr[hidden] {
+    display: none;
   }
 
-  /* ── Bilderamme ──────────────────────────────────────────────────── */
-  .team-kort__bilde-wrap {
-    position: relative;
-    aspect-ratio: 4 / 5;
-    overflow: hidden;
-    background-color: var(--color-bg-section);
+  .team-slider__miniatyr:hover,
+  .team-slider__miniatyr:focus-visible {
+    opacity: 1;
   }
 
-  .team-kort__bilde-wrap img {
+  .team-slider__miniatyr:active {
+    transform: scale(0.96);
+  }
+
+  .team-slider__miniatyr img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     object-position: center top;
-    transition: transform 0.5s var(--ease-out);
     display: block;
   }
 
-  .team-kort:hover .team-kort__bilde-wrap img {
-    transform: scale(1.04);
+  /* ── Portrett ─────────────────────────────────────────────────────── */
+  .team-slider__ramme {
+    grid-area: bilde;
+    position: relative;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    border-radius: var(--r-lg);
+    background-color: var(--bandicoot-900);
+    /* Horisontal sveip er vår, vertikal scroll er nettleserens. */
+    touch-action: pan-y;
   }
 
-  /* Fallback: initialboble */
-  .team-kort__initialer {
+  .team-slider__bilde {
+    position: absolute;
+    inset: 0;
+  }
+
+  .team-slider__bilde:not([data-aktiv]):not([data-ut]) {
+    visibility: hidden;
+  }
+
+  .team-slider__bilde img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+  }
+
+  .team-slider__initialer {
     position: absolute;
     inset: 0;
     align-items: center;
     justify-content: center;
     font-family: var(--ff-display);
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: var(--color-primary);
-    background-color: var(--color-bg-section);
-    letter-spacing: -0.02em;
-  }
-
-  /* ── Kortinnhold ─────────────────────────────────────────────────── */
-  .team-kort__body {
-    padding: 1.125rem 1.25rem 1.25rem;
-  }
-
-  .team-kort__info {
-    margin-bottom: 0.75rem;
-  }
-
-  .team-kort__navn {
     font-size: 1rem;
     font-weight: 700;
-    color: var(--color-text);
-    margin-bottom: 0.2rem;
-    letter-spacing: -0.01em;
-    line-height: 1.3;
+    letter-spacing: -0.02em;
+    color: var(--color-primary-l);
   }
 
-  .team-kort__rolle {
-    font-size: 0.8125rem;
-    color: var(--color-primary);
-    font-weight: 600;
-    margin: 0;
-    max-width: none;
+  .team-slider__initialer--stor {
+    font-size: clamp(3rem, 8vw, 5rem);
   }
 
-  /* ── Kontaktlenker ────────────────────────────────────────────────── */
-  .team-kort__kontakt {
+  /* ── Høyre kolonne ────────────────────────────────────────────────── */
+  .team-slider__tekst {
+    grid-area: tekst;
     display: flex;
     flex-direction: column;
-    gap: 0.3rem;
-    padding-top: 0.75rem;
-    border-top: 1px solid var(--color-border);
+    justify-content: space-between;
+    gap: 2rem;
+    min-width: 0;
   }
 
-  .team-kort__kontakt-lenke {
+  @media (min-width: 1024px) {
+    .team-slider__tekst {
+      padding-left: 1.5rem;
+    }
+  }
+
+  /* Panelene stables i samme celle, så høyden er den høyeste av dem og
+     knappene ikke hopper når man blar. */
+  .team-slider__paneler {
+    display: grid;
+  }
+
+  @media (min-width: 640px) {
+    .team-slider__paneler {
+      padding-top: clamp(0rem, 6vw, 5rem);
+    }
+  }
+
+  .team-slider__panel {
+    grid-area: 1 / 1;
+    min-width: 0;
+  }
+
+  .team-slider__panel:not([data-aktiv]):not([data-ut]) {
+    visibility: hidden;
+  }
+
+  .team-slider__rolle {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--color-primary-l);
+  }
+
+  .team-slider__navn {
+    margin-top: 0.5rem;
+    font-family: var(--ff-display);
+    font-size: clamp(2rem, 4vw, 3.25rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--color-text-inv);
+    text-wrap: balance;
+  }
+
+  .team-slider__sitat {
+    margin: 1.5rem 0 0;
+    font-size: clamp(1.25rem, 2.2vw, 1.75rem);
+    font-weight: 500;
+    line-height: 1.4;
+    color: var(--color-text-inv);
+    text-wrap: pretty;
+  }
+
+  .team-slider__kontakt {
     display: flex;
-    align-items: center;
-    min-height: 24px; /* WCAG 2.5.8 — teksten alene er 19px */
-    gap: 0.4rem;
-    font-size: 0.75rem;
-    color: var(--color-text-m);
-    text-decoration: none;
-    transition: color var(--transition-fast);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-top: 1.75rem;
   }
 
-  .team-kort__kontakt-lenke svg {
+  .team-slider__lenke {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    min-height: 2.25rem;
+    max-width: 100%;
+    font-size: 1rem;
+    color: var(--color-text-inv-m);
+    overflow-wrap: anywhere;
+    transition: color var(--transition-fast);
+  }
+
+  .team-slider__lenke svg {
     flex-shrink: 0;
   }
 
-  .team-kort__kontakt-lenke:hover {
-    color: var(--color-primary);
+  .team-slider__lenke:hover {
+    color: var(--color-primary-l);
   }
 
-  /* ── Bunnlinje ───────────────────────────────────────────────────── */
-  .team-merknad {
-    font-size: 0.9rem;
-    color: var(--color-text-s);
-    text-align: center;
-    max-width: var(--reading-width);
-    margin: 0 auto;
+  /* ── Piler ────────────────────────────────────────────────────────── */
+  .team-slider__nav {
+    display: flex;
+    gap: 0.625rem;
   }
 
-  .team-merknad a {
-    color: var(--color-primary);
+  .team-slider__pil {
+    display: grid;
+    place-items: center;
+    width: 3.25rem;
+    height: 3.25rem;
+    padding: 0;
+    border-radius: var(--r-full);
+    /* 0,5 gir omtrent 5:1 mot flaten — over 3:1-kravet for grenseflater. */
+    border: 1px solid rgba(var(--rgb-inv), 0.5);
+    background-color: transparent;
+    color: var(--color-text-inv);
+    cursor: pointer;
+    transition:
+      background-color var(--transition-fast),
+      border-color var(--transition-fast),
+      transform var(--transition-fast);
+  }
+
+  .team-slider__pil:hover {
+    background-color: rgba(var(--rgb-inv), 0.1);
+    border-color: rgba(var(--rgb-inv), 0.8);
+  }
+
+  .team-slider__pil--fylt {
+    border-color: var(--bandicoot-50);
+    background-color: var(--bandicoot-50);
+    color: var(--bandicoot-800);
+  }
+
+  .team-slider__pil--fylt:hover {
+    border-color: var(--bandicoot-200);
+    background-color: var(--bandicoot-200);
+  }
+
+  .team-slider__pil:active {
+    transform: scale(0.95);
+  }
+
+  .team-slider__pil:focus-visible,
+  .team-slider__miniatyr:focus-visible,
+  .team-slider__lenke:focus-visible {
+    outline: 2px solid var(--color-primary-l);
+    outline-offset: 3px;
   }
 </style>
+
+<script>
+  // Teamslider. Tilstanden settes først og synkront; animasjonen er pynt
+  // oppå, og hoppes over ved prefers-reduced-motion.
+  //
+  // data-aktiv  = gjeldende person
+  // data-ut     = forrige person, synlig bare mens den animeres ut
+  const EASE = "cubic-bezier(0.4, 0, 0.2, 1)";
+  const reduserBevegelse = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  document.querySelectorAll<HTMLElement>("[data-team-slider]").forEach((rot) => {
+    const bilder = [...rot.querySelectorAll<HTMLElement>("[data-bilde]")];
+    const paneler = [...rot.querySelectorAll<HTMLElement>("[data-panel]")];
+    const miniatyrer = [...rot.querySelectorAll<HTMLButtonElement>("[data-til]")];
+    const teller = rot.querySelector<HTMLElement>("[data-teller]");
+    const antall = paneler.length;
+    if (antall < 2) return;
+
+    let aktiv = 0;
+
+    function gaTil(maal: number, retning: 1 | -1) {
+      const neste = (maal + antall) % antall;
+      if (neste === aktiv) return;
+
+      // Ut-animasjonene har fill: "forwards" og blir liggende på elementet
+      // med opacity 0. Kommer samme person inn igjen senere, faller teksten
+      // tilbake til den verdien når inn-animasjonen er ferdig, og forsvinner.
+      // Derfor ryddes alt vekk før hver overgang. Klikker man fort, hopper
+      // forrige overgang rett til slutt.
+      [...bilder, ...paneler].forEach((el) => {
+        el.getAnimations().forEach((a) => a.cancel());
+        el.removeAttribute("data-ut");
+      });
+
+      const forrige = aktiv;
+      aktiv = neste;
+
+      const bildeUt = bilder[forrige]!;
+      const bildeInn = bilder[neste]!;
+      const panelUt = paneler[forrige]!;
+      const panelInn = paneler[neste]!;
+
+      bildeUt.removeAttribute("data-aktiv");
+      bildeUt.setAttribute("aria-hidden", "true");
+      bildeInn.setAttribute("data-aktiv", "");
+      bildeInn.removeAttribute("aria-hidden");
+
+      panelUt.removeAttribute("data-aktiv");
+      panelUt.inert = true;
+      panelInn.setAttribute("data-aktiv", "");
+      panelInn.inert = false;
+
+      if (teller) teller.textContent = String(neste + 1).padStart(2, "0");
+
+      // Miniatyren som ble klikket forsvinner. Fokus flyttes til den som
+      // tar plassen, i stedet for å falle tilbake til <body>.
+      const haddeFokus = document.activeElement;
+      miniatyrer.forEach((m) => (m.hidden = Number(m.dataset.til) === neste));
+      if (haddeFokus === miniatyrer[neste]) miniatyrer[forrige]?.focus();
+
+      if (reduserBevegelse.matches) return;
+
+      bildeUt.setAttribute("data-ut", "");
+      panelUt.setAttribute("data-ut", "");
+
+      const bildeTid = 600;
+      const utTid = 250;
+      const innTid = 450;
+
+      // Bildet ruller vertikalt, inn og ut samtidig.
+      const b1 = bildeUt.animate(
+        [
+          { transform: "translateY(0)", opacity: 1 },
+          { transform: `translateY(${-100 * retning}%)`, opacity: 0 },
+        ],
+        // forwards: uten den står det gamle bildet synlig i én frame før
+        // onfinish rekker å skjule det.
+        { duration: bildeTid, easing: EASE, fill: "forwards" },
+      );
+      bildeInn.animate(
+        [
+          { transform: `translateY(${100 * retning}%)`, opacity: 0 },
+          { transform: "translateY(0)", opacity: 1 },
+        ],
+        { duration: bildeTid, easing: EASE },
+      );
+
+      // Teksten glir sidelengs: gammel ut først, så ny inn.
+      const p1 = panelUt.animate(
+        [
+          { transform: "translateX(0)", opacity: 1 },
+          { transform: `translateX(${-40 * retning}px)`, opacity: 0 },
+        ],
+        { duration: utTid, easing: EASE, fill: "forwards" },
+      );
+      panelInn.animate(
+        [
+          { transform: `translateX(${40 * retning}px)`, opacity: 0 },
+          { transform: "translateX(0)", opacity: 1 },
+        ],
+        { duration: innTid, delay: utTid, easing: EASE, fill: "backwards" },
+      );
+
+      b1.onfinish = () => bildeUt.removeAttribute("data-ut");
+      p1.onfinish = () => panelUt.removeAttribute("data-ut");
+    }
+
+    rot.querySelector("[data-forrige]")?.addEventListener("click", () => gaTil(aktiv - 1, -1));
+    rot.querySelector("[data-neste]")?.addEventListener("click", () => gaTil(aktiv + 1, 1));
+
+    miniatyrer.forEach((m) =>
+      m.addEventListener("click", () => {
+        const maal = Number(m.dataset.til);
+        gaTil(maal, maal > aktiv ? 1 : -1);
+      }),
+    );
+
+    rot.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight") gaTil(aktiv + 1, 1);
+      else if (e.key === "ArrowLeft") gaTil(aktiv - 1, -1);
+    });
+
+    // Sveip på portrettet (touch og penn).
+    const ramme = rot.querySelector<HTMLElement>("[data-ramme]");
+    let startX: number | null = null;
+    ramme?.addEventListener("pointerdown", (e) => {
+      if (e.pointerType !== "mouse") startX = e.clientX;
+    });
+    ramme?.addEventListener("pointerup", (e) => {
+      if (startX === null) return;
+      const dx = e.clientX - startX;
+      startX = null;
+      if (Math.abs(dx) < 40) return;
+      if (dx < 0) gaTil(aktiv + 1, 1);
+      else gaTil(aktiv - 1, -1);
+    });
+    ramme?.addEventListener("pointercancel", () => (startX = null));
+  });
+</script>

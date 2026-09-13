@@ -21,6 +21,7 @@ import CtaBanner       from "./blokker/CtaBanner.astro";
 import PaagaendeBanner from "./blokker/PaagaendeBanner.astro";
 import TjenesterBlokk  from "./blokker/TjenesterBlokk.astro";
 import KarusellBlokk   from "./blokker/KarusellBlokk.astro";
+import SomeBlokk       from "./blokker/SomeBlokk.astro";
 
 type Blokk = Record<string, any> & { _type: string; _key: string };
 
@@ -40,6 +41,7 @@ const KOMPONENT = {
   paagaendeBanner:  PaagaendeBanner,
   tjenesterBento:   TjenesterBlokk,
   prosjektKarusell: KarusellBlokk,
+  someBlokk:        SomeBlokk,
 } as const;
 
 const ukjente = [...new Set(seksjoner.map((s) => s._type).filter((t) => !(t in KOMPONENT)))];

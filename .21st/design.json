@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "project": {
+    "name": "brebygg-no",
+    "productType": null,
+    "stack": [
+      "astro",
+      "react"
+    ]
+  },
+  "sources": {
+    "tokens": [],
+    "components": [
+      "src/components/ui"
+    ],
+    "assets": [
+      "public/images"
+    ],
+    "instructions": []
+  },
+  "design": {
+    "colorMode": "unknown",
+    "colors": {},
+    "typography": {},
+    "spacing": {},
+    "radius": {},
+    "shadows": {},
+    "motion": {},
+    "density": "unknown"
+  },
+  "components": {
+    "installed": [],
+    "preferredPrimitives": [],
+    "patterns": []
+  },
+  "constraints": {
+    "must": [],
+    "avoid": []
+  },
+  "decisions": [
+    {
+      "title": "SoMe-seksjon på forsiden: variant B «Bildebånd»",
+      "date": "2026-09-13",
+      "summary": "Fullbreddebilde med mørkt slør og tre outline-knapper (LinkedIn, Instagram, Facebook). Valgt blant fem retninger: A Delt med bilde, B Bildebånd, C Bento, D Kompakt stripe, E Mobilen i sentrum.",
+      "references": ["21st: Split Hero With Image Cards (19078)"],
+      "implementation": "src/components/forside/blokker/SomeBlokk.astro · Sanity-blokk someBlokk"
+    }
+  ],
+  "evidence": [
+    {
+      "fact": "components.installed",
+      "source": "src/components/ui"
+    },
+    {
+      "fact": "project.stack:astro",
+      "source": "package.json"
+    },
+    {
+      "fact": "project.stack:react",
+      "source": "package.json"
+    }
+  ],
+  "generatedAt": "2026-09-13T16:32:22.109Z"
+}

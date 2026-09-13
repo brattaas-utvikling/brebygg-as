@@ -1,0 +1,249 @@
+---
+// src/components/forside/blokker/SomeBlokk.astro
+//
+// Sosiale medier: bilde over hele bredden med mørkt slør og tre lenker.
+// Valgt som variant B blant fem retninger (se .21st/design.json).
+//
+// Står ikke i SeksjonsSkall. Skallet eier bakgrunnsfarge via tema, men her er
+// bakgrunnen et bilde og teksten alltid lys, så det finnes ikke noe tema å
+// velge. Rytmevalideringen i Sanity regner blokken som mørk.
+//
+// Lenkene kommer fra SOCIAL i site.ts, samme kilde som sameAs i JSON-LD, så
+// de to kan ikke drive fra hverandre.
+//
+// Tre oppsett:
+//   mobil  (< 640)    slør nedenfra, tekst nederst, knapper i full bredde
+//   iPad   (640–1023) slør nedenfra, knapper på én rad
+//   desktop (≥ 1024)  bildet i høyre ~60 %, glir inn i mørk flate bak teksten
+//
+// Hvorfor ikke fullbredde på desktop: bildet er stående (952×1024). I et bredt
+// felt skaleres det til full bredde, og da kan object-position ikke flytte
+// motivet sideveis — mobilen havnet under ingressen fra 1024 px og oppover.
+
+import Bilde from "@components/sanity/Bilde.astro";
+import { SOCIAL } from "@config/site";
+
+interface Props {
+  blokk: Record<string, any>;
+}
+const { blokk } = Astro.props;
+
+// Bildet er dekor bak teksten, så alt er tom uansett kilde.
+const bilde = blokk.bilde ?? {
+  src: "/images/folg-oss-sosiale-medier.webp",
+  alt: "",
+  width: 952,
+  height: 1024,
+};
+
+const overskriftId = `some-${blokk._key ?? "blokk"}`;
+
+// Monokrome merkeikoner i currentColor.
+const IKON = {
+  linkedin: `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 4.455v6.286zM5.337 7.433a2.062 2.062 0 1 1 0-4.125 2.062 2.062 0 0 1 0 4.125zM7.119 20.452H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>`,
+  instagram: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2.5" y="2.5" width="19" height="19" rx="5.5"/><circle cx="12" cy="12" r="4.25"/><circle cx="17.5" cy="6.5" r="1.1" fill="currentColor" stroke="none"/></svg>`,
+  facebook: `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.628 3.874 10.35 9.101 11.647Z"/></svg>`,
+};
+
+const KANALER = [
+  { id: "linkedin", navn: "LinkedIn", url: SOCIAL.linkedin },
+  { id: "instagram", navn: "Instagram", url: SOCIAL.instagram },
+  { id: "facebook", navn: "Facebook", url: SOCIAL.facebook },
+] as const;
+---
+
+<section class="some" aria-labelledby={overskriftId}>
+  <div class="some__media" aria-hidden="true">
+    <Bilde kilde={bilde} alt="" sizes="100vw" fyll />
+  </div>
+  <div class="some__slor" aria-hidden="true"></div>
+
+  <div class="container some__innhold text-inv">
+    {blokk.etikett && <span class="eyebrow">{blokk.etikett}</span>}
+    <h2 class="section-title mt-2" id={overskriftId}>{blokk.overskrift}</h2>
+    {blokk.ingress && <p class="section-desc mt-3">{blokk.ingress}</p>}
+
+    <ul class="some__knapper" role="list">
+      {
+        KANALER.map((k) => (
+          <li>
+            <a
+              href={k.url}
+              class="btn btn--outline-inv some__knapp"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span class="some__ikon" set:html={IKON[k.id]} />
+              {k.navn}
+              <span class="some__sr">(åpnes i ny fane)</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  /* ── Rammen ─────────────────────────────────────────────────────────── */
+  .some {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: grid;
+    align-items: end;
+    /* Mobil: høy nok til at mobilen i bildet synes over teksten. */
+    min-height: clamp(36rem, 145vw, 46rem);
+    padding-block: var(--section-padding-y);
+    /* Vises til bildet er lastet, og hvis det aldri lastes. */
+    background-color: var(--color-bg-dark-2);
+  }
+
+  @media (min-width: 640px) {
+    .some {
+      min-height: clamp(32rem, 78vw, 42rem);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .some {
+      align-items: center;
+      min-height: clamp(32rem, 42vw, 40rem);
+      /* Samme farge som sløret, så overgangen til bildet blir sømløs. */
+      background-color: rgb(var(--rgb-deepest));
+    }
+  }
+
+  /* ── Bildet ─────────────────────────────────────────────────────────── */
+  .some__media {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+  }
+
+  /* :global fordi <img> rendres av Bilde-komponenten og ikke får scope-
+     attributtet herfra. object-position følger hvor mobilen står i bildet. */
+  .some__media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 62% 30%;
+  }
+
+  @media (min-width: 640px) {
+    .some__media :global(img) {
+      object-position: 65% 38%;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .some__media {
+      left: 38%;
+    }
+    .some__media :global(img) {
+      object-position: 50% 40%;
+    }
+  }
+
+  /* ── Sløret ─────────────────────────────────────────────────────────
+     Mørkest der teksten står. Uten det ville lesbarheten avhenge av hvilket
+     bilde klienten velger i Studio. */
+  .some__slor {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+      0deg,
+      rgba(var(--rgb-deepest), 0.94) 0%,
+      rgba(var(--rgb-deepest), 0.82) 50%,
+      rgba(var(--rgb-deepest), 0.3) 100%
+    );
+  }
+
+  @media (min-width: 1024px) {
+    .some__slor {
+      /* Helt mørk til bildekanten på 38 %, så myk overgang inn i bildet. */
+      background: linear-gradient(
+        90deg,
+        rgb(var(--rgb-deepest)) 38%,
+        rgba(var(--rgb-deepest), 0.7) 52%,
+        rgba(var(--rgb-deepest), 0.1) 80%
+      );
+    }
+  }
+
+  /* ── Innhold ────────────────────────────────────────────────────────── */
+  .some__innhold > * {
+    max-width: 36rem;
+  }
+
+  /* Smalere på iPad liggende, så teksten holder seg på den mørke flaten. */
+  @media (min-width: 1024px) {
+    .some__innhold > * {
+      max-width: 30rem;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .some__innhold > * {
+      max-width: 34rem;
+    }
+  }
+
+  .some__knapper {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.75rem;
+    margin: 2rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (min-width: 640px) {
+    .some__knapper {
+      display: flex;
+      flex-wrap: wrap;
+    }
+  }
+
+  .some__knapp {
+    justify-content: center;
+    width: 100%;
+    /* Trykkflate på minst 48 px. */
+    min-height: 3rem;
+    padding-inline: 1.5rem;
+  }
+
+  @media (min-width: 640px) {
+    .some__knapp {
+      width: auto;
+    }
+  }
+
+  .some__knapp:focus-visible {
+    outline: 2px solid var(--color-primary-l);
+    outline-offset: 3px;
+  }
+
+  .some__ikon {
+    display: inline-grid;
+    width: 1.125rem;
+    height: 1.125rem;
+    flex-shrink: 0;
+  }
+
+  .some__ikon :global(svg) {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .some__sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+</style>
