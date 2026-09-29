@@ -9,6 +9,10 @@ export const teamMedlem = defineType({
     defineField({ name: "foto",  title: "Portrett", type: "bilde" }),
     defineField({ name: "epost", title: "E-post (direkte)", type: "string", validation: (r) => r.email() }),
     defineField({ name: "telefon", title: "Telefon (direkte)", type: "string" }),
+    defineField({
+      name: "sitat", title: "Sitat", type: "text", rows: 2,
+      description: "Valgfritt. Vises stort ved portrettet. Kun ordlyd personen selv har godkjent.",
+    }),
     defineField({ name: "sortering", title: "Sortering", type: "number", initialValue: 0 }),
   ],
   orderings: [{ title: "Sortering", name: "sort", by: [{ field: "sortering", direction: "asc" }] }],

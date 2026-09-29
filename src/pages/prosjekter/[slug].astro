@@ -20,7 +20,8 @@ import Breadcrumbs                  from "@components/seo/Breadcrumbs.astro";
 
 import { SITE_URL, NAP, type PageMeta } from "@config/site";
 import { getProsjektSlugSchema }    from "@lib/seo/jsonld";
-import { KATEGORI_LABEL, STATUS_LABEL, bildeSrc, bildeTekst, tilTekst } from "@/content.config";
+import { KATEGORI_LABEL, STATUS_LABEL, bildeSrc, bildeTekst } from "@/content.config";
+import RikTekst from "@components/ui/RikTekst.astro";
 import Bilde from "@components/sanity/Bilde.astro";
 
 // --------------------------------------------------------------------------
@@ -244,19 +245,19 @@ const harCasestudie  = data.utfordring  || data.losning  || data.resultat;
                 {data.utfordring && (
                   <div class="casestudie-kort casestudie-kort--utfordring">
                     <p class="casestudie-kort__label">Utfordring</p>
-                    <p class="casestudie-kort__tekst">{tilTekst(data.utfordring)}</p>
+                    <RikTekst verdi={data.utfordring} class="casestudie-kort__tekst" />
                   </div>
                 )}
                 {data.losning && (
                   <div class="casestudie-kort casestudie-kort--losning">
                     <p class="casestudie-kort__label">Løsning</p>
-                    <p class="casestudie-kort__tekst">{tilTekst(data.losning)}</p>
+                    <RikTekst verdi={data.losning} class="casestudie-kort__tekst" />
                   </div>
                 )}
                 {data.resultat && (
                   <div class="casestudie-kort casestudie-kort--resultat">
                     <p class="casestudie-kort__label">Resultat</p>
-                    <p class="casestudie-kort__tekst">{tilTekst(data.resultat)}</p>
+                    <RikTekst verdi={data.resultat} class="casestudie-kort__tekst" />
                   </div>
                 )}
               </div>
@@ -344,8 +345,8 @@ const harCasestudie  = data.utfordring  || data.losning  || data.resultat;
                   <span class="casestudie-meta-list__key">Status</span>
                   <span class="casestudie-meta-list__val">
                     {erPågående ? (
-                      <span style="color: var(--color-primary); display: flex; align-items: center; gap: 0.3rem;">
-                        <span style="width:6px;height:6px;border-radius:50%;background:var(--color-primary);animation:pulse-dot 2s ease-in-out infinite;display:inline-block"></span>
+                      <span style="color: var(--color-uthev); display: flex; align-items: center; gap: 0.3rem;">
+                        <span style="width:6px;height:6px;border-radius:50%;background:var(--gull-d);animation:pulse-dot 2s ease-in-out infinite;display:inline-block"></span>
                         Pågående
                       </span>
                     ) : "Ferdigstilt"}

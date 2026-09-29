@@ -5,7 +5,15 @@
 // Venstre: introduksjon + HMS-punktliste (hva vi faktisk gjør)
 // Høyre:   sertifiseringsbadges + nedlastingslenke til HMS-egenerklæring
 
-import { HMS_PUNKTER } from "@config/om-oss";
+// Tekstene kommer fra «Om oss» i Sanity (HMS). Standardtekstene ligger i
+// src/lib/sanity/sider.ts.
+
+import RikTekst from "@components/ui/RikTekst.astro";
+import type { OmOssSide } from "@lib/sanity/sider";
+
+type Props = OmOssSide["hms"];
+
+const { overskrift, tekst, punkter, boksTittel, boksTekst, boksSporsmaal, boksKnapp } = Astro.props;
 ---
 
 <section
@@ -18,31 +26,20 @@ import { HMS_PUNKTER } from "@config/om-oss";
       {/* Venstre: HMS-innhold */}
       <div class="hms-tekst reveal">
 
-        <h2 class="section-title mt-3" id="hms-heading">
-          Helse, miljø og sikkerhet
-        </h2>
+        <h2 class="section-title mt-3" id="hms-heading">{overskrift}</h2>
         <div class="divider"></div>
 
-        <p>
-          BRE Bygg er godkjent etter kravene i byggherreforskriften. Vi
-          utarbeider SHA-plan for alle prosjekter og gjennomfører ukentlige
-          vernerunder på aktive byggeplasser.
-        </p>
-
-        <p class="mt-4">
-          Krav til HMS-egenerklæring fra underentreprenører er ikke noe vi
-          spør om — det er et vilkår for å jobbe med oss.
-        </p>
+        <RikTekst verdi={tekst} />
 
         {/* HMS-punkter */}
         <ul class="hms-liste" aria-label="HMS-tiltak">
-          {HMS_PUNKTER.map(punkt => (
+          {punkter.map(punkt => (
             <li class="hms-liste__item">
               <span class="hms-liste__hake" aria-hidden="true">
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                   <path
                     d="M2.5 7.5L5.5 10.5L11.5 3.5"
-                    stroke="var(--color-primary)"
+                    stroke="var(--color-uthev)"
                     stroke-width="2"
                     stroke-linecap="round"
                     stroke-linejoin="round"
@@ -64,21 +61,14 @@ import { HMS_PUNKTER } from "@config/om-oss";
       <div class="hms-sertifiseringer reveal-d1">
 
         <div class="sert-header">
-          <h3 class="sert-tittel">Slik jobber vi med sikkerhet</h3>
-          <p class="sert-sub">
-            Dokumentasjon på godkjenninger sendes på forespørsel.
-          </p>
+          <h3 class="sert-tittel">{boksTittel}</h3>
+          <p class="sert-sub">{boksTekst}</p>
         </div>
 
         {/* Kontaktoppfordring for HMS-dokumentasjon */}
         <div class="sert-forespørsel">
-          <p>
-            Trenger du HMS-egenerklæring eller sentralgodkjenningsbevis
-            for et anbud?
-          </p>
-          <a href="/kontakt/" class="btn btn--outline btn--sm">
-            Send forespørsel
-          </a>
+          <p>{boksSporsmaal}</p>
+          <a href="/kontakt/" class="btn btn--outline btn--sm">{boksKnapp}</a>
         </div>
 
       </div>
@@ -143,7 +133,7 @@ import { HMS_PUNKTER } from "@config/om-oss";
     display:     flex;
     align-items: center;
     justify-content: center;
-    background-color: rgba(var(--rgb-primary), 0.1);
+    background-color: rgba(var(--rgb-gull), 0.18);
     border-radius: 50%;
   }
 
@@ -192,7 +182,7 @@ import { HMS_PUNKTER } from "@config/om-oss";
 
   .sert-badge:hover {
     box-shadow:   var(--shadow-sm);
-    border-color: var(--color-primary);
+    border-color: var(--color-uthev);
   }
 
   .sert-badge__ikon {

@@ -1,7 +1,18 @@
 // src/config/om-oss.ts
 // Data for Om oss-siden.
 // Skilt fra site.ts fordi dette er presentasjonsdata, ikke NAP/schema-data.
-// Oppdater teammedlemmer og milepæler her — aldri hardkod i komponentene.
+//
+// TEAM hentes fra «Personer» i Sanity. Lista under er fallback for bygg uten
+// Sanity. Før september 2026 leste ingenting fra «Personer» — kunden kunne
+// redigere personene i Studio uten at det nådde nettsiden.
+//
+// VERDIER og HMS_PUNKTER er standardtekster for «Om oss» i Sanity; se
+// src/lib/sanity/sider.ts.
+
+import { BRUKER_SANITY, sanityKlient } from "@lib/sanity/client";
+import { Q_TEAM } from "@lib/sanity/queries";
+import { beskaretUrl } from "@lib/sanity/image";
+import type { Image } from "@sanity/types";
 
 // --------------------------------------------------------------------------
 // Teammedlemmer
@@ -22,7 +33,7 @@ export type TeamMedlem = {
   sitat?:  string;
 };
 
-export const TEAM: TeamMedlem[] = [
+const TEAM_FALLBACK: TeamMedlem[] = [
   {
     navn:     "Rudi Trogstad",
     rolle:    "Daglig leder",
@@ -48,6 +59,39 @@ export const TEAM: TeamMedlem[] = [
     tlf: "+47 455 00 188",
   }
 ] as const satisfies TeamMedlem[];
+
+type SanityPerson = {
+  navn: string; rolle: string; epost?: string | null; telefon?: string | null; sitat?: string | null;
+  foto?: (Image & { alt?: string }) | null;
+};
+
+/**
+ * Personene, i sorteringsrekkefølgen fra Studio.
+ *
+ * Portrettet beskjæres til 4:5 rundt hotspot, så alle får samme format uansett
+ * hva som ble lastet opp. Mangler bildet, viser TeamSeksjon initialene.
+ * Null personer i Sanity regnes som feil oppsett og gir fallbacken, ikke en
+ * tom seksjon.
+ */
+async function hentTeam(): Promise<TeamMedlem[]> {
+  if (!BRUKER_SANITY) return TEAM_FALLBACK;
+  const personer = await sanityKlient().fetch<SanityPerson[]>(Q_TEAM);
+  if (!personer?.length) {
+    console.warn("[om-oss] Ingen personer i Sanity — bruker lista i om-oss.ts.");
+    return TEAM_FALLBACK;
+  }
+  return personer.map((p) => ({
+    navn:     p.navn,
+    rolle:    p.rolle,
+    bilde:    p.foto?.asset ? beskaretUrl(p.foto, 800, 1000) : "",
+    bildeAlt: p.foto?.alt ?? `${p.rolle} i BRE Bygg AS`,
+    epost:    p.epost ?? undefined,
+    tlf:      p.telefon ?? undefined,
+    sitat:    p.sitat ?? undefined,
+  }));
+}
+
+export const TEAM: readonly TeamMedlem[] = await hentTeam();
 
 // --------------------------------------------------------------------------
 // Verdier

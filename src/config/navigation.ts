@@ -38,7 +38,6 @@ export const FOOTER_NAV: FooterNavGroup[] = [
     items: [
       { label: "Nybygg",         href: "/tjenester/nybygg/" },
       { label: "Rehabilitering", href: "/tjenester/rehabilitering/" },
-      { label: "Næringsbygg",    href: "/tjenester/naeringsbygg/" },
     ],
   },
   {
@@ -78,7 +77,6 @@ export function buildBreadcrumbs(
     "tjenester":  "Tjenester",
     "nybygg":     "Nybygg",
     "rehabilitering": "Rehabilitering",
-    "naeringsbygg": "Næringsbygg",
   };
 
   const crumbs: BreadcrumbItem[] = [{ label: "Hjem", href: "/" }];

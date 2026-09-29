@@ -1,4 +1,5 @@
-import { defineType, defineField, defineArrayMember } from "sanity";
+import { defineType, defineField } from "sanity";
+import { rikTekstBlokker } from "../objekter/rikTekst";
 
 export const prosjekt = defineType({
   name: "prosjekt", title: "Prosjekt", type: "document",
@@ -22,18 +23,17 @@ export const prosjekt = defineType({
     }),
 
     defineField({
-      name: "utfordring", title: "Utfordring", type: "array", of: [defineArrayMember({ type: "block" })], group: "innhold",
+      name: "utfordring", title: "Utfordring", type: "array", of: rikTekstBlokker(), group: "innhold",
       description: "Hva var faktisk krevende? Dette er det eneste innholdet på nettstedet en språkmodell kan sitere uten å finne det samme hos ti andre entreprenører. Vær konkret.",
     }),
-    defineField({ name: "losning",  title: "Løsning",  type: "array", of: [defineArrayMember({ type: "block" })], group: "innhold" }),
-    defineField({ name: "resultat", title: "Resultat", type: "array", of: [defineArrayMember({ type: "block" })], group: "innhold" }),
+    defineField({ name: "losning",  title: "Løsning",  type: "array", of: rikTekstBlokker(), group: "innhold" }),
+    defineField({ name: "resultat", title: "Resultat", type: "array", of: rikTekstBlokker(), group: "innhold" }),
 
     defineField({
       name: "kategori", title: "Kategori", type: "string", group: "fakta",
       options: { list: [
         { title: "Nybygg",         value: "nybygg"         },
         { title: "Rehabilitering", value: "rehabilitering" },
-        { title: "Næringsbygg",    value: "naeringsbygg"   },
       ]},
       validation: (r) => r.required(),
     }),

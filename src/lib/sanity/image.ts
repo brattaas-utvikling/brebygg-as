@@ -29,6 +29,15 @@ export function bildeUrl(kilde: Image, bredde: number, kvalitet = 78): string {
     .url();
 }
 
+/**
+ * Beskåret til fast forhold rundt hotspot. For portretter, der alle må ha
+ * samme format uansett hva som ble lastet opp. fit=crop respekterer utsnittet
+ * kunden velger i Studio.
+ */
+export function beskaretUrl(kilde: Image, bredde: number, hoyde: number, kvalitet = 80): string {
+  return bygger.image(kilde).width(bredde).height(hoyde).fit("crop").quality(kvalitet).auto("format").url();
+}
+
 export function byggSrcset(kilde: Image, maksBredde = 2000): string {
   return BREDDER
     .filter((b) => b <= maksBredde)

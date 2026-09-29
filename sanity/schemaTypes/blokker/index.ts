@@ -5,7 +5,8 @@
 // globals.css. Klienten velger bakgrunn per seksjon og kan ikke lage en
 // ulovlig kombinasjon av bakgrunn og tekstfarge — alle fem består WCAG AA.
 
-import { defineType, defineField, defineArrayMember } from "sanity";
+import { defineType, defineField } from "sanity";
+import { rikTekstBlokker } from "../objekter/rikTekst";
 import { TEMAER } from "../../lib/tema";
 
 /**
@@ -127,7 +128,7 @@ export const tekstBilde = defineType({
   fields: [
     temaFelt(),
     defineField({ name: "overskrift", title: "Overskrift",       type: "string", validation: (r) => r.required() }),
-    defineField({ name: "tekst",      title: "Tekst", type: "array", of: [defineArrayMember({ type: "block" })] }),
+    defineField({ name: "tekst",      title: "Tekst", type: "array", of: rikTekstBlokker() }),
     defineField({ name: "bilde",      title: "Bilde", type: "bilde" }),
     defineField({
       name: "layout", title: "Plassering av bilde", type: "string",

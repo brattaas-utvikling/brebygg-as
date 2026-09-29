@@ -88,11 +88,11 @@ const tilfeller = [
     navn: "prosjekt fra Sanity, tomme valgfrie felt",
     skjema: prosjektSkjema,
     data: {
-      title: "Kontorbygg Larvik sentrum",
-      description: "Nybygg av kontorbygg i Larvik sentrum fordelt på fire etasjer.",
-      location: "Larvik",
+      title: "Tomannsbolig i Tønsberg",
+      description: "Nybygg av tomannsbolig i Tønsberg med to like boenheter over to plan.",
+      location: "Tønsberg",
       aar: 2022,
-      kategori: "naeringsbygg",
+      kategori: "nybygg",
       status: "ferdig",
       heroImage: sanityBilde,
       // GROQ sender null, ikke undefined, for alt som ikke er fylt ut
@@ -145,6 +145,11 @@ const tilfeller = [
         { tittel: "Bygging", tekst: "Du får ett nummer å ringe." },
       ],
       faq: [{ sporsmaal: "Må jeg ha tomt først?", svar: "Nei." }],
+      // Feltet manglet i skjemaet og ble fjernet i stillhet. Testes for at det
+      // ikke skal skje igjen.
+      brodtekst: portableText,
+      overskrifter: { inkludert: "Dette får du", prosess: null, relaterte: null, faq: null },
+      cta: { overskrift: null, tekst: null },
       heroImage: sanityBilde,
       relaterteProsjekter: ["tonsberg-tomannsbolig-nybygg"],
       seoTitle: null,
@@ -157,8 +162,8 @@ const tilfeller = [
     data: {
       title: "Rehabilitering i Vestfold",
       kortTittel: "Rehabilitering",
-      description: "Oppgradering av bolig og næringsbygg i Tønsberg, Sandefjord, Larvik og Horten.",
-      ingress: "BRE Bygg rehabiliterer boliger og næringsbygg i Vestfold. Eldre bygg skjuler nesten alltid noe, og vi sier hva vi tror vi finner.",
+      description: "Oppgradering av boliger og offentlige bygg i Tønsberg, Sandefjord, Larvik og Horten.",
+      ingress: "BRE Bygg rehabiliterer boliger og offentlige bygg i Vestfold. Eldre bygg skjuler nesten alltid noe, og vi sier hva vi tror vi finner.",
       kategori: "rehabilitering",
       heroImage: lokaltBilde,
       inkludert: ["Tilstandsvurdering", "Skriftlig anslag", "Søknad"],

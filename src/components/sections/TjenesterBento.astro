@@ -4,8 +4,7 @@ import { bildeSrc } from "@/content.config";
 // Tjeneste-seksjon med bento-grid layout på mørk bakgrunn.
 //
 // Layout:
-//   Rad 1: Nybygg (7 kol) | Rehabilitering (5 kol)
-//   Rad 2: Næringsbygg (12 kol — full bredde, kortere høyde)
+//   Størrelsen per kort styres av bentoStorrelse på tjenesten i Sanity.
 //
 // Hover-effekt:
 //   Beskrivelse og lenke er skjult (max-height: 0) og avdukes ved hover.
@@ -14,7 +13,6 @@ import { bildeSrc } from "@/content.config";
 // Bilder:
 //   /public/images/tjenester/nybygg.webp
 //   /public/images/tjenester/rehabilitering.webp
-//   /public/images/tjenester/naeringsbygg.webp
 //   Alle: maks 200 KB, 1200×800 px, WebP
 
 import { getCollection } from "astro:content";
@@ -152,7 +150,7 @@ const { skjulTopp = false } = Astro.props;
   .tjeneste-card__tag {
     display: inline-flex;
     padding: 0.25rem 0.625rem;
-    background-color: color-mix(in srgb, var(--color-primary) 25%, transparent);
+    background-color: color-mix(in srgb, var(--gull) 30%, transparent);
     color: var(--bandicoot-50);
     border-radius: var(--r-full);
     font-size: 0.6875rem;

@@ -7,7 +7,7 @@ import { getCollection } from "astro:content";
 import PageLayout from "@layouts/PageLayout.astro";
 import HeroPage from "@components/sections/HeroPage.astro";
 import CtaSeksjon from "@components/sections/CtaSeksjon.astro";
-import { SITE_URL, NAP, HOVEDKOMMUNER, type PageMeta } from "@config/site";
+import { SITE_URL, HOVEDKOMMUNER, type PageMeta } from "@config/site";
 import {
   komponerGraf,
   buildBreadcrumbList,
@@ -15,6 +15,11 @@ import {
 } from "@lib/seo/jsonld";
 import { KATEGORI_LABEL } from "@/content.config";
 import Bilde from "@components/sanity/Bilde.astro";
+import Seksjoner from "@components/forside/Seksjoner.astro";
+import { hentTjenesterSide, medSeo, heroPreloadBilde, SIDEHERO_SIZES } from "@lib/sanity/sider";
+
+// Hero, avslutning og SEO redigeres i Studio under Sider → Tjenester.
+const side = await hentTjenesterSide();
 
 const tjenester = (await getCollection("tjenester")).sort(
   (a, b) => a.data.sortOrder - b.data.sortOrder
@@ -22,11 +27,11 @@ const tjenester = (await getCollection("tjenester")).sort(
 
 const canonical = `${SITE_URL}/tjenester/`;
 
-const pageMeta: PageMeta = {
+const pageMeta: PageMeta = medSeo({
   title: "Tjenester — totalentreprenør i Vestfold | BRE Bygg",
-  description: `Nybygg, rehabilitering og næringsbygg i ${HOVEDKOMMUNER.join(", ")}. BRE Bygg tar totalentreprisen — én avtale, én prosjektleder.`,
+  description: `Nybygg og rehabilitering i ${HOVEDKOMMUNER.join(", ")}. BRE Bygg tar totalentreprisen — én avtale, én prosjektleder.`,
   canonical,
-};
+}, side.seo);
 
 // Én Service-node per tjeneste. Alle kobles til LocalBusiness via provider,
 // så Google ser hvilket selskap som leverer hva.
@@ -46,14 +51,13 @@ const schema = komponerGraf(
 );
 ---
 
-<PageLayout meta={pageMeta} schema={schema}>
+<PageLayout meta={pageMeta} schema={schema} heroImage={heroPreloadBilde(side.hero.bilde)} heroSizes={SIDEHERO_SIZES}>
   <main id="main-content">
     <HeroPage
       nesteTema="lys"
-      heading="Tre måter vi bygger på"
-      lead={`BRE Bygg er totalentreprenør i ${HOVEDKOMMUNER.join(", ")} og omegn. Du har én avtale og én prosjektleder, uansett hvilken av de tre du trenger.`}
-      imgSrc="/images/tjenester/nybygg.jpg"
-      imgAlt="Byggeplass i Vestfold"
+      heading={side.hero.tittel}
+      lead={side.hero.ingress}
+      bilde={side.hero.bilde}
     />
 
     <section class="section sek--lys" aria-labelledby="tjenester-tittel">
@@ -92,10 +96,12 @@ const schema = komponerGraf(
       </div>
     </section>
 
+    <Seksjoner seksjoner={side.seksjoner} />
+
     <CtaSeksjon
       variant="dark"
-      heading="Usikker på hvilken av dem du trenger?"
-      sub={`Ring ${NAP.phoneDisplay}, så finner vi ut av det sammen. Vi sier fra hvis vi ikke er riktig entreprenør for jobben.`}
+      heading={side.cta.overskrift}
+      sub={side.cta.tekst}
     />
   </main>
 </PageLayout>

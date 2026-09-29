@@ -85,15 +85,20 @@ const ogImageUrl   = absoluteUrl(resolved.ogImage);
     <meta name="twitter:description" content={resolved.description} />
     <meta name="twitter:image"       content={ogImageUrl} />
 
-    {/* Faviconet er fjellmerket alene, kvadratisk. /favicon.svg er hele
-        ordmerket i 1536×1039 — det er headerlogoen, og den blir uleselig
-        letterboxet i en 16 px fane. favicon.ico og apple-touch-icon.png
-        manglet helt og ga 404 på hver sidelast. */}
+    {/* Faviconet er fjellmerket alene, hvitt på Green Leaf som banneret i
+        HMS-appen. Hele ordmerket blir uleselig i en 16 px fane. Ikonene er
+        generert fra kundens logofil (september 2026). */}
     <link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/png" href="/favicon-96.png" sizes="96x96" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
-    <meta name="theme-color" content="#2C4251" />
+    {/* Green Leaf, samme som headeren, så nettleserlinja på mobil flyter over
+        i den. Sto på #2C4251 — den blå fra forrige palett. */}
+    <meta name="theme-color" content="#81816B" />
+    {/* iOS gjør telefonnumre i løpende tekst om til lenker på egen hånd. De
+        arvet lenkefargen og havnet på 1,04:1 mot mørk seksjon. Numrene som
+        skal kunne ringes, er ekte tel:-lenker med egen stil. */}
+    <meta name="format-detection" content="telephone=no" />
 
     {/* Selvhostet Plus Jakarta Sans. Astro genererer @font-face, preload for
         den kritiske vekten og en metrisk justert fallback. */}

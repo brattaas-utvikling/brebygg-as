@@ -38,7 +38,7 @@ export function buildLocalBusiness() {
     "@id":         orgId(),
     "name":        NAP.name,
     "url":         SITE_URL,
-    "description": `Totalentreprenør i Vestfold. Nybygg, rehabilitering og næringsbygg i ${HOVEDKOMMUNER.join(", ")} og omegn.`,
+    "description": `Totalentreprenør i Vestfold. Nybygg og rehabilitering i ${HOVEDKOMMUNER.join(", ")} og omegn.`,
     "telephone":   NAP.phone,
     "email":       NAP.email,
     "vatID":       `NO${NAP.orgNumber.replace(/\s/g, "")}MVA`,

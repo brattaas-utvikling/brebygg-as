@@ -7,6 +7,7 @@
 //   variant="dark"  — mørk bakgrunn (var(--color-bg-dark))
 
 import { NAP } from "@config/site";
+import TekstMedTelefon from "@components/ui/TekstMedTelefon.astro";
 
 interface Props {
   variant?: "light" | "dark";
@@ -38,7 +39,7 @@ const isDark = variant === "dark";
           {heading}
         </h2>
         <p class={`cta-sub ${isDark ? "text-inv-sub" : ""}`}>
-          {sub}
+          <TekstMedTelefon tekst={sub} />
         </p>
       </div>
 

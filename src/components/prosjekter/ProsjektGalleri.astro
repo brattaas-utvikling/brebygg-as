@@ -23,9 +23,10 @@ import Bilde from "@components/sanity/Bilde.astro";
 
 interface Props {
   prosjekter: CollectionEntry<"prosjekter">[];
+  overskrift?: string;
 }
 
-const { prosjekter } = Astro.props;
+const { prosjekter, overskrift = "Alle prosjekter" } = Astro.props;
 
 function antall(id: string): number {
   if (id === "alle") return prosjekter.length;
@@ -37,7 +38,7 @@ function antall(id: string): number {
   <div class="container">
 
     <div class="galleri-toprad">
-      <h2 class="section-title" id="galleri-heading">Prosjekter i Vestfold</h2>
+      <h2 class="section-title" id="galleri-heading">{overskrift}</h2>
 
       <div
         class="filter-bar"

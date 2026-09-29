@@ -32,7 +32,7 @@ function fallback(): ForsideData {
   return {
     hero: {
       tittel:  "Totalentreprenør i Vestfold",
-      ingress: "BRE Bygg tar fullt ansvar for byggeprosessen — fra prosjektering til du får nøklene. Enten det er nybygg i Tønsberg, rehabilitering i Sandefjord eller næringsbygg i Larvik.",
+      ingress: "BRE Bygg tar fullt ansvar for byggeprosessen — fra prosjektering til du får nøklene. Enten det er nybygg i Tønsberg eller rehabilitering i Sandefjord.",
       knapper: [
         { tekst: "Se prosjekter",           url: "/prosjekter/", stil: "primary" },
         { tekst: NAP.phoneDisplay,          url: NAP.phoneHref,  stil: "outline" },

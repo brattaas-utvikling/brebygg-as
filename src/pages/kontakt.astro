@@ -17,13 +17,20 @@ import KartSeksjon from "@components/sections/KartSeksjon.astro";
 import SomeBlokk from "@components/forside/blokker/SomeBlokk.astro";
 import Breadcrumbs from "@components/seo/Breadcrumbs.astro";
 
+import Seksjoner from "@components/forside/Seksjoner.astro";
+
 import { PAGE_META, NAP, AREA_SERVED } from "@config/site";
 import { getKontaktSchema } from "@lib/seo/jsonld";
+import { hentKontaktSide, medSeo } from "@lib/sanity/sider";
 
+// Tekstene redigeres i Studio under Sider → Kontakt. Kontaktinfo, adresse og
+// områder kommer fra Innstillinger.
+const side = await hentKontaktSide();
+const meta = medSeo(PAGE_META.kontakt, side.seo);
 const schema = getKontaktSchema(PAGE_META.kontakt.canonical);
 ---
 
-<PageLayout meta={PAGE_META.kontakt} schema={schema}>
+<PageLayout meta={meta} schema={schema}>
   <main id="main-content">
     {/* 2. Kompakt page-banner — mørk, ingen bilde, H1 + ingress */}
     <section class="kontakt-banner" aria-labelledby="kontakt-h1">
@@ -33,13 +40,9 @@ const schema = getKontaktSchema(PAGE_META.kontakt.canonical);
 
         {/* Innhold */}
         <div class="kontakt-banner__content">
-          <h1 class="kontakt-banner__heading" id="kontakt-h1">Ta kontakt</h1>
+          <h1 class="kontakt-banner__heading" id="kontakt-h1">{side.hero.tittel}</h1>
 
-          <p class="kontakt-banner__lead">
-            BRE Bygg svarer på henvendelser om byggeprosjekter i Vestfold og
-            Telemark innen én arbeidsdag. Ring direkte eller send en e-post — så
-            setter vi opp et møte uten forpliktelser.
-          </p>
+          <p class="kontakt-banner__lead">{side.hero.ingress}</p>
 
           {/* Nøkkelinfo: geografi */}
           <ul class="kontakt-banner__areas" aria-label="Områder vi dekker">
@@ -70,16 +73,16 @@ const schema = getKontaktSchema(PAGE_META.kontakt.canonical);
     <KontaktStrip />
 
     {/* 4. Kart */}
-    <KartSeksjon />
+    <KartSeksjon overskrift={side.kartOverskrift} />
 
-    {/* 5. Sosiale medier. Samme blokk som på forsiden, med faste tekster her
-        siden kontaktsiden ikke styres fra Sanity. Mørk mellom det grå kartet
-        og den lyse avslutningen. */}
+    {/* 5. Sosiale medier. Samme blokk som på forsiden. Mørk mellom det grå
+        kartet og den lyse avslutningen. */}
     <SomeBlokk
       blokk={{
         _key: "kontakt",
-        overskrift: "Følg oss i sosiale medier",
-        ingress: "Vi deler bilder og oppdateringer fra prosjektene våre underveis – fra grunnarbeid til overlevering.",
+        overskrift: side.some.overskrift,
+        ingress: side.some.ingress,
+        bilde: side.some.bilde,
       }}
     />
 
@@ -87,41 +90,20 @@ const schema = getKontaktSchema(PAGE_META.kontakt.canonical);
     <section class="kontakt-avslutning section" aria-label="Responstid">
       <div class="container kontakt-avslutning__inner">
         <div class="kontakt-avslutning__tekst reveal">
-          <h2 class="kontakt-avslutning__heading">
-            Hva skjer etter du tar kontakt?
-          </h2>
+          <h2 class="kontakt-avslutning__heading">{side.steg.overskrift}</h2>
           <ol
             class="kontakt-steg"
             aria-label="Prosess etter første henvendelse"
           >
-            <li class="kontakt-steg__item">
-              <span class="kontakt-steg__nr" aria-hidden="true">01</span>
-              <div>
-                <strong>Vi svarer innen én arbeidsdag</strong>
-                <p>
-                  Enten per telefon eller e-post — avhengig av hva du brukte.
-                </p>
-              </div>
-            </li>
-            <li class="kontakt-steg__item">
-              <span class="kontakt-steg__nr" aria-hidden="true">02</span>
-              <div>
-                <strong>Møte på stedet eller digitalt</strong>
-                <p>
-                  Vi gjennomgår prosjektet ditt og avklarer omfang og tidsplan.
-                </p>
-              </div>
-            </li>
-            <li class="kontakt-steg__item">
-              <span class="kontakt-steg__nr" aria-hidden="true">03</span>
-              <div>
-                <strong>Konkret tilbud</strong>
-                <p>
-                  Ingen vage estimater. Du får et skriftlig tilbud med fast pris
-                  eller prisramme.
-                </p>
-              </div>
-            </li>
+            {side.steg.punkter.map((steg, i) => (
+              <li class="kontakt-steg__item">
+                <span class="kontakt-steg__nr" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
+                <div>
+                  <strong>{steg.tittel}</strong>
+                  {steg.tekst && <p>{steg.tekst}</p>}
+                </div>
+              </li>
+            ))}
           </ol>
         </div>
 
@@ -193,6 +175,8 @@ const schema = getKontaktSchema(PAGE_META.kontakt.canonical);
         </aside>
       </div>
     </section>
+
+    <Seksjoner seksjoner={side.seksjoner} />
   </main>
 </PageLayout>
 
@@ -215,8 +199,16 @@ const schema = getKontaktSchema(PAGE_META.kontakt.canonical);
     background-color: var(--color-bg-dark);
     position: relative;
     overflow: hidden;
-    padding-top: calc(var(--nav-height) + clamp(2rem, 4vw, 3.5rem));
-    padding-bottom: clamp(3rem, 5vw, 4.5rem);
+    /* Ikke nav-høyde i padding-top: headeren er sticky og ligger over. */
+    padding-top: clamp(2.5rem, 5vw, 4rem);
+    padding-bottom: clamp(3.5rem, 6vw, 4.5rem);
+  }
+
+  /* Felles høyde med de andre undersidenes heroer — se --hero-hoyde. */
+  @media (min-width: 1024px) {
+    .kontakt-banner {
+      min-height: var(--hero-hoyde);
+    }
   }
 
   .kontakt-banner__inner {
@@ -229,7 +221,7 @@ const schema = getKontaktSchema(PAGE_META.kontakt.canonical);
   }
 
   .kontakt-banner__heading {
-    font-size: clamp(2.5rem, 5vw, 3.75rem);
+    font-size: var(--hero-tittel);
     font-weight: 700;
     letter-spacing: -0.03em;
     line-height: 1.08;
@@ -345,7 +337,7 @@ const schema = getKontaktSchema(PAGE_META.kontakt.canonical);
     font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.08em;
-    color: var(--color-primary);
+    color: var(--color-uthev);
     background-color: rgba(132, 133, 110, 0.1);
     border-radius: var(--r-sm);
     padding: 0.3rem 0.55rem;
@@ -385,7 +377,7 @@ const schema = getKontaktSchema(PAGE_META.kontakt.canonical);
     padding: 1.75rem;
     box-shadow: var(--shadow-md);
     /* rust topp-aksent */
-    border-top: 3px solid var(--color-primary);
+    border-top: 3px solid var(--color-signature);
   }
 
   .kontakt-nap__firmanavn {
@@ -418,12 +410,14 @@ const schema = getKontaktSchema(PAGE_META.kontakt.canonical);
 
   .kontakt-nap__rad svg {
     flex-shrink: 0;
-    color: var(--color-primary);
+    color: var(--color-uthev);
     margin-top: 0.15rem;
   }
 
   .kontakt-nap__rad--lenke:hover {
-    color: var(--color-primary);
+    color: var(--color-link);
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
 
   @media (max-width: 900px) {

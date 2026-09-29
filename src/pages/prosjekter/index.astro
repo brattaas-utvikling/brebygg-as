@@ -23,6 +23,12 @@ import ProsjektGalleri from "@components/prosjekter/ProsjektGalleri.astro";
 import { getCollection } from "astro:content";
 
 import { PAGE_META } from "@config/site";
+import Seksjoner from "@components/forside/Seksjoner.astro";
+import { hentProsjekterSide, medSeo, heroPreloadBilde, SIDEHERO_SIZES } from "@lib/sanity/sider";
+
+// Hero og SEO redigeres i Studio under Sider → Prosjekter.
+const side = await hentProsjekterSide();
+const meta = medSeo(PAGE_META.prosjekter, side.seo);
 import { getProsjekterSchema } from "@lib/seo/jsonld";
 
 // --------------------------------------------------------------------------
@@ -56,23 +62,22 @@ const sorterte = [...alleRaw].sort((a, b) => {
 
 ---
 
-<PageLayout meta={PAGE_META.prosjekter} schema={schema}>
+<PageLayout meta={meta} schema={schema} heroImage={heroPreloadBilde(side.hero.bilde)} heroSizes={SIDEHERO_SIZES}>
   <main id="main-content">
     {/* 2. Page-hero — mørk header */}
     <HeroPage
       nesteTema="lys"
-      heading="Prosjekter<br />i Vestfold"
-      lead="Vi viser hva vi tok på oss, hva som var krevende og hva vi faktisk leverte. Ingen prosjekter er identiske — men arbeidsmåten er den samme."
-      imgSrc="/images/prosjekter-hero.webp"
-      imgAlt="Byggeplass i Vestfold med kran og stålkonstruksjon"
-      imgWidth={800}
-      imgHeight={960}
+      heading={side.hero.tittel}
+      lead={side.hero.ingress}
+      bilde={side.hero.bilde}
     />
 
     {/* 4. Prosjektgalleri — ren Astro, ~1 KB vanilla JS.
          Alle kort ligger alltid i DOM; filtrering skjer med hidden.
          Uten JS: alle prosjekter vises, filterlinja skjules. */}
-    <ProsjektGalleri prosjekter={sorterte} />
+    <ProsjektGalleri prosjekter={sorterte} overskrift={side.galleriOverskrift} />
+
+    <Seksjoner seksjoner={side.seksjoner} />
 
   </main>
 </PageLayout>

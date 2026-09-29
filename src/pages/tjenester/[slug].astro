@@ -3,7 +3,7 @@
 //
 // Tjenestesider. Fjerner de tre 404-lenkene som har stått i footeren på hver
 // eneste side, og gir samtidig de naturlige landingssidene for «totalentreprenør
-// Tønsberg», «rehabilitering Vestfold» og «næringsbygg Vestfold».
+// Tønsberg» og «rehabilitering Vestfold».
 //
 // Intern lenking er halve poenget: hver tjeneste peker på relaterte prosjekter,
 // og hvert prosjekt får en vei tilbake til tjenesten sin. Uten det henger
@@ -17,6 +17,7 @@ import { SITE_URL, NAP, HOVEDKOMMUNER, type PageMeta } from "@config/site";
 import { getTjenesteSchema } from "@lib/seo/jsonld";
 import { KATEGORI_LABEL, bildeSrc } from "@/content.config";
 import Bilde from "@components/sanity/Bilde.astro";
+import RikTekst from "@components/ui/RikTekst.astro";
 
 export async function getStaticPaths() {
   const tjenester = await getCollection("tjenester");
@@ -55,6 +56,19 @@ interface Props {
 const { entry, relaterte } = Astro.props;
 const { data } = entry;
 const { Content } = await render(entry);
+
+// Seksjonsoverskrifter og avslutning kan overstyres per tjeneste i Studio.
+// Tomt felt gir standardteksten under.
+const kort = data.kortTittel ?? data.title;
+const o = data.overskrifter ?? {};
+const tekster = {
+  inkludert: o.inkludert || "Hva du får når vi tar totalentreprisen",
+  prosess:   o.prosess   || "Fra første befaring til overlevering",
+  relaterte: o.relaterte || `${kort} vi har levert`,
+  faq:       o.faq       || `Om ${kort.toLowerCase()}`,
+  ctaOverskrift: data.cta?.overskrift || `Skal du bygge i ${HOVEDKOMMUNER.slice(0, 3).join(", ")} eller Horten?`,
+  ctaTekst:      data.cta?.tekst      || "Ring for en uforpliktende befaring. Vi sier fra med én gang hvis vi ikke er riktig entreprenør for jobben.",
+};
 
 const canonicalPath = `/tjenester/${entry.id}/`;
 const canonical = `${SITE_URL}${canonicalPath}`;
@@ -128,14 +142,24 @@ const schema = getTjenesteSchema(
       </div>
     </section>
 
+    {/* Brødtekst. Egen seksjon og ikke en kolonne ved siden av «Hva du får»:
+        Nybygg har 14 blokker med tre H2-er, altså en hel artikkel, og den ble
+        for trang i en halv kolonne. Sanity-teksten har forrang; markdown-
+        reserven rendres med render() som før. */}
+    <section class="section sek--hvit" aria-label={`Om ${kort.toLowerCase()}`}>
+      <div class="container">
+        {data.brodtekst
+          ? <RikTekst verdi={data.brodtekst} class="tjeneste-prosa" />
+          : <div class="rik-tekst tjeneste-prosa"><Content /></div>}
+      </div>
+    </section>
+
     {/* Hva som inngår */}
-    <section class="section sek--hvit" aria-labelledby="inkludert-tittel">
-      <div class="container tjeneste-todelt">
+    <section class="section sek--lys" aria-labelledby="inkludert-tittel">
+      <div class="container">
         <div>
-          <h2 class="section-title mt-2" id="inkludert-tittel">
-            Hva du får når vi tar totalentreprisen
-          </h2>
-          <ul class="tjeneste-liste">
+          <h2 class="section-title mt-2" id="inkludert-tittel">{tekster.inkludert}</h2>
+          <ul class="tjeneste-liste tjeneste-liste--bred">
             {
               data.inkludert.map((punkt) => (
                 <li class="tjeneste-liste__item">
@@ -161,19 +185,13 @@ const schema = getTjenesteSchema(
             }
           </ul>
         </div>
-
-        <div class="tjeneste-prosa">
-          <Content />
-        </div>
       </div>
     </section>
 
     {/* Prosess */}
     <section class="section sek--seksjon" aria-labelledby="prosess-tittel">
       <div class="container">
-        <h2 class="section-title mt-2" id="prosess-tittel">
-          Fra første befaring til overlevering
-        </h2>
+        <h2 class="section-title mt-2" id="prosess-tittel">{tekster.prosess}</h2>
 
         <ol class="tjeneste-prosess">
           {
@@ -198,9 +216,7 @@ const schema = getTjenesteSchema(
           <div class="container">
             <div class="tjeneste-toprad">
               <div>
-                <h2 class="section-title mt-2" id="relaterte-tittel">
-                  {data.kortTittel ?? data.title} vi har levert
-                </h2>
+                <h2 class="section-title mt-2" id="relaterte-tittel">{tekster.relaterte}</h2>
               </div>
               <a
                 href={`/prosjekter/?kategori=${data.kategori}`}
@@ -249,9 +265,7 @@ const schema = getTjenesteSchema(
       data.faq.length > 0 && (
         <section class="section sek--seksjon" aria-labelledby="faq-tittel">
           <div class="container tjeneste-faq">
-            <h2 class="section-title mt-2" id="faq-tittel">
-              Om {(data.kortTittel ?? data.title).toLowerCase()}
-            </h2>
+            <h2 class="section-title mt-2" id="faq-tittel">{tekster.faq}</h2>
 
             <div class="tjeneste-faq__liste">
               {data.faq.map((f) => (
@@ -268,10 +282,6 @@ const schema = getTjenesteSchema(
       )
     }
 
-    <CtaSeksjon
-      variant="dark"
-      heading={`Skal du bygge i ${HOVEDKOMMUNER.slice(0, 3).join(", ")} eller Horten?`}
-      sub="Ring for en uforpliktende befaring. Vi sier fra med én gang hvis vi ikke er riktig entreprenør for jobben."
-    />
+    <CtaSeksjon variant="dark" heading={tekster.ctaOverskrift} sub={tekster.ctaTekst} />
   </main>
 </PageLayout>

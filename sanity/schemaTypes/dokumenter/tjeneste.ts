@@ -1,4 +1,5 @@
-import { defineType, defineField, defineArrayMember } from "sanity";
+import { defineType, defineField } from "sanity";
+import { rikTekstBlokker } from "../objekter/rikTekst";
 
 export const tjeneste = defineType({
   name: "tjeneste", title: "Tjeneste", type: "document",
@@ -28,7 +29,6 @@ export const tjeneste = defineType({
       options: { list: [
         { title: "Nybygg",         value: "nybygg"         },
         { title: "Rehabilitering", value: "rehabilitering" },
-        { title: "Næringsbygg",    value: "naeringsbygg"   },
       ]},
       validation: (r) => r.required(),
     }),
@@ -53,8 +53,31 @@ export const tjeneste = defineType({
       name: "faq", title: "Spørsmål og svar", type: "array", of: [{ type: "faq" }],
       description: "Tjenestespesifikke spørsmål. Ikke gjentak av forsidens — generiske FAQ-er blir ikke plukket opp av svarmotorer.",
     }),
-    defineField({ name: "brodtekst", title: "Brødtekst", type: "array", of: [defineArrayMember({ type: "block" })] }),
+    defineField({
+      name: "brodtekst", title: "Brødtekst", type: "array", of: rikTekstBlokker(),
+      description: "Vises som egen seksjon rett under toppbildet på tjenestesiden. Bruk «Overskrift» for mellomtitler og punktliste i stedet for å skrive •.",
+    }),
     defineField({ name: "relaterteProsjekter", title: "Relaterte prosjekter", type: "array", of: [{ type: "reference", to: [{ type: "prosjekt" }] }] }),
+    defineField({
+      name: "overskrifter", title: "Seksjonsoverskrifter", type: "object",
+      options: { collapsible: true, collapsed: true },
+      description: "Står et felt tomt, vises standardoverskriften (i parentes).",
+      fields: [
+        defineField({ name: "inkludert", title: "Over «Dette inngår»", type: "string", description: "(Hva du får når vi tar totalentreprisen)" }),
+        defineField({ name: "prosess",   title: "Over «Prosess»",      type: "string", description: "(Fra første befaring til overlevering)" }),
+        defineField({ name: "relaterte", title: "Over relaterte prosjekter", type: "string", description: "(«Kort tittel» vi har levert)" }),
+        defineField({ name: "faq",       title: "Over spørsmål og svar", type: "string", description: "(Om «kort tittel»)" }),
+      ],
+    }),
+    defineField({
+      name: "cta", title: "Avslutning", type: "object",
+      options: { collapsible: true, collapsed: true },
+      description: "Den mørke oppfordringen nederst. Står feltene tomme, brukes standardteksten.",
+      fields: [
+        defineField({ name: "overskrift", title: "Overskrift", type: "string", validation: (r) => r.max(80) }),
+        defineField({ name: "tekst", title: "Tekst", type: "text", rows: 2, description: "Telefonnummeret blir automatisk en lenke." }),
+      ],
+    }),
     defineField({ name: "sortering", title: "Sortering", type: "number", initialValue: 0 }),
     defineField({ name: "seo", title: "SEO", type: "seo" }),
   ],

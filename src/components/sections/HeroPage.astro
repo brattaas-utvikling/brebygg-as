@@ -7,14 +7,17 @@
 //   Bakgrunn: bandicoot-600 (var(--color-bg-dark))
 //
 // Props:
-//   heading   — H1-tekst (støtter HTML via set:html for linjeskift)
+//   heading   — H1-tekst. Ren tekst: den kommer fra Sanity og skal ikke tolkes
+//               som HTML. Linjebrytingen styres av text-wrap: balance.
 //   lead      — ingress (maks 2 setninger, konkret)
 //   sitat?    — sitattekst
 //   sitatKilde? — hvem siterte
-//   imgSrc    — sti til bilde (/public/images/…)
-//   imgAlt    — alt-tekst
+//   bilde     — Sanity-bilde eller lokal fil ({ src, alt, width, height })
 //   stats?    — valgfri array av { num, label }
-//   breadcrumb? — vises øverst om satt
+
+import Bilde from "@components/sanity/Bilde.astro";
+import type { Bilde as BildeType } from "@/content.config";
+import { SIDEHERO_SIZES } from "@lib/sanity/sider";
 
 interface Stat {
   num: string;
@@ -24,14 +27,10 @@ interface Stat {
 interface Props {
   heading: string;
   lead: string;
-  sitat?: string;
-  sitatKilde?: string;
-  imgSrc: string;
-  imgAlt: string;
-  imgWidth?: number;
-  imgHeight?: number;
+  sitat?: string | null;
+  sitatKilde?: string | null;
+  bilde?: BildeType | null;
   stats?: Stat[];
-  imgFade?: boolean;
   /**
    * Bakgrunnen til seksjonen rett under. Bølgen fylles med denne fargen.
    *
@@ -58,23 +57,19 @@ const {
   lead,
   sitat,
   sitatKilde,
-  imgSrc,
-  imgAlt,
-  imgWidth = 800,
-  imgHeight = 960,
+  bilde,
   stats = [],
-  imgFade = false,
   nesteTema = "lys",
 } = Astro.props;
 ---
 
 <section class="page-hero" aria-label={heading}>
   <div
-    class={`container page-hero__inner ${imgFade ? "page-hero__inner--wide" : ""}`}
+    class="container page-hero__inner"
   >
     {/* Venstre: tekst */}
     <div class="page-hero__text">
-      <h1 class="page-hero__heading" set:html={heading} />
+      <h1 class="page-hero__heading">{heading}</h1>
 
       <div class="page-hero__divider" aria-hidden="true"></div>
 
@@ -108,22 +103,15 @@ const {
     </div>
 
     {/* Høyre: bilde */}
-    <div class="page-hero__img-col">
+    {bilde && <div class="page-hero__img-col">
       <div
-        class={`page-hero__img-wrap ${imgFade ? "page-hero__img-wrap--fade" : ""}`}
+        class="page-hero__img-wrap"
       >
-        <img
-          src={imgSrc}
-          alt={imgAlt}
-          width={imgWidth}
-          height={imgHeight}
-          fetchpriority="high"
-          decoding="async"
-        />
-        {/* Subtil rustramme øverst til venstre — gir dybde */}
+        <Bilde kilde={bilde} prioritet fyll sizes={SIDEHERO_SIZES} bredde={800} hoyde={960} />
+        {/* Subtil kobberramme øverst til venstre — gir dybde */}
         <div class="page-hero__img-frame" aria-hidden="true"></div>
       </div>
-    </div>
+    </div>}
   </div>
 
   {/* Bølge-overgang til neste seksjon */}
@@ -159,10 +147,18 @@ const {
     align-items: center;
     position: relative;
     overflow: hidden;
-    /* Padding-top: nav-høyde + rom */
-    padding-top: calc(var(--nav-height) + clamp(3rem, 6vw, 5rem));
-    /* Padding-bottom: rom til bølgen */
-    padding-bottom: clamp(4rem, 8vw, 7rem);
+    /* Ikke nav-høyde i padding-top lenger: headeren er sticky og ligger
+       over heroen, ikke oppå. Kompensasjonen ga ~70 px tom flate øverst. */
+    padding-top: clamp(2.5rem, 5vw, 4rem);
+    /* Padding-bottom: rom til bølgen (maks 56 px) */
+    padding-bottom: clamp(3.5rem, 6vw, 4.5rem);
+  }
+
+  /* Felles høyde med de andre undersidenes heroer — se --hero-hoyde. */
+  @media (min-width: 1024px) {
+    .page-hero {
+      min-height: var(--hero-hoyde);
+    }
   }
 
   /* ── Split-grid ────────────────────────────────────────────────────── */
@@ -181,12 +177,6 @@ const {
       gap: 2.5rem;
     }
   }
-  /* Mobil-override for --wide variant */
-  @media (max-width: 1023px) {
-    .page-hero__inner--wide {
-      grid-template-columns: 1fr;
-    }
-  }
 
   /* Skjul bilde på mobil — tekst er prioriteten */
   @media (max-width: 767px) {
@@ -197,7 +187,8 @@ const {
 
   /* ── Tekstkolonne ─────────────────────────────────────────────────── */
   .page-hero__heading {
-    font-size: clamp(2.5rem, 5.5vw, 4rem);
+    text-wrap: balance;
+    font-size: var(--hero-tittel);
     font-weight: 700;
     line-height: 1.08;
     letter-spacing: -0.03em;
@@ -211,10 +202,10 @@ const {
   .page-hero__divider {
     width: 40px;
     height: 3px;
-    background-color: var(--color-primary);
+    background-color: var(--color-signature);
     border-radius: 9999px;
     margin-top: 1.25rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.25rem;
     opacity: 0;
     animation: hero-fade-up 0.75s var(--ease-out) 0.25s forwards;
   }
@@ -231,9 +222,11 @@ const {
 
   /* ── Sitat ─────────────────────────────────────────────────────────── */
   .page-hero__sitat {
-    margin: 1.75rem 0 0;
+    /* 1,25rem og ikke 1,75rem: med sitat må Om oss få plass innenfor
+       --hero-hoyde, som de andre sidene. */
+    margin: 1.25rem 0 0;
     padding: 1.25rem 1.5rem;
-    border-left: 3px solid var(--color-primary);
+    border-left: 3px solid var(--color-signature);
     /* background-color: rgba(var(--rgb-primary), 0.08); */
     background-color: var(--color-bg-dark-2);
     border-radius: 0 var(--r-md) var(--r-md) 0;
@@ -322,17 +315,15 @@ const {
     }
   }
 
-  /* max-height + width: 100% gjør at aspect-ratio gir etter ved taket i
-     stedet for å diktere seksjonshøyden. Uten det ble /om-oss/ 139 px høyere
-     enn /tjenester/ utelukkende fordi imgFade-varianten gir bildekolonnen
-     60 % bredde i stedet for 45 %. */
+  /* Bildet skal aldri bestemme seksjonshøyden. Med aspect-ratio gjorde det
+     det: 5/6 på en bred kolonne ga 849 px på /om-oss/. På desktop har bildet
+     derfor fast høyde — heroens høyde minus padding — og beskjæres med
+     object-fit. Under 1024 px står det under teksten i liggende format. */
   .page-hero__img-wrap {
     position: relative;
     border-radius: var(--r-xl);
     overflow: hidden;
-    /* Portrettformat på desktop */
-    aspect-ratio: 5 / 6;
-    max-height: var(--hero-bilde-maks);
+    aspect-ratio: 16 / 10;
     width: 100%;
     margin-inline: auto;
     box-shadow: var(--shadow-xl);
@@ -342,11 +333,13 @@ const {
     animation: img-slide-in 0.8s var(--ease-out) 0.3s forwards;
   }
 
-  /* @media (max-width: 1023px) {
+  @media (min-width: 1024px) {
     .page-hero__img-wrap {
-      aspect-ratio: 16 / 9;
+      aspect-ratio: auto;
+      /* 560 − 4rem topp − 4.5rem bunn = 424 px. */
+      height: calc(var(--hero-hoyde) - 8.5rem);
     }
-  } */
+  }
 
   @keyframes img-slide-in {
     to {
@@ -355,14 +348,15 @@ const {
     }
   }
 
-  .page-hero__img-wrap img {
+  /* :global — bildet rendres av <Bilde> og får ikke dette scope-attributtet. */
+  .page-hero__img-wrap :global(img) {
     width: 100%;
     height: 100%;
     object-fit: cover;
     object-position: center top;
   }
 
-  /* rustramme — posisjonert bak bildet */
+  /* Kobberramme (signatur) — posisjonert bak bildet */
   .page-hero__img-frame {
     position: absolute;
     inset: -10px -10px 10px 10px;
@@ -388,28 +382,4 @@ const {
     display: block;
   }
 
-  /* Bredt bilde-variant (imgFade) — kun desktop */
-  @media (min-width: 1024px) {
-    .page-hero__inner--wide {
-      grid-template-columns: 40fr 60fr;
-    }
-  }
-
-  .page-hero__img-wrap--fade {
-    border-radius: 0 var(--r-xl) var(--r-xl) 0;
-  }
-
-  .page-hero__img-wrap--fade::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    background: linear-gradient(
-      to right,
-      var(--color-bg-dark) 0%,
-      rgba(var(--rgb-dark), 0.5) 30%,
-      transparent 60%
-    );
-    pointer-events: none;
-  }
 </style>

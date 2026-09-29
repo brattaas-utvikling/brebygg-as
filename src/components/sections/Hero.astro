@@ -9,9 +9,8 @@
 //   Fallbacken /images/hero-forside.webp brukes bare når Sanity ikke er satt.
 //
 // Overlay:
-//   .hero__overlay ligger i globals.css, ikke her. To gradienter — et
-//   venstreanker-scrim over tekstsonen og en vertikal for dybde. Begge bruker
-//   var(--rgb-dark-2), så de følger merkevarefargen automatisk.
+//   .hero__overlay ligger i globals.css, ikke her. Ett jevnt slør
+//   (--hero-slor), felles for alle bildeheroene. Ingen gradienter.
 //
 // Animasjoner:
 //   Heading, lead og knapper fader opp med forsinkelse. CSS-only, ingen JS.
@@ -169,11 +168,7 @@ const {
     display: block;
     width: 1px;
     height: 48px;
-    background: linear-gradient(
-      to bottom,
-      rgba(var(--rgb-inv), 0.5),
-      rgba(var(--rgb-inv), 0)
-    );
+    background-color: rgba(var(--rgb-inv), 0.4);
     animation: scroll-line 2s ease-in-out 1.5s infinite;
   }
 
