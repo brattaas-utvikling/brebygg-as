@@ -2,11 +2,42 @@
 // BRE Bygg AS — autoritativ kilde for NAP, åpningstider og faktagrunnlag.
 // All JSON-LD, llms.txt og synlig kontaktinfo hentes HER. Aldri hardkod på enkeltside.
 //
-// MIDLERTIDIG: denne filen er kilden fram til fase 6, der innholdet migreres til
-// Sanity (`nettstedInnstillinger`). Strukturen speiler skjemaet med vilje, slik at
-// migreringsskriptet blir en ren feltmapping.
+// Verdiene kommer fra «Innstillinger» i Sanity. Verdiene i denne fila er
+// fallback for felt som står tomme, og for bygg uten Sanity (markdown-reserven).
+//
+// Før september 2026 leste ingenting fra Innstillinger: kunden kunne endre
+// telefon, adresse og SoMe-lenker i Studio uten at det nådde nettsiden.
+//
+// Hentes med toppnivå-await, én gang per bygg. Alle som importerer NAP,
+// SOCIAL osv. får Sanity-verdiene uten å vite om det. Fila må derfor aldri
+// importeres fra nettleserkode (<script> eller øyer) — der finnes ikke
+// Sanity-klienten, og det skal den heller ikke.
+
+import { BRUKER_SANITY, sanityKlient } from "@lib/sanity/client";
+import { Q_INNSTILLINGER } from "@lib/sanity/queries";
 
 export const SITE_URL = "https://brebygg.no" as const;
+
+type Innstillinger = {
+  navn?: string; orgnummer?: string; telefon?: string; telefonVisning?: string; epost?: string;
+  adresse?: { gate?: string; postnr?: string; sted?: string; region?: string };
+  geo?: { lat?: number; lng?: number };
+  aapningstider?: string; omraader?: string[]; hovedkommuner?: string[];
+  antallAnsatte?: number;
+  facebook?: string; instagram?: string; linkedin?: string;
+};
+
+const I: Innstillinger = BRUKER_SANITY
+  ? ((await sanityKlient().fetch<Innstillinger | null>(Q_INNSTILLINGER)) ?? {})
+  : {};
+
+/** Sanity-verdien, eller fallbacken hvis feltet er tomt. */
+function velg<T>(verdi: T | null | undefined, fallback: T): T {
+  if (verdi === null || verdi === undefined) return fallback;
+  if (typeof verdi === "string" && verdi.trim() === "") return fallback;
+  if (Array.isArray(verdi) && verdi.length === 0) return fallback;
+  return verdi;
+}
 
 // --------------------------------------------------------------------------
 // NAP — Name, Address, Phone
@@ -15,29 +46,30 @@ export const SITE_URL = "https://brebygg.no" as const;
 // de få rangeringsfaktorene i lokalt søk som faktisk lar seg måle.
 // --------------------------------------------------------------------------
 
+const telefon = velg(I.telefon, "+4745222385");
+
 export const NAP = {
-  name:         "BRE Bygg AS",
+  name:         velg(I.navn, "BRE Bygg AS"),
   // Selskapets adresse. Personlige adresser hører hjemme på TEAM i om-oss.ts —
   // de skal aldri inn i LocalBusiness, fordi en sitering som peker på en person
   // brekker den dagen personen bytter rolle.
-  email:        "kontakt@brebygg.no",
-  phone:        "+4745222385",
-  phoneDisplay: "452 22 385",
-  phoneHref:    "tel:+4745222385",
+  email:        velg(I.epost, "kontakt@brebygg.no"),
+  phone:        telefon,
+  phoneDisplay: velg(I.telefonVisning, "452 22 385"),
+  phoneHref:    `tel:${telefon}`,
   address: {
-    street:      "Nordre Fokserød 21",
-    postalCode:  "3241",
-    city:        "Sandefjord",
-    region:      "Vestfold",
+    street:      velg(I.adresse?.gate, "Nordre Fokserød 21"),
+    postalCode:  velg(I.adresse?.postnr, "3241"),
+    city:        velg(I.adresse?.sted, "Sandefjord"),
+    region:      velg(I.adresse?.region, "Vestfold"),
     country:     "NO",
     countryFull: "Norge",
   },
   geo: {
-
-    latitude:  59.1830952,
-    longitude: 10.2120834,
+    latitude:  velg(I.geo?.lat, 59.1830952),
+    longitude: velg(I.geo?.lng, 10.2120834),
   },
-  orgNumber: "934 308 824",
+  orgNumber: velg(I.orgnummer, "934 308 824"),
 } as const;
 
 /** Full adresse på én linje. Brukt i kartlenker og llms.txt. */
@@ -49,7 +81,9 @@ export const ADRESSE_EN_LINJE =
 // --------------------------------------------------------------------------
 
 export const OPENING_HOURS = {
-  display: "Man–fre: 07:00–16:00",
+  // Visningsteksten kan endres i Studio. Klokkeslettene under går i JSON-LD
+  // og ligger i koden — endres åpningstidene, må begge oppdateres.
+  display: velg(I.aapningstider, "Man–fre: 07:00–16:00"),
   schema: [
     {
       "@type": "OpeningHoursSpecification" as const,
@@ -64,7 +98,7 @@ export const OPENING_HOURS = {
 // Geografisk dekning
 // --------------------------------------------------------------------------
 
-export const AREA_SERVED = [
+export const AREA_SERVED: readonly string[] = velg(I.omraader, [
   "Tønsberg",
   "Sandefjord",
   "Larvik",
@@ -73,11 +107,11 @@ export const AREA_SERVED = [
   "Stokke",
   "Andebu",
   "Vestfold",
-  "Telemark"
-] as const;
+  "Telemark",
+]);
 
 /** De fire hovedkommunene — brukt der lista skal være kort og konkret. */
-export const HOVEDKOMMUNER = ["Tønsberg", "Sandefjord", "Larvik", "Skien"] as const;
+export const HOVEDKOMMUNER: readonly string[] = velg(I.hovedkommuner, ["Tønsberg", "Sandefjord", "Larvik", "Skien"]);
 
 // --------------------------------------------------------------------------
 // FAKTAGRUNNLAG
@@ -89,7 +123,7 @@ export const HOVEDKOMMUNER = ["Tønsberg", "Sandefjord", "Larvik", "Skien"] as c
 
 /** Bekreftet av BRE Bygg. Trygt i schema, llms.txt og synlig tekst. */
 export const FAKTA_BEKREFTET = {
-  ansatte:      3,
+  ansatte:      velg(I.antallAnsatte, 3),
   legalType:    "AS",
   orgNumber:    NAP.orgNumber,
   entrepriseform: "Totalentreprise",
@@ -119,8 +153,8 @@ export const FAKTA_UBEKREFTET = {
 
 export const SEO_DEFAULTS = {
   title:       "BRE Bygg — Totalentreprenør i Vestfold",
-  description: "BRE Bygg bygger i Vestfold og Telemark. Nybygg, rehabilitering og næringsbygg — med fullt ansvar fra første møte til du får nøklene.",
-  ogImage:     `${SITE_URL}/images/brebygg_logo.webp`,
+  description: "BRE Bygg bygger i Vestfold og Telemark. Nybygg og rehabilitering, med fullt ansvar fra første møte til du får nøklene.",
+  ogImage:     `${SITE_URL}/images/og-standard.jpg`,
   locale:      "nb_NO",
   twitterCard: "summary_large_image",
 } as const;
@@ -145,7 +179,7 @@ export type PageMeta = {
 export const PAGE_META = {
   home: {
     title:       "BRE Bygg — Totalentreprenør i Vestfold",
-    description: "BRE Bygg bygger i Vestfold. Nybygg, rehabilitering og næringsbygg — med fullt ansvar fra første møte til du får nøklene.",
+    description: "BRE Bygg bygger i Vestfold. Nybygg og rehabilitering, med fullt ansvar fra første møte til du får nøklene.",
     canonical:   `${SITE_URL}/`,
   },
   omOss: {
@@ -154,9 +188,14 @@ export const PAGE_META = {
     canonical:   `${SITE_URL}/om-oss/`,
   },
   prosjekter: {
-    title:       "Prosjekter — BRE Bygg | Nybygg og næringsbygg i Vestfold",
+    title:       "Prosjekter — BRE Bygg | Nybygg og rehabilitering i Vestfold",
     description: "Ferdige prosjekter fra BRE Bygg i Vestfold. Vi viser hva vi tok på oss, hva som var krevende og hva vi faktisk leverte.",
     canonical:   `${SITE_URL}/prosjekter/`,
+  },
+  baerekraft: {
+    title:       "Bærekraft og miljø — BRE Bygg",
+    description: "Hvordan BRE Bygg jobber med miljø i byggeprosjektene i Vestfold og Telemark, med lenke til bærekraftsrapporten i Miljøfyrtårn-portalen.",
+    canonical:   `${SITE_URL}/baerekraft/`,
   },
   kontakt: {
     title:       "Kontakt BRE Bygg — Totalentreprenør Vestfold",
@@ -170,9 +209,9 @@ export const PAGE_META = {
 // --------------------------------------------------------------------------
 
 export const SOCIAL = {
-  facebook:  "https://www.facebook.com/p/BRE-Bygg-61573773851023/",
-  instagram: "https://www.instagram.com/brebyggas/",
-  linkedin:  "https://www.linkedin.com/company/bre-bygg-as/",
+  facebook:  velg(I.facebook,  "https://www.facebook.com/p/BRE-Bygg-61573773851023/"),
+  instagram: velg(I.instagram, "https://www.instagram.com/brebyggas/"),
+  linkedin:  velg(I.linkedin,  "https://www.linkedin.com/company/bre-bygg-as/"),
 } as const;
 
 /** Rekkefølge og visningsnavn der lenkene vises: footer og SoMe-blokka. */
@@ -227,7 +266,7 @@ export type FaqItem = {
 export const FAQ_ITEMS: readonly FaqItem[] = [
   {
     question: "Hva er en totalentreprenør?",
-    answer:   "En totalentreprenør tar ansvar for hele byggeprosessen — prosjektering, koordinering av underentreprenører og ferdigstillelse. Du forholder deg til én aktør, ikke ti.",
+    answer:   "En totalentreprenør tar ansvar for hele byggeprosessen: prosjektering, koordinering av underentreprenører og ferdigstillelse. Du har én kontaktperson gjennom hele prosjektet.",
   },
   {
     question: "Hvilke kommuner jobber BRE Bygg i?",
@@ -235,7 +274,7 @@ export const FAQ_ITEMS: readonly FaqItem[] = [
   },
   {
     question: "Hvordan får jeg et tilbud?",
-    answer:   "Ring eller send en e-post. Vi setter opp et møte der vi går gjennom prosjektet ditt og gir deg et konkret tilbud — uten forpliktelser.",
+    answer:   "Ring eller send en e-post. Vi avtaler et møte, går gjennom prosjektet ditt og gir deg et skriftlig tilbud. Det er uforpliktende.",
   },
   {
     question: "Tar dere på dere rehabilitering av eldre bygg?",
@@ -252,7 +291,7 @@ export const FAQ_ITEMS: readonly FaqItem[] = [
 //
 // Blokken erstattet i sin tid de oppdiktede tallene («120+ prosjekter»,
 // «18 år i bransjen»). Kunden vil ikke ha en tallrad i det hele tatt, så både
-// heroen på forsiden, /om-oss/ og OmOssTeaser står nå uten.
+// heroen på forsiden og /om-oss/ står nå uten.
 //
 // Trenger dere den tilbake senere: statsRad-blokken i Sanity gjør det samme,
 // og lar klienten skrive tallene selv.

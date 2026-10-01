@@ -38,7 +38,7 @@ export function buildLocalBusiness() {
     "@id":         orgId(),
     "name":        NAP.name,
     "url":         SITE_URL,
-    "description": `Totalentreprenør i Vestfold. Nybygg, rehabilitering og næringsbygg i ${HOVEDKOMMUNER.join(", ")} og omegn.`,
+    "description": `Totalentreprenør i Vestfold. Nybygg og rehabilitering i ${HOVEDKOMMUNER.join(", ")} og omegn.`,
     "telephone":   NAP.phone,
     "email":       NAP.email,
     "vatID":       `NO${NAP.orgNumber.replace(/\s/g, "")}MVA`,
@@ -310,6 +310,25 @@ export function getProsjektSlugSchema(article: ArticleInput, projectTitle: strin
       { label: "Hjem",       url: `${SITE_URL}/` },
       { label: "Prosjekter", url: `${SITE_URL}/prosjekter/` },
       { label: projectTitle, url: article.canonical },
+    ]),
+  );
+}
+
+export function getBaerekraftSchema(canonical: string, navn: string, beskrivelse: string) {
+  return komponerGraf(
+    {
+      "@type":       "WebPage",
+      "@id":         `${canonical}#webpage`,
+      "url":         canonical,
+      "name":        navn,
+      "description": beskrivelse,
+      "inLanguage":  "nb-NO",
+      "isPartOf":    { "@id": websiteId() },
+      "about":       { "@id": orgId() },
+    },
+    buildBreadcrumbList([
+      { label: "Hjem",      url: `${SITE_URL}/` },
+      { label: "Bærekraft", url: canonical },
     ]),
   );
 }

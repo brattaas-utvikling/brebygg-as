@@ -1,0 +1,33 @@
+---
+// src/components/ui/TekstMedTelefon.astro
+//
+// Løpende tekst der firmanummeret blir en ekte tel:-lenke.
+//
+// BaseLayout slår av iOS sin automatiske nummergjenkjenning (format-detection),
+// fordi de autolenkene arvet lenkefargen og ble uleselige på mørk bunn. Uten
+// denne komponenten ville «Ring 452 22 385» i en CTA-tekst dermed ikke lenger
+// vært trykkbar på mobil.
+//
+// Kjenner igjen nummeret med og uten mellomrom og landskode, så det virker
+// også når kunden skriver det selv i Sanity.
+
+import { NAP } from "@config/site";
+
+interface Props {
+  tekst: string | null | undefined;
+}
+
+const { tekst = "" } = Astro.props;
+
+// +4745222385 → 45222385 → /(?:\+47\s?)?4\s?5\s?2\s?2\s?2\s?3\s?8\s?5/
+const lokalt = NAP.phone.replace(/^\+47/, "");
+const monster = new RegExp(`((?:\\+47\\s?)?${lokalt.split("").join("\\s?")})`, "g");
+
+const deler = (tekst ?? "").split(monster);
+---
+
+{deler.map((del, i) =>
+  i % 2 === 1
+    ? <a href={NAP.phoneHref} class="tel-lenke">{del}</a>
+    : del
+)}

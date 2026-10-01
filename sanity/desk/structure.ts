@@ -4,12 +4,18 @@
 // Klienten skal kjenne igjen navigasjonen fra sin egen side. En flat liste over
 // dokumenttyper er riktig for en utvikler og feil for en redaktør.
 //
+// Øverst ligger «Sider» i samme rekkefølge som menyen på nettstedet. Hver side
+// er en singleton: teksten og bildene på selve siden. Innholdet sidene viser
+// (tjenester, prosjekter, personer) ligger under, fordi det lever sitt eget
+// liv — et prosjekt vises både på forsiden, i prosjektlista og på en
+// tjenesteside.
+//
 // Singletons låses til ett dokument — ingen «opprett ny forside»-knapp.
 
 import type { StructureResolver } from "sanity/structure";
 import { SINGLETONS } from "../schemaTypes";
 
-const singleton = (S: Parameters<StructureResolver>[0], type: string, tittel: string, ikon?: string) =>
+const singleton = (S: Parameters<StructureResolver>[0], type: string, tittel: string) =>
   S.listItem()
     .title(tittel)
     .id(type)
@@ -19,7 +25,21 @@ export const structure: StructureResolver = (S) =>
   S.list()
     .title("BRE Bygg")
     .items([
-      singleton(S, "forside", "Forside"),
+      S.listItem()
+        .title("Sider")
+        .id("sider")
+        .child(
+          S.list()
+            .title("Sider")
+            .items([
+              singleton(S, "forside",        "Forside"),
+              singleton(S, "tjenesterSide",  "Tjenester"),
+              singleton(S, "prosjekterSide", "Prosjekter"),
+              singleton(S, "omOssSide",      "Om oss"),
+              singleton(S, "baerekraftSide", "Bærekraft"),
+              singleton(S, "kontaktSide",    "Kontakt"),
+            ])
+        ),
       S.divider(),
 
       S.listItem()
@@ -39,36 +59,26 @@ export const structure: StructureResolver = (S) =>
               S.listItem().title("Fremhevet på forsiden")
                 .child(S.documentList().title("Fremhevet").filter('_type == "prosjekt" && fremhevet == true')),
               S.divider(),
-              ...["nybygg", "rehabilitering", "naeringsbygg"].map((k) =>
-                S.listItem().title(k === "naeringsbygg" ? "Næringsbygg" : k[0]!.toUpperCase() + k.slice(1))
+              ...["nybygg", "rehabilitering"].map((k) =>
+                S.listItem().title(k[0]!.toUpperCase() + k.slice(1))
                   .child(S.documentList().title(k).filter('_type == "prosjekt" && kategori == $k').params({ k }))
               ),
             ])
         ),
 
-      S.listItem().title("Personer").child(S.documentTypeList("teamMedlem").title("Personer")),
+      S.listItem()
+        .title("Siste nytt")
+        .child(S.documentTypeList("nyhet").title("Siste nytt").defaultOrdering([{ field: "dato", direction: "desc" }])),
 
-      // «Sider» er bevisst tatt ut.
-      //
-      // Typen fantes, men ingen rute rendret den: /om-oss/ og /kontakt/ leser
-      // fra src/config/. En tom mappe som ser funksjonell ut inviterer til at
-      // noen legger inn innhold som aldri vises noe sted.
-      //
-      // Skal den tilbake, må /om-oss/ og /kontakt/ først kobles til
-      // `side`-dokumenter med sluggene «om-oss» og «kontakt», og
-      // migreringsskriptet må opprette begge.
+      S.listItem()
+        .title("Personer")
+        .child(S.documentTypeList("teamMedlem").title("Personer").defaultOrdering([{ field: "sortering", direction: "asc" }])),
 
-      // «Meny» er tatt ut, av samme grunn som «Sider» over.
+      // «Meny» er fortsatt bevisst ikke redigerbar.
       //
-      // Dokumenttypen fantes og hadde felter for hovedmeny, footerkolonner og
-      // footertekst, men ingenting leste dem: Header og Footer henter fra
-      // src/config/navigation.ts. Klienten kunne redigere en meny som aldri
-      // vistes noe sted, og et «Vis som knapp»-valg til en knapp som ikke
-      // finnes lenger.
-      //
-      // Menyen er fire punkter som speiler sidestrukturen. Skal den bli
-      // redigerbar, må src/config/navigation.ts først bytte kilde — ellers
-      // gjenoppstår fantomkontrollen.
+      // Menyen speiler sidestrukturen og lenker til sider som finnes i koden.
+      // Et menypunkt til en side som ikke finnes, gir 404. Header og Footer
+      // henter fra src/config/navigation.ts.
 
       S.divider(),
       singleton(S, "nettstedInnstillinger", "Innstillinger"),

@@ -5,7 +5,7 @@ const { blokk } = Astro.props;
 const sporsmaal = Array.isArray(blokk.sporsmaal) ? blokk.sporsmaal : [];
 ---
 <SeksjonsSkall tema={blokk.tema} overskrift={blokk.overskrift}>
-  <div class="tjeneste-faq__liste">
+  <div class="tjeneste-faq__liste reveal">
     {sporsmaal.map((f: any) => (
       <details class="tjeneste-faq__item">
         <summary class="tjeneste-faq__sporsmaal">{f.sporsmaal}</summary>

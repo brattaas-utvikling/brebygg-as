@@ -5,9 +5,14 @@
 
 import { createClient, type SanityClient } from "@sanity/client";
 
-export const SANITY_PROJECT_ID = import.meta.env.PUBLIC_SANITY_PROJECT_ID ?? "";
-export const SANITY_DATASET    = import.meta.env.PUBLIC_SANITY_DATASET    ?? "production";
-const SANITY_TOKEN             = import.meta.env.SANITY_API_READ_TOKEN    ?? "";
+// import.meta.env finnes bare under Astro/Vite. Skriptene i scripts/ kjøres
+// med tsx og gjenbruker standardtekstene i src/lib/sanity/sider.ts — der
+// faller vi tilbake på process.env, som skriptet fyller fra .env.
+const env: Record<string, string | undefined> = import.meta.env ?? process.env;
+
+export const SANITY_PROJECT_ID = env.PUBLIC_SANITY_PROJECT_ID ?? "";
+export const SANITY_DATASET    = env.PUBLIC_SANITY_DATASET    ?? "production";
+const SANITY_TOKEN             = env.SANITY_API_READ_TOKEN    ?? "";
 
 /**
  * Kildebryteren.

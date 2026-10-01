@@ -1,6 +1,7 @@
 ---
 import SeksjonsSkall from "../SeksjonsSkall.astro";
 import { erMorkt } from "@lib/sanity/tema";
+import TekstMedTelefon from "@components/ui/TekstMedTelefon.astro";
 interface Props { blokk: Record<string, any> }
 const { blokk } = Astro.props;
 const tema = blokk.tema ?? "mork";
@@ -8,9 +9,9 @@ const mork = erMorkt(tema);
 const knapper = Array.isArray(blokk.knapper) ? blokk.knapper : [];
 ---
 <SeksjonsSkall tema={tema}>
-  <div class="cta-banner">
+  <div class="cta-banner reveal">
     <h2 class="section-title">{blokk.overskrift}</h2>
-    {blokk.tekst && <p class="section-desc mt-3">{blokk.tekst}</p>}
+    {blokk.tekst && <p class="section-desc mt-3"><TekstMedTelefon tekst={blokk.tekst} /></p>}
     <div class="cta-banner__knapper mt-5">
       {knapper.map((c: any) => (
         <a

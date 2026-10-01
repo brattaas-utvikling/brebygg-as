@@ -122,7 +122,6 @@ const prosjektSkjema = z.object({
   kategori: z.enum([
     "nybygg",
     "rehabilitering",
-    "naeringsbygg",
   ]),
 
   status: z.enum([
@@ -200,6 +199,13 @@ const tjenesteSkjema = z.object({
   /** Hva som inngår. Konkret, ikke verdiløfter. */
   inkludert: z.array(z.string()).min(3),
 
+  /**
+   * Brødtekst fra Sanity. Markdown-reserven har den i body og rendres med
+   * render(entry) i stedet. Manglet her før, og Zod fjernet derfor feltet i
+   * stillhet — kundens tekst ble hentet, men aldri vist.
+   */
+  brodtekst: rikTekst.nullish(),
+
   /** Prosessen, steg for steg. */
   prosess: z.array(z.object({
     tittel: z.string(),
@@ -215,8 +221,20 @@ const tjenesteSkjema = z.object({
   /** Kobler tjenesten til prosjekter. Sluggene valideres mot collection ved bygg. */
   relaterteProsjekter: z.array(z.string()).default([]),
 
+  /** Seksjonsoverskrifter og avslutning. Tomt felt = standardteksten i malen. */
+  overskrifter: z.object({
+    inkludert: z.string().nullish(),
+    prosess:   z.string().nullish(),
+    relaterte: z.string().nullish(),
+    faq:       z.string().nullish(),
+  }).nullish(),
+  cta: z.object({
+    overskrift: z.string().nullish(),
+    tekst:      z.string().nullish(),
+  }).nullish(),
+
   /** Prosjektkategorien tjenesten svarer til. Brukes til «se alle»-lenken. */
-  kategori: z.enum(["nybygg", "rehabilitering", "naeringsbygg"]),
+  kategori: z.enum(["nybygg", "rehabilitering"]),
 
   seoTitle:       z.string().max(60).nullish(),
   seoDescription: z.string().max(160).nullish(),
@@ -234,7 +252,6 @@ export const KATEGORIER = [
   { id: "alle",          label: "Alle prosjekter" },
   { id: "nybygg",        label: "Nybygg" },
   { id: "rehabilitering", label: "Rehabilitering" },
-  { id: "naeringsbygg",  label: "Næringsbygg" },
 ] as const;
 
 export type KategoriId = (typeof KATEGORIER)[number]["id"];
@@ -243,7 +260,6 @@ export type KategoriId = (typeof KATEGORIER)[number]["id"];
 export const KATEGORI_LABEL: Record<Prosjekt["kategori"], string> = {
   nybygg:         "Nybygg",
   rehabilitering: "Rehabilitering",
-  naeringsbygg:   "Næringsbygg",
 };
 
 export const STATUS_LABEL: Record<Prosjekt["status"], string> = {

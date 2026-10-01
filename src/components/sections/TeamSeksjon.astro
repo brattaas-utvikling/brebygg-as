@@ -9,12 +9,22 @@
 //
 // Bilder: /public/images/team/*.webp, portrett 4:5.
 // Tomme bilder: vis initialer.
-// Alle data (navn, bilde, sitat) fylles inn i src/config/om-oss.ts.
+// Personene kommer fra «Personer» i Sanity (via TEAM i om-oss.ts), og
+// overskrift og tekst fra «Om oss».
 //
 // Uten JS vises første person, og kontaktinfo for alle står uansett i
 // JSON-LD og llms.txt.
 
 import { TEAM } from "@config/om-oss";
+import RikTekst from "@components/ui/RikTekst.astro";
+import type { RikTekst as RikTekstType } from "@/content.config";
+
+interface Props {
+  overskrift: string;
+  tekst: RikTekstType;
+}
+
+const { overskrift, tekst } = Astro.props;
 
 // Lag initialer fra navn (f.eks. "Ole Erik Hansen" → "OH")
 function initialer(navn: string): string {
@@ -26,7 +36,6 @@ function initialer(navn: string): string {
   return (første + siste).toUpperCase();
 }
 
-const tosifret = (n: number) => String(n).padStart(2, "0");
 
 // Viser initialene når bildet mangler. Samme mønster som før.
 const visInitialer =
@@ -37,33 +46,9 @@ const visInitialer =
   <div class="container">
     {/* Header */}
     <div class="section-header reveal">
-      <h2 class="section-title mt-3" id="team-heading">
-        Vi er tre erfarne fagfolk innen bygg
-      </h2>
+      <h2 class="section-title mt-3" id="team-heading">{overskrift}</h2>
       <div class="divider"></div>
-      <p class="section-desc">
-        Her er de du møter i prosjektfasen. Noen kamerater starter band, andre
-        drømmer om en kaffebar. Vi? Vi startet et entreprenørfirma. Med solid
-        erfaring fra byggebransjen og en felles forståelse av hva som virkelig
-        betyr noe – kvalitet, sikkerhet og godt samarbeid – var det en selvfølge
-        å bygge noe eget. <span class="p-italic">Bokstavelig talt.</span>
-      </p>
-      <p class="section-desc mt-3">
-        BRE Bygg er en totalentreprenør som leverer nøkkelferdige bygg. Alt fra
-        kontorbygg, logistikk- og lagerhaller, kombinasjonsbygg til
-        leilighetskomplekser
-      </p>
-      <p class="section-desc mt-3">
-        Hos oss handler det ikke bare om stål, betong og stramme tidsfrister.
-        Det handler om å gjøre ting ordentlig fra start til slutt. Vi vet at
-        gode prosjekter ikke bare bygges med dyktige fagfolk og riktige
-        materialer, men også med tillit, tydelig kommunikasjon og en dose godt
-        humør underveis.
-      </p>
-      <p class="section-desc mt-3">
-        Kort sagt: Vi tar jobben på alvor, men oss selv akkurat passe
-        uhøytidelig.
-      </p>
+      <RikTekst verdi={tekst} class="section-desc" />
     </div>
 
     {/* Slider */}
@@ -74,12 +59,10 @@ const visInitialer =
       aria-roledescription="karusell"
       aria-label="Teamet i BRE Bygg"
     >
-      {/* Venstre: teller, etikett og miniatyrer */}
+      {/* Venstre: etikett og miniatyrer. Telleren «01 / 03» er fjernet —
+          nummerering der rekkefølgen ikke betyr noe, er bare pynt. */}
       <div class="team-slider__meta">
         <div class="team-slider__topp">
-          <p class="team-slider__teller" aria-hidden="true">
-            <span data-teller>01</span> / {tosifret(TEAM.length)}
-          </p>
           <p class="team-slider__etikett" aria-hidden="true">Teamet</p>
         </div>
 
@@ -93,16 +76,18 @@ const visInitialer =
                 hidden={i === 0}
                 aria-label={`Vis ${person.navn}`}
               >
-                <img
-                  src={person.bilde}
-                  alt=""
-                  loading="lazy"
-                  decoding="async"
-                  width="80"
-                  height="100"
-                  onerror={visInitialer}
-                />
-                <span class="team-slider__initialer" style="display: none;">
+                {person.bilde && (
+                  <img
+                    src={person.bilde}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    width="80"
+                    height="100"
+                    onerror={visInitialer}
+                  />
+                )}
+                <span class="team-slider__initialer" style={person.bilde ? "display: none;" : undefined}>
                   {initialer(person.navn)}
                 </span>
               </button>
@@ -121,19 +106,21 @@ const visInitialer =
               data-aktiv={i === 0 ? "" : undefined}
               aria-hidden={i === 0 ? undefined : "true"}
             >
-              <img
-                src={person.bilde}
-                alt={person.bildeAlt}
-                loading={i === 0 ? "eager" : "lazy"}
-                decoding="async"
-                width="1229"
-                height="1536"
-                onerror={visInitialer}
-              />
+              {person.bilde && (
+                <img
+                  src={person.bilde}
+                  alt={person.bildeAlt}
+                  loading={i === 0 ? "eager" : "lazy"}
+                  decoding="async"
+                  width="1229"
+                  height="1536"
+                  onerror={visInitialer}
+                />
+              )}
               <span
                 class="team-slider__initialer team-slider__initialer--stor"
                 aria-hidden="true"
-                style="display: none;"
+                style={person.bilde ? "display: none;" : undefined}
               >
                 {initialer(person.navn)}
               </span>
@@ -259,8 +246,7 @@ const visInitialer =
 
   /* ── Rammen ─────────────────────────────────────────────────────────
      Mørk flate inne i den hvite seksjonen. Seksjonen selv forblir hvit, så
-     overgangen fra heroen (nesteTema="hvit") og til den mørke
-     VerdierSeksjon under stemmer fortsatt.
+     overgangen til den mørke VerdierSeksjon under stemmer fortsatt.
 
      Én kolonne på mobil: bilde, tekst, miniatyrer. */
   .team-slider {
@@ -302,21 +288,12 @@ const visInitialer =
     gap: 1.5rem;
   }
 
-  .team-slider__teller {
-    margin: 0;
-    font-size: 0.875rem;
-    font-variant-numeric: tabular-nums;
-    letter-spacing: 0.06em;
-    color: var(--color-text-inv-m);
-  }
-
   .team-slider__etikett {
     display: none;
     margin: 0;
     font-size: 0.8125rem;
     font-weight: 600;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
+    letter-spacing: 0.01em;
     color: var(--color-text-inv);
     writing-mode: vertical-rl;
     transform: rotate(180deg);
@@ -585,7 +562,6 @@ const visInitialer =
     const bilder = [...rot.querySelectorAll<HTMLElement>("[data-bilde]")];
     const paneler = [...rot.querySelectorAll<HTMLElement>("[data-panel]")];
     const miniatyrer = [...rot.querySelectorAll<HTMLButtonElement>("[data-til]")];
-    const teller = rot.querySelector<HTMLElement>("[data-teller]");
     const antall = paneler.length;
     if (antall < 2) return;
 
@@ -623,7 +599,6 @@ const visInitialer =
       panelInn.setAttribute("data-aktiv", "");
       panelInn.inert = false;
 
-      if (teller) teller.textContent = String(neste + 1).padStart(2, "0");
 
       // Miniatyren som ble klikket forsvinner. Fokus flyttes til den som
       // tar plassen, i stedet for å falle tilbake til <body>.

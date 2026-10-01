@@ -1,0 +1,63 @@
+---
+// src/components/ui/RikTekst.astro
+//
+// Én komponent for all rik tekst, uansett kilde.
+//
+// Sanity gir Portable Text, markdown-reserven gir en streng. Før denne fantes
+// ble Portable Text enten flatet ut med tilTekst() — overskrifter, lister og
+// lenker forsvant, og avsnittene rant sammen i én <p> — eller skrevet rett ut
+// som «[object Object]» (TekstBilde på forsiden).
+//
+// Rendres til HTML ved bygg, så ingen JS går til nettleseren. toHTML escaper
+// all tekst, og lenker sjekkes med uriLooksSafe — javascript:-lenker fra et
+// innlimt dokument blir ren tekst, ikke en lenke.
+//
+// H1 fra Studio gjøres om til H2. En side har én <h1>, og den eier heroen.
+// Skjemaene begrenser stilvalget, men eldre innhold eller innliming kan
+// fortsatt ha h1.
+
+import { toHTML, escapeHTML, uriLooksSafe } from "@portabletext/to-html";
+import type { RikTekst } from "@/content.config";
+
+interface Props {
+  verdi: RikTekst | null | undefined;
+  class?: string;
+}
+
+const { verdi, class: klasse } = Astro.props;
+
+function lenke(href: string, innhold: string): string {
+  if (!uriLooksSafe(href)) return innhold;
+  const ekstern = /^https?:\/\//i.test(href) && !/^https?:\/\/(www\.)?brebygg\.no/i.test(href);
+  const rel = ekstern ? ` target="_blank" rel="noopener noreferrer"` : "";
+  return `<a href="${escapeHTML(href)}"${rel}>${innhold}</a>`;
+}
+
+function tilHtml(v: RikTekst): string {
+  // Markdown-reserven: avsnitt skilt med tom linje.
+  if (typeof v === "string") {
+    return v
+      .split(/\n\s*\n/)
+      .map((a) => a.trim())
+      .filter(Boolean)
+      .map((a) => `<p>${escapeHTML(a)}</p>`)
+      .join("");
+  }
+
+  return toHTML(v as Parameters<typeof toHTML>[0], {
+    onMissingComponent: false,
+    components: {
+      block: {
+        h1: ({ children }) => `<h2>${children}</h2>`,
+      },
+      marks: {
+        link: ({ children, value }) => lenke(String(value?.href ?? ""), children),
+      },
+    },
+  });
+}
+
+const html = verdi ? tilHtml(verdi) : "";
+---
+
+{html && <div class:list={["rik-tekst", klasse]} set:html={html} />}

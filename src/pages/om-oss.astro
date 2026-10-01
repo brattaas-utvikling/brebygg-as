@@ -2,56 +2,55 @@
 // src/pages/om-oss.astro
 // Om oss-siden for brebygg.no
 //
-// Seksjonsrekkefølge (fra spec):
+// All tekst og alle bilder redigeres i Studio under Sider → Om oss.
+// Personene i teamslideren redigeres under Personer.
+//
+// Seksjonsrekkefølge:
 //   1. Header   (i PageLayout)
-//   2. HeroPage — split: tekst venstre + bilde høyre, sitat, stats
-//   3. HistorieSeksjon — vertikal tidslinje
-//   4. TeamSeksjon — portrettkort med navn og rolle
-//   5. VerdierSeksjon — 4 verdier på mørk bakgrunn
-//   6. HmsSeksjon — HMS-punkter + sertifiserings-badges
-//   8. Footer   (i PageLayout)
+//   2. HeroPage — split: tekst venstre + bilde høyre, sitat
+//   3. TeamSeksjon — portrettslider
+//   4. VerdierSeksjon — verdier på mørk bakgrunn
+//   5. HmsSeksjon — HMS-punkter
+//   6. Tilleggsseksjoner fra Studio (valgfritt)
+//   7. Footer   (i PageLayout)
 
 import PageLayout from "@layouts/PageLayout.astro";
 import HeroPage from "@components/sections/HeroPage.astro";
 import TeamSeksjon from "@components/sections/TeamSeksjon.astro";
 import VerdierSeksjon from "@components/sections/VerdierSeksjon.astro";
 import HmsSeksjon from "@components/sections/HmsSeksjon.astro";
+import Seksjoner from "@components/forside/Seksjoner.astro";
 
 import { PAGE_META, FAKTA_BEKREFTET } from "@config/site";
 import { getOmOssSchema } from "@lib/seo/jsonld";
+import { hentOmOssSide, medSeo, heroPreloadBilde, SIDEHERO_SIZES } from "@lib/sanity/sider";
 
+const side = await hentOmOssSide(FAKTA_BEKREFTET.ansatte);
+const meta = medSeo(PAGE_META.omOss, side.seo);
 const schema = getOmOssSchema(PAGE_META.omOss.canonical);
-
-// Sitat fra daglig leder (oppdater tekst og kilde)
-const sitat =
-  "Vi lever av anbefalinger. Det er det ærligste kvalitetsbeviset vi kan ha.";
-const sitatKilde = "Rudi, BRE Bygg AS";
 ---
 
 <PageLayout
-  meta={PAGE_META.omOss}
+  meta={meta}
   schema={schema}
-  heroImage="/images/om-oss-hero.webp"
+  heroImage={heroPreloadBilde(side.hero.bilde)}
+  heroSizes={SIDEHERO_SIZES}
 >
   <main id="main-content">
-    {/* 2. HeroPage — split-hero */}
     <HeroPage
-      nesteTema="hvit"
-      heading="Totalentreprenør<br />i Vestfold og Telemark"
-      lead={`BRE Bygg er ${FAKTA_BEKREFTET.ansatte} personer med base i Sandefjord. Vi leverer nybygg, rehabilitering og næringsbygg i Tønsberg, Sandefjord, Larvik og Horten — som totalentreprenør, med én prosjektleder på hvert oppdrag.`}
-      sitat={sitat}
-      sitatKilde={sitatKilde}
-      imgSrc="/images/om-oss-hero.webp"
-      imgAlt="BRE Bygg-team på byggeplass i Vestfold"
-      imgWidth={800}
-      imgHeight={960}
-      imgFade={true}
+      heading={side.hero.tittel}
+      lead={side.hero.ingress}
+      sitat={side.hero.sitat}
+      sitatKilde={side.hero.sitatKilde}
+      bilde={side.hero.bilde}
     />
 
-    <TeamSeksjon />
+    <TeamSeksjon overskrift={side.team.overskrift} tekst={side.team.tekst} />
 
-    <VerdierSeksjon />
+    <VerdierSeksjon {...side.verdier} />
 
-    <HmsSeksjon />
+    <HmsSeksjon {...side.hms} />
+
+    <Seksjoner seksjoner={side.seksjoner} />
   </main>
 </PageLayout>

@@ -4,18 +4,12 @@ import { bildeSrc } from "@/content.config";
 // Tjeneste-seksjon med bento-grid layout på mørk bakgrunn.
 //
 // Layout:
-//   Rad 1: Nybygg (7 kol) | Rehabilitering (5 kol)
-//   Rad 2: Næringsbygg (12 kol — full bredde, kortere høyde)
+//   Størrelsen per kort styres av bentoStorrelse på tjenesten i Sanity.
 //
-// Hover-effekt:
-//   Beskrivelse og lenke er skjult (max-height: 0) og avdukes ved hover.
-//   Definert i globals.css (.tjeneste-card__desc, .tjeneste-card__link).
+// Beskrivelse og lenke er alltid synlige, også uten mus. Stilene står i
+// globals.css (.tjeneste-card__desc, .tjeneste-card__link).
 //
-// Bilder:
-//   /public/images/tjenester/nybygg.webp
-//   /public/images/tjenester/rehabilitering.webp
-//   /public/images/tjenester/naeringsbygg.webp
-//   Alle: maks 200 KB, 1200×800 px, WebP
+// Bildene er herobildet til hver tjeneste i Sanity.
 
 import { getCollection } from "astro:content";
 
@@ -80,11 +74,11 @@ const { skjulTopp = false } = Astro.props;
     }
 
     {/* Bento-grid */}
-    <div class="tjeneste-grid" role="list" aria-label="Tjenester">
+    <div class="tjeneste-grid reveal" role="list" aria-label="Tjenester">
       {
-        cards.map((card, i) => (
+        cards.map((card) => (
           <article
-            class={`tjeneste-card ${card.cardClass} reveal${i === 0 ? "" : `-d${Math.min(i, 2)}`}`}
+            class={`tjeneste-card ${card.cardClass}`}
             role="listitem"
             aria-label={card.title}
           >
@@ -100,23 +94,11 @@ const { skjulTopp = false } = Astro.props;
               />
             </div>
 
-            {/* Gradient-overlay */}
-            <div class="tjeneste-card__overlay" aria-hidden="true" />
-
-            {/* Kortinnhold */}
-            <div class="tjeneste-card__body">
-              {/* Kategori-tag */}
-              <span class="tjeneste-card__tag" aria-hidden="true">
-                {card.title}
-              </span>
-
-              {/* Tittel — alltid synlig */}
+            {/* Kortinnhold. Sløret ligger på selve tekstblokken, se
+                .tjeneste-card__body i globals.css. */}
+            <div class="tjeneste-card__body slor-tekst">
               <h3 class="tjeneste-card__title">{card.title}</h3>
-
-              {/* Beskrivelse — avdukes ved hover */}
               <p class="tjeneste-card__desc">{card.description}</p>
-
-              {/* Lenke — avdukes ved hover */}
               <a
                 href={card.slug}
                 class="tjeneste-card__link"
@@ -148,21 +130,6 @@ const { skjulTopp = false } = Astro.props;
 </section>
 
 <style>
-  /* Kategori-tag øverst i kortet */
-  .tjeneste-card__tag {
-    display: inline-flex;
-    padding: 0.25rem 0.625rem;
-    background-color: color-mix(in srgb, var(--color-primary) 25%, transparent);
-    color: var(--bandicoot-50);
-    border-radius: var(--r-full);
-    font-size: 0.6875rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    margin-bottom: 0.5rem;
-    width: fit-content;
-  }
-
   /* Full-bredd card: liggende format */
   .tjeneste-card--full .tjeneste-card__body {
     flex-direction: row;

@@ -8,48 +8,38 @@
 //   rustlinje langs diagonalkanten
 //   Hover: bilde zoomer lett inn
 //
-// Bilder:
-//   /public/images/verdier/ansvar.webp      — 600×400 px, maks 120 KB
-//   /public/images/verdier/risiko.webp
-//   /public/images/verdier/kunnskap.webp
-//   /public/images/verdier/fremdrift.webp
+// Innhold og bilder kommer fra «Om oss» i Sanity. Standardverdiene (med
+// bildene i /public/images/verdier/) ligger i src/lib/sanity/sider.ts.
 
-import { VERDIER } from "@config/om-oss";
+import Bilde from "@components/sanity/Bilde.astro";
+import type { OmOssSide } from "@lib/sanity/sider";
+
+type Props = OmOssSide["verdier"];
+
+const { overskrift, ingress, punkter } = Astro.props;
 ---
 
 <section class="verdier-seksjon section" aria-labelledby="verdier-heading">
   <div class="container">
     {/* Seksjonsheader */}
     <div class="section-header section-header--center text-inv reveal">
-      <h2 class="section-title mt-3" id="verdier-heading">
-        Det vi faktisk mener
-      </h2>
+      <h2 class="section-title mt-3" id="verdier-heading">{overskrift}</h2>
       <div class="divider divider--center"></div>
-      <p class="section-desc" style="margin-inline: auto;">
-        Disse fire punktene er ikke plakater på veggen. De er beslutninger vi
-        tar daglig — og som kundene våre merker over tid.
-      </p>
+      <p class="section-desc" style="margin-inline: auto;">{ingress}</p>
     </div>
 
     {/* Kortgrid */}
-    <div class="vd-grid" role="list" aria-label="Verdier og arbeidsprinsipper">
+    <div class="vd-grid reveal" role="list" aria-label="Verdier og arbeidsprinsipper">
       {
-        VERDIER.map((v, i) => (
+        punkter.map((v) => (
           <article
-            class={`vd-kort reveal-d${Math.min(i % 2, 1) as 0 | 1}`}
+            class="vd-kort"
             role="listitem"
             aria-label={v.tittel}
           >
             {/* Bilde — klippet med diagonal, gylne snitt-bredde */}
             <div class="vd-bilde" aria-hidden="true">
-              <img
-                src={v.bilde}
-                alt={v.bildeAlt}
-                loading="lazy"
-                decoding="async"
-                width="600"
-                height="400"
-              />
+              <Bilde kilde={v.bilde} alt="" fyll bredde={600} hoyde={400} sizes="(max-width: 768px) 40vw, 300px" />
               {/* ruststrek langs diagonalkanten */}
               <div class="vd-diagonal-linje" aria-hidden="true" />
             </div>
@@ -57,9 +47,6 @@ import { VERDIER } from "@config/om-oss";
             {/* Tekst */}
             <div class="vd-tekst">
               <p class="vd-nr-kategori">
-                <span class="vd-nr" aria-hidden="true">
-                  {v.nr}
-                </span>
                 <span class="vd-kategori">{v.kategori}</span>
               </p>
               <h3 class="vd-tittel">{v.tittel}</h3>
@@ -77,23 +64,9 @@ import { VERDIER } from "@config/om-oss";
   .verdier-seksjon {
     background-color: var(--color-bg-dark);
     position: relative;
-    overflow: hidden;
-  }
-
-  .verdier-seksjon::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(
-      to right,
-      transparent,
-      rgba(var(--rgb-primary), 0.25) 30%,
-      rgba(var(--rgb-primary), 0.25) 70%,
-      transparent
-    );
+    /* clip og ikke hidden: hidden gjør seksjonen til en scroll-container,
+       og .reveal inni kobler seg da til en tidslinje som aldri går. */
+    overflow: clip;
   }
 
   /* ── 2×2 kortgrid ────────────────────────────────────────────────── */
@@ -119,19 +92,16 @@ import { VERDIER } from "@config/om-oss";
     --vd-kort-border: rgba(var(--rgb-inv), 0.07);
     --vd-kort-border-hover: color-mix(
       in srgb,
-      var(--color-primary) 25%,
+      var(--color-signature) 40%,
       transparent
     );
-    --vd-bilde-scrim: color-mix(
-      in srgb,
-      var(--color-bg-dark-2) 35%,
-      transparent
-    );
-    --vd-linje-slutt: color-mix(in srgb, var(--color-primary) 25%, transparent);
+    --vd-linje-slutt: color-mix(in srgb, var(--color-signature) 25%, transparent);
 
     background-color: var(--color-bg-dark);
     position: relative;
-    overflow: hidden;
+    /* clip og ikke hidden: hidden gjør seksjonen til en scroll-container,
+       og .reveal inni kobler seg da til en tidslinje som aldri går. */
+    overflow: clip;
   }
 
   .vd-kort {
@@ -141,15 +111,10 @@ import { VERDIER } from "@config/om-oss";
     overflow: hidden;
     background-color: var(--vd-kort-bg); /* var #243545 */
     border: 1px solid var(--vd-kort-border);
-    transition:
-      transform var(--transition-base),
-      box-shadow var(--transition-base),
-      border-color var(--transition-base);
+    transition: border-color var(--transition-base);
   }
 
   .vd-kort:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.35);
     border-color: var(
       --vd-kort-border-hover
     ); /* var rgba(var(--rgb-primary), 0.2) */
@@ -173,7 +138,9 @@ import { VERDIER } from "@config/om-oss";
     z-index: 1;
   }
 
-  .vd-bilde img {
+  /* :global — bildet rendres av <Bilde>, som ikke får denne komponentens
+     scope-attributt. Uten det traff regelen bare lokale <img>. */
+  .vd-bilde :global(img) {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -182,11 +149,10 @@ import { VERDIER } from "@config/om-oss";
     transition: transform 0.55s var(--ease-out);
   }
 
-  .vd-kort:hover .vd-bilde img {
-    transform: scale(1.06);
-  }
 
-  /* Mørk gradient over bildet for kontrast */
+  /* Overgang fra bildet inn mot teksten til høyre. Samme system som .slor
+     (warm dark, mørkest på tekstsiden), men svakere: teksten står ikke over
+     bildet her, så overgangen er bare en myk kant. */
   .vd-bilde::before {
     content: "";
     position: absolute;
@@ -194,8 +160,8 @@ import { VERDIER } from "@config/om-oss";
     z-index: 1;
     background: linear-gradient(
       to right,
-      transparent 50%,
-      var(--vd-bilde-scrim) 100%
+      rgba(var(--rgb-dark-2), 0) 50%,
+      rgba(var(--rgb-dark-2), 0.35) 100%
     );
     pointer-events: none;
   }
@@ -209,7 +175,7 @@ import { VERDIER } from "@config/om-oss";
     z-index: 2;
     background: linear-gradient(
       to bottom,
-      var(--color-primary),
+      var(--color-signature),
       var(--vd-linje-slutt)
     );
     transform-origin: top right;
@@ -227,32 +193,13 @@ import { VERDIER } from "@config/om-oss";
     min-width: 0; /* Hindrer overflow i flex-child */
   }
 
-  /* Nr + kategori på én linje */
+  /* Kategori (nummereringen 01–04 er fjernet: verdiene har ingen rekkefølge) */
   .vd-nr-kategori {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     margin-bottom: 0.5rem;
     max-width: none;
-  }
-
-  /* primary-l og ikke primary: kortet står på bandicoot-800, og rust-700 er
-     en lys-flate-farge — den ga 2,15:1 her. opacity 0.75 er også borte; den
-     dro tallet ned igjen etter at fargen var rettet. */
-  .vd-nr {
-    font-family: var(--ff-display);
-    font-size: 0.6875rem;
-    font-weight: 700;
-    color: var(--color-primary-l);
-    letter-spacing: 0.08em;
-    flex-shrink: 0;
-  }
-
-  /* Liten vertikal separator */
-  .vd-nr-kategori .vd-nr::after {
-    content: " —";
-    margin-left: 0.15em;
-    opacity: 0.4;
   }
 
   .vd-kategori {
@@ -299,211 +246,3 @@ import { VERDIER } from "@config/om-oss";
     }
   }
 </style>
-
-<!-- 
----
-// src/components/sections/VerdierSeksjon.astro
-// Selskapets fire verdier i 2×2-grid.
-// Mørk bakgrunn (bandicoot-800) med rustaksenter.
-
-import { VERDIER } from "@config/om-oss";
----
-
-<section
-  class="verdier-seksjon section"
-  aria-labelledby="verdier-heading"
->
-  <div class="container">
-
-
-    <div class="section-header section-header--center text-inv reveal">
-      <h2 class="section-title mt-3" id="verdier-heading">
-        Det vi faktisk mener
-      </h2>
-      <div class="divider divider--center"></div>
-      <p class="section-desc" style="margin-inline: auto;">
-        Disse fire punktene er ikke plakater på veggen. De er beslutninger
-        vi tar daglig — og som kundene våre merker over tid.
-      </p>
-    </div>
-
-    <div
-      class="verdier-grid"
-      role="list"
-      aria-label="Verdier og arbeidsprinsipper"
-    >
-      {VERDIER.map((v, i) => (
-        <div
-          class={`verdi-kort reveal-d${i % 2 === 0 ? 0 : 1}`}
-          role="listitem"
-        >
-
-          <div class="verdi-ikon" aria-hidden="true">
-            <span class="verdi-ikon__tegn">{v.ikon}</span>
-
-            <div class="verdi-ikon__glød" aria-hidden="true"></div>
-          </div>
-
-
-          <div class="verdi-body">
-            <h3 class="verdi-tittel">{v.tittel}</h3>
-            <p class="verdi-tekst">{v.tekst}</p>
-          </div>
-
-        </div>
-      ))}
-    </div>
-
-  </div>
-</section>
-
-
-<style>
-  /* ── Seksjonsbakgrunn ─────────────────────────────────────────────── */
-  .verdier-seksjon {
-    background-color: var(--color-bg-dark);
-    position:         relative;
-    overflow:         hidden;
-  }
-
-  /* Subtil radial-lysning øverst */
-  .verdier-seksjon::before {
-    content:    "";
-    position:   absolute;
-    top:        -30%;
-    right:      -10%;
-    width:      60%;
-    height:     120%;
-    background: radial-gradient(
-      ellipse at 70% 30%,
-      rgba(var(--rgb-primary), 0.07) 0%,
-      transparent 65%
-    );
-    pointer-events: none;
-  }
-
-  /* ── Grid ──────────────────────────────────────────────────────────── */
-  .verdier-grid {
-    display:               grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap:                   1.25rem;
-    position:              relative;
-    z-index:               1;
-  }
-
-  @media (max-width: 767px) {
-    .verdier-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  /* ── Verdikort ─────────────────────────────────────────────────────── */
-  .verdi-kort {
-    display:          flex;
-    gap:              1.375rem;
-    padding:          1.875rem;
-    background-color: rgba(255, 255, 255, 0.04);
-    border:           1px solid rgba(255, 255, 255, 0.07);
-    border-radius:    var(--r-lg);
-    transition:
-      background-color  var(--transition-base),
-      border-color      var(--transition-base),
-      transform         var(--transition-base);
-    position:         relative;
-    overflow:         hidden;
-  }
-
-  .verdi-kort::before {
-    content:    "";
-    position:   absolute;
-    top:        0;
-    left:       0;
-    right:      0;
-    height:     2px;
-    background: linear-gradient(
-      to right,
-      var(--color-primary) 0%,
-      transparent 70%
-    );
-    opacity: 0;
-    transition: opacity var(--transition-base);
-  }
-
-  .verdi-kort:hover {
-    background-color: rgba(var(--rgb-primary), 0.07);
-    border-color:     rgba(var(--rgb-primary), 0.2);
-    transform:        translateY(-2px);
-  }
-
-  .verdi-kort:hover::before {
-    opacity: 1;
-  }
-
-  /* ── Ikon ──────────────────────────────────────────────────────────── */
-  .verdi-ikon {
-    flex-shrink:     0;
-    position:        relative;
-    width:           3.25rem;
-    height:          3.25rem;
-    display:         flex;
-    align-items:     center;
-    justify-content: center;
-    background-color: rgba(var(--rgb-primary), 0.15);
-    border-radius:   var(--r-md);
-    margin-top:      0.125rem;
-  }
-
-  .verdi-ikon__tegn {
-    font-size:  1.375rem;
-    color:      var(--color-primary);
-    position:   relative;
-    z-index:    1;
-    line-height: 1;
-    /* Unicode-tegnene brukt som geometriske ikoner */
-    font-family: var(--ff-display);
-    font-weight: 700;
-  }
-
-  /* Subtil glød bak ikonet */
-  .verdi-ikon__glød {
-    position:   absolute;
-    inset:      0;
-    border-radius: inherit;
-    background: radial-gradient(
-      circle at 50% 50%,
-      rgba(var(--rgb-primary), 0.3) 0%,
-      transparent 70%
-    );
-    opacity: 0;
-    transition: opacity var(--transition-base);
-  }
-
-  .verdi-kort:hover .verdi-ikon__glød {
-    opacity: 1;
-  }
-
-  /* ── Tekst ─────────────────────────────────────────────────────────── */
-  .verdi-body {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .verdi-tittel {
-    font-family:    var(--ff-display);
-    font-size:      1.0625rem;
-    font-weight:    700;
-    color:          var(--color-text-inv);
-    margin-bottom:  0.5rem;
-    letter-spacing: -0.01em;
-    line-height:    1.25;
-  }
-
-  .verdi-tekst {
-    font-size:   0.9375rem;
-    color:       var(--color-text-inv-m);
-    line-height: 1.65;
-    margin:      0;
-    max-width:   none;
-  }
-</style>
--->

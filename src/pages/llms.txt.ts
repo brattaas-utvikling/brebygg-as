@@ -31,7 +31,7 @@ export const GET: APIRoute = async () => {
     `> Totalentreprenør i Vestfold, Norge.`,
     ``,
     `${NAP.name} er en totalentreprenør med base i ${NAP.address.city}. Vi leverer nybygg,`,
-    `rehabilitering og næringsbygg til private og næringskunder i ${HOVEDKOMMUNER.join(", ")}`,
+    `rehabilitering til private, næringskunder og offentlige byggherrer i ${HOVEDKOMMUNER.join(", ")}`,
     `og omegn. Som totalentreprenør har oppdragsgiver ett kontaktpunkt og vi har`,
     `ansvaret for prosjektering, koordinering av underentreprenører og ferdigstillelse.`,
     ``,
@@ -61,6 +61,10 @@ export const GET: APIRoute = async () => {
     ...tjenester.map((t) =>
       `- [${t.data.title}](${SITE_URL}/tjenester/${t.id}/): ${t.data.description}`
     ),
+    ``,
+    `## Bærekraft`,
+    ``,
+    `- [Bærekraft og miljø](${SITE_URL}/baerekraft/)`,
     ``,
     `## Vanlige spørsmål`,
     ``,

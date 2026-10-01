@@ -85,6 +85,7 @@ export default defineConfig({
         if (path === "/prosjekter/")         return { ...item, priority: 0.9, changefreq: "monthly" };
         if (path === "/om-oss/")             return { ...item, priority: 0.8, changefreq: "yearly"  };
         if (path === "/kontakt/")            return { ...item, priority: 0.7, changefreq: "yearly"  };
+        if (path === "/baerekraft/")         return { ...item, priority: 0.6, changefreq: "monthly" };
         if (path.startsWith("/tjenester/"))  return { ...item, priority: 0.9, changefreq: "monthly" };
         if (path.startsWith("/prosjekter/")) return { ...item, priority: 0.8, changefreq: "monthly" };
         return { ...item, priority: 0.6, changefreq: "monthly" };

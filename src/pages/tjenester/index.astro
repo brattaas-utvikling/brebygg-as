@@ -7,7 +7,7 @@ import { getCollection } from "astro:content";
 import PageLayout from "@layouts/PageLayout.astro";
 import HeroPage from "@components/sections/HeroPage.astro";
 import CtaSeksjon from "@components/sections/CtaSeksjon.astro";
-import { SITE_URL, NAP, HOVEDKOMMUNER, type PageMeta } from "@config/site";
+import { SITE_URL, HOVEDKOMMUNER, type PageMeta } from "@config/site";
 import {
   komponerGraf,
   buildBreadcrumbList,
@@ -15,6 +15,11 @@ import {
 } from "@lib/seo/jsonld";
 import { KATEGORI_LABEL } from "@/content.config";
 import Bilde from "@components/sanity/Bilde.astro";
+import Seksjoner from "@components/forside/Seksjoner.astro";
+import { hentTjenesterSide, medSeo, heroPreloadBilde, SIDEHERO_SIZES } from "@lib/sanity/sider";
+
+// Hero, avslutning og SEO redigeres i Studio under Sider → Tjenester.
+const side = await hentTjenesterSide();
 
 const tjenester = (await getCollection("tjenester")).sort(
   (a, b) => a.data.sortOrder - b.data.sortOrder
@@ -22,11 +27,11 @@ const tjenester = (await getCollection("tjenester")).sort(
 
 const canonical = `${SITE_URL}/tjenester/`;
 
-const pageMeta: PageMeta = {
+const pageMeta: PageMeta = medSeo({
   title: "Tjenester — totalentreprenør i Vestfold | BRE Bygg",
-  description: `Nybygg, rehabilitering og næringsbygg i ${HOVEDKOMMUNER.join(", ")}. BRE Bygg tar totalentreprisen — én avtale, én prosjektleder.`,
+  description: `Nybygg og rehabilitering i ${HOVEDKOMMUNER.join(", ")}. BRE Bygg tar totalentreprisen — én avtale, én prosjektleder.`,
   canonical,
-};
+}, side.seo);
 
 // Én Service-node per tjeneste. Alle kobles til LocalBusiness via provider,
 // så Google ser hvilket selskap som leverer hva.
@@ -46,56 +51,156 @@ const schema = komponerGraf(
 );
 ---
 
-<PageLayout meta={pageMeta} schema={schema}>
+<PageLayout meta={pageMeta} schema={schema} heroImage={heroPreloadBilde(side.hero.bilde)} heroSizes={SIDEHERO_SIZES}>
   <main id="main-content">
     <HeroPage
-      nesteTema="lys"
-      heading="Tre måter vi bygger på"
-      lead={`BRE Bygg er totalentreprenør i ${HOVEDKOMMUNER.join(", ")} og omegn. Du har én avtale og én prosjektleder, uansett hvilken av de tre du trenger.`}
-      imgSrc="/images/tjenester/nybygg.jpg"
-      imgAlt="Byggeplass i Vestfold"
+      heading={side.hero.tittel}
+      lead={side.hero.ingress}
+      bilde={side.hero.bilde}
     />
 
-    <section class="section sek--lys" aria-labelledby="tjenester-tittel">
-      <div class="container">
-        <h2 class="sr-only" id="tjenester-tittel">Våre tjenester</h2>
+    {/* «To dører» (valgt retning B, september 2026). Hver tjeneste er én
+        bildeflate over hele høyden, side om side på desktop og under hverandre
+        på mobil. Hele flaten er lenken. Teksten står på et festet slør
+        (.slor-tekst), så lesbarheten ikke avhenger av bildet kunden velger.
+        Tre tjenester får plass på én rad; fire eller flere brytes til to per
+        rad. */}
+    <section class="dorer" aria-labelledby="tjenester-tittel">
+      <h2 class="sr-only" id="tjenester-tittel">Våre tjenester</h2>
 
-        <div class="tjeneste-relaterte" role="list">
-          {
-            tjenester.map((t) => (
-              <a
-                href={`/tjenester/${t.id}/`}
-                class="prosjekt-card"
-                role="listitem"
-              >
-                <div class="prosjekt-card__img">
+      <div class="dorer__rad" role="list">
+        {
+          tjenester.map((t) => {
+            const kort = t.data.kortTittel ?? t.data.title;
+            return (
+              <a href={`/tjenester/${t.id}/`} class="dor" role="listitem">
+                <div class="dor__bilde" aria-hidden="true">
                   <Bilde
                     kilde={t.data.heroImage}
-                    alt={t.data.heroImage.alt}
-                    bredde={800}
-                    hoyde={500}
+                    alt=""
+                    fyll
+                    sizes="(min-width: 800px) 50vw, 100vw"
+                    bredde={1200}
+                    hoyde={900}
                   />
                 </div>
-                <div class="prosjekt-card__body">
-                  <span class="prosjekt-card__tag">
-                    {KATEGORI_LABEL[t.data.kategori]}
+                <div class="dor__innhold slor-tekst">
+                  <h3 class="dor__tittel">{kort}</h3>
+                  <p class="dor__tekst">{t.data.description}</p>
+                  <span class="btn btn--primary dor__knapp">
+                    Les om {kort.toLowerCase()}
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
                   </span>
-                  <h3 class="prosjekt-card__title">
-                    {t.data.kortTittel ?? t.data.title}
-                  </h3>
-                  <p class="prosjekt-card__desc">{t.data.description}</p>
                 </div>
               </a>
-            ))
-          }
-        </div>
+            );
+          })
+        }
       </div>
     </section>
 
+    <Seksjoner seksjoner={side.seksjoner} />
+
     <CtaSeksjon
       variant="dark"
-      heading="Usikker på hvilken av dem du trenger?"
-      sub={`Ring ${NAP.phoneDisplay}, så finner vi ut av det sammen. Vi sier fra hvis vi ikke er riktig entreprenør for jobben.`}
+      heading={side.cta.overskrift}
+      sub={side.cta.tekst}
     />
   </main>
 </PageLayout>
+
+<style>
+  .dorer {
+    background-color: rgb(var(--rgb-dark-2));
+  }
+
+  .dorer__rad {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  @media (min-width: 800px) {
+    .dorer__rad {
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+  }
+
+  .dor {
+    position: relative;
+    isolation: isolate;
+    overflow: clip;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    min-height: 440px;
+    color: var(--color-text-inv);
+    text-decoration: none;
+  }
+
+  @media (min-width: 800px) {
+    .dor {
+      flex: 1 1 360px;
+      min-height: min(78svh, 640px);
+      transition: flex-grow 0.6s var(--ease-out);
+    }
+  }
+
+  .dor__bilde {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+
+  .dor__innhold {
+    padding-inline: clamp(1.5rem, 4vw, 3rem);
+    padding-bottom: clamp(1.75rem, 4vw, 3rem);
+  }
+
+  .dor__innhold > * {
+    max-width: 34rem;
+  }
+
+  .dor__tittel {
+    font-size: clamp(2rem, 4.5vw, 3.25rem);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    color: var(--color-text-inv);
+  }
+
+  .dor__tekst {
+    margin-top: 0.75rem;
+    color: var(--color-text-inv-m);
+  }
+
+  .dor__knapp {
+    margin-top: 1.5rem;
+    align-self: flex-start;
+  }
+
+  .dor__knapp svg {
+    transition: transform var(--transition-fast);
+  }
+
+  .dor:focus-visible {
+    outline: 3px solid var(--gull-l);
+    outline-offset: -6px;
+  }
+
+  /* Døren man peker på blir bredere. Bare med mus: på berøringsskjerm ville
+     første trykk bare utvidet flaten. Bildet zoomer ikke. */
+  @media (hover: hover) and (pointer: fine) and (min-width: 800px) {
+    .dor:hover {
+      flex-grow: 1.4;
+    }
+    .dor:hover .dor__knapp {
+      background-color: var(--color-action-hover);
+    }
+    .dor:hover .dor__knapp svg {
+      transform: translateX(3px);
+    }
+  }
+</style>

@@ -67,6 +67,11 @@
       "source": "/hjem",
       "destination": "/",
       "permanent": true
+    },
+    {
+      "source": "/tjenester/naeringsbygg/",
+      "destination": "/tjenester/",
+      "permanent": true
     }
   ]
 }

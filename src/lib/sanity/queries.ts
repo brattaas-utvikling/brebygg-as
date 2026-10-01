@@ -35,13 +35,8 @@ export const Q_INNSTILLINGER = `*[_type == "nettstedInnstillinger"][0]{
  * komponent ut fra den. Referanser løses opp her, ikke i komponenten, så
  * ingen komponent trenger å vite at data kommer fra Sanity.
  */
-export const Q_FORSIDE = `*[_type == "forside"][0]{
-  hero {
-    tittel, ingress,
-    bilde ${BILDE},
-    knapper[] ${CTA}
-  },
-  seksjoner[]{
+/** Blokkbiblioteket. Delt mellom forsiden og undersidenes tilleggsseksjoner. */
+const SEKSJONER = `seksjoner[]{
     _type, _key, tema,
     overskrift, ingress, tekst, layout,
     bilde ${BILDE},
@@ -50,9 +45,41 @@ export const Q_FORSIDE = `*[_type == "forside"][0]{
     tall[]{ label, verdi },
     punkter[]{ label, verdi },
     sporsmaal[]{ sporsmaal, svar },
-    antall, kunFremhevede,
+    antall, kunFremhevede, visSome,
     prosjekt-> ${PROSJEKT_KORT}
+  }`;
+
+export const Q_FORSIDE = `*[_type == "forside"][0]{
+  hero {
+    tittel, ingress,
+    bilde ${BILDE},
+    knapper[] ${CTA}
   },
+  ${SEKSJONER},
+  ${SEO}
+}`;
+
+/**
+ * Undersidene (Tjenester, Prosjekter, Om oss, Kontakt).
+ *
+ * Én spørring for alle fire: felt som ikke finnes på en type, kommer tilbake
+ * som null og fylles fra fallbacken i sider.ts. Det er billigere enn fire
+ * spørringer som må holdes i takt med hvert sitt skjema.
+ *
+ * _id og ikke _type: singletonene har fast id lik typenavnet (desk-
+ * strukturen), og et utkast med annen id skal aldri plukkes opp.
+ */
+export const Q_SIDE = `*[_id == $id][0]{
+  hero { tittel, ingress, bilde ${BILDE}, sitat, sitatKilde },
+  cta { overskrift, tekst },
+  team { overskrift, tekst },
+  verdier { overskrift, ingress, punkter[]{ kategori, tittel, tekst, bilde ${BILDE} } },
+  hms { overskrift, tekst, punkter, boksTittel, boksTekst, boksSporsmaal, boksKnapp },
+  some { overskrift, ingress, bilde ${BILDE} },
+  steg { overskrift, punkter[]{ tittel, tekst } },
+  kartOverskrift,
+  galleriOverskrift,
+  ${SEKSJONER},
   ${SEO}
 }`;
 
@@ -99,14 +126,23 @@ export const Q_TJENESTER = `*[_type == "tjeneste" && defined(slug.current)] | or
   "faq":            coalesce(faq[]{ sporsmaal, svar }, []),
   "heroImage":      heroBilde ${BILDE},
   "relaterteProsjekter": coalesce(relaterteProsjekter[]->slug.current, []),
+  overskrifter { inkludert, prosess, relaterte, faq },
+  cta { overskrift, tekst },
   "seoTitle":       seo.tittel,
   "seoDescription": seo.beskrivelse
 }`;
 
-export const Q_TEAM = `*[_type == "teamMedlem"] | order(sortering asc) {
-  navn, rolle, epost, telefon, sortering, foto ${BILDE}
+/**
+ * Siste nytt. $idag settes ved bygg: utløpte saker (visTil i fortiden) tas
+ * ikke med. Fremhevede først, så nyeste.
+ */
+export const Q_NYHETER = `*[_type == "nyhet" && defined(tittel) && (!defined(visTil) || visTil >= $idag)]
+  | order(coalesce(fremhevet, false) desc, dato desc) [0...$antall] {
+  _id, tittel, dato, tekst, lenke, plattform,
+  "fremhevet": coalesce(fremhevet, false),
+  bilder[] ${BILDE}
 }`;
 
-// Q_SIDE er fjernet sammen med `side`-typen. Trengs den igjen, må både
-// skjemaet, desk-oppføringen og rutene for /om-oss/ og /kontakt/ på plass
-// samtidig — en spørring uten en rute som bruker den er bare dødvekt.
+export const Q_TEAM = `*[_type == "teamMedlem"] | order(sortering asc) {
+  navn, rolle, epost, telefon, sortering, sitat, foto ${BILDE}
+}`;

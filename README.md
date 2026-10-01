@@ -2,7 +2,7 @@
 
 Nettsted for **BRE Bygg AS** — totalentreprenør i Vestfold.
 
-Bygget med Astro v5 + React 18 + Tailwind CSS v4. Statisk generert, deployet til Vercel.
+Bygget med Astro 7 + React 19 + Sanity (innebygd Studio på /studio). Ren CSS med tokens i globals.css. Statisk generert, deployet til Vercel.
 
 ---
 
@@ -57,17 +57,38 @@ public/
 
 ## Design-system
 
-Farger er definert som CSS custom properties i `src/styles/globals.css`:
+Fargene følger **BRE Design Manual v2.2.1** (Jotun 8469 Green Leaf), tilpasset en lys nettside. Tokens og roller står i `src/styles/globals.css`, med kontrastmålinger i kommentarene.
 
-| Token                 | Verdi     | Bruk                          |
-|-----------------------|-----------|-------------------------------|
-| `--color-primary`     | `#84856E` | CTA-knapper, lenker, aksenter |
-| `--color-bg-dark`     | `#2C4251` | Mørke seksjoner, header       |
-| `--color-support`     | `#262A10` | Hover-states, mørke detaljer  |
-| `--color-text`        | `#2C4251` | Brødtekst (aldri ren svart)   |
-| `--color-bg`          | `#F5F3EF` | Standard sidebakgrunn         |
+| Rolle | Token | Verdi | Bruk |
+|---|---|---|---|
+| Struktur | `--leaf` | `#81816B` | Header (kun mørk tekst, 4,90:1) |
+| Mørk seksjon | `--color-bg-dark` | `#444431` | Tema «Green Leaf mørk», sidehero |
+| Mørkeste flate | `--color-bg-dark-2` | `#2C2926` | Footer, tema «Varm mørk», brødtekst på lys bunn |
+| Handling | `--color-action` | `#D9A63A` | Primærknapp og aktivt filter, alltid med mørk tekst (6,52:1) |
+| Signatur | `--color-signature` | `#B55A2C` | Streken under overskrifter og liten dekor. Aldri knapp eller lenke |
+| Utheving | `--color-uthev` | `#444431` / `#E7BC63` | Tall, ikoner og etiketter på lys / mørk bunn |
+
+Rollene får mørk-verdier automatisk inne i mørke flater (se «MØRKE FLATER» i globals.css). Gull brukes aldri som tekst på lys bunn (2,03:1).
 
 Typografi: **Plus Jakarta Sans** (600–700 for overskrifter, 400 for brødtekst).
+
+---
+
+## Redigering i Sanity
+
+All synlig tekst og alle bilder redigeres i Studio (`/studio`):
+
+- **Sider**: Forside, Tjenester, Prosjekter, Om oss, Bærekraft, Kontakt. Tomme felt viser standardteksten fra `src/lib/sanity/sider.ts`.
+- **Tjenester, Prosjekter, Personer**: innholdet sidene viser.
+- **Siste nytt**: nyhetssaker med bilde(r), kort tekst og lenke til innlegget på sosiale medier. Vises med blokken «Siste nytt» på forsiden (legg den til under Sider → Forside → Seksjoner). En sak med «Vis til»-dato forsvinner ved neste bygg etter datoen — sett opp en daglig bygging (Vercel Deploy Hook via cron) hvis det skal skje på dagen.
+- **Innstillinger**: navn, adresse, telefon, e-post, åpningstider, områder og SoMe-lenker. Brukes i header, footer, JSON-LD og llms.txt.
+
+Engangsskript (kjør tørt først, skriving krever `SANITY_API_WRITE_TOKEN` med rollen Editor):
+
+```bash
+npm run opprett-sider:torr       # oppretter sidedokumentene med dagens tekster
+npm run fjern-naeringsbygg:torr  # fjerner «næringsbygg» fra kundens tekster
+```
 
 ---
 
@@ -80,7 +101,7 @@ Prosjekter kan legges til som Markdown-filer i `src/content/prosjekter/`:
 title: "Prosjekttittel"
 description: "Kortbeskrivelse (30–200 tegn)"
 location: "Tønsberg"
-kategori: "nybygg" # nybygg | rehabilitering | naeringsbygg
+kategori: "nybygg" # nybygg | rehabilitering
 status: "ferdig"
 aar: 2024
 heroImage:

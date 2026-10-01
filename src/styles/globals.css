@@ -43,29 +43,26 @@
     --bandicoot-900: #1e1e15;
     --bandicoot-950: #0d0d08;
 
-    /* ── Rust — eneste aksent ──────────────────────────────────────────────
-     Kun knapper, lenker, fokusringer og dekor. Aldri som bakgrunn på en hel
-     seksjon — da konkurrerer den med Green Leaf om å være merkevarefargen.
+    /* ── BRE Design Manual v2.2.1 ───────────────────────────────────────────
+     Manualen er skrevet for HMS-appen. Nettsiden tar over fargesemantikken,
+     ikke hver regel: hvit tekst og gull fungerer ikke på lys bunn.
 
-     Hvorfor rust og ikke gult: Green Leaf ligger på hue 60. Den forrige
-     aksenten lå på hue 32, altså analogt — for nær til å lese som en aksent
-     i det hele tatt. Rust ligger på hue 16, split-komplementært til Green
-     Leaf, og er dessuten byggnært: murstein, corten, rust.
+       Green Leaf  struktur: header, mørke flater, uthevinger på lys bunn
+       Gull        handling: primærknapp, aktivt filter, uthevinger på mørk bunn
+       Kobber      signatur: streken under overskrifter og liten dekor.
+                   ALDRI knapp, lenke eller status (manualen § 2).
 
-     Rampen holder hue 13–18 hele veien. Det er poenget med en ramp — trinnene
-     skal være samme farge i ulik lyshet, ikke ulike farger. */
+     Gull tåler ikke lys bunn: 2,03:1 på --color-bg. Den brukes der derfor
+     bare som knappefyll med mørk tekst (6,52:1), aldri som tekst eller kant.
+     Hvit tekst på gull er 2,22:1 — knappeteksten er alltid warm dark. */
 
-    --rust-50: #fdf4f0;
-    --rust-100: #fae5dc;
-    --rust-200: #f3c9b7; /* eneste trinn som klarer AA på BÅDE b600 og b800 */
-    --rust-300: #e9a385;
-    --rust-400: #d97a52;
-    --rust-500: #c25c32;
-    --rust-600: #ad4d26;
-    --rust-700: #9a3f1f; /* aksenten */
-    --rust-800: #7d321a;
-    --rust-900: #652a17;
-    --rust-950: #3a150b;
+    --leaf: var(--bandicoot-500); /*     #81816B  Jotun 8469 Green Leaf */
+    --leaf-d1: #444431; /*               mørk seksjon — hvit 9,92 · gull 4,47 */
+    --warm-dark: #2c2926; /*             footer, brødtekst — 13,23 på --color-bg */
+    --gull: #d9a63a;
+    --gull-l: #e7bc63; /*                hover · lenker på mørk bunn (5,56 / 8,11) */
+    --gull-d: #c6912b; /*                aktiv · knappekant */
+    --kobber: #b55a2c;
 
     /* ── Bakgrunner ─────────────────────────────────────────────────────────
      100 og ikke 50: hvite kort mot 50 gir 1,05:1 og forsvinner. */
@@ -76,8 +73,10 @@
     --color-bg-green: var(
       --bandicoot-500
     ); /* Green Leaf — header. Kun mørk tekst */
-    --color-bg-dark: var(--bandicoot-600); /* mørke seksjoner */
-    --color-bg-dark-2: var(--bandicoot-800); /* footer, hero-bunn */
+    /* Green Leaf dark 1 og ikke bandicoot-600: gull ga bare 3,18:1 på 600,
+       altså stor tekst alene. På #444431 er gull 4,47 og lys gull 5,56. */
+    --color-bg-dark: var(--leaf-d1); /* mørke seksjoner, sidehero */
+    --color-bg-dark-2: var(--warm-dark); /* footer, hero-bunn */
 
     /* ── Tekst ──────────────────────────────────────────────────────────────
      Målt mot --color-bg (bandicoot-100):
@@ -85,7 +84,7 @@
      950 er reservert for tekst på Green Leaf, der den gir 4,90:1. 900 gir
      4,22 og 800 gir 3,66 på den flaten — begge under AA. */
 
-    --color-text: var(--bandicoot-800);
+    --color-text: var(--warm-dark);
     --color-text-m: var(--bandicoot-700);
     --color-text-s: var(--bandicoot-600);
     --color-text-on-green: var(--bandicoot-950);
@@ -95,37 +94,55 @@
        b600 og 9,42 på b800. */
     --color-text-inv-m: rgba(249, 250, 249, 0.8);
 
-    /* ── Aksent ─────────────────────────────────────────────────────────────
-     Rust 700 som knappe- og lenkefarge. Målt:
-       hvit tekst på knapp   6,76:1
-       lenke på bakgrunn     6,19:1
-       lenke på hvitt kort   6,76:1
-       lenke på seksjon      5,50:1   (forrige aksent lå på 4,27 her — under AA)
-     Hover går til Rust 800 på 8,96:1 — knappen blir dypere, ikke lysere.
+    /* ── Roller ─────────────────────────────────────────────────────────────
+     --color-primary het tidligere alt: knapp, lenke, fokusring og dekor, i
+     samme rustfarge. Med gull som handlingsfarge går ikke det — gull på lys
+     bunn er 2,03:1, så lenker og fokus ville falt under kravet. Hver rolle
+     har derfor sitt eget token.
 
-     primary-l er lys-varianten for mørke flater, og den ER tekstfarge:
-       på bandicoot-800   9,60:1
-       på bandicoot-600   4,65:1
-     Rust 300 ble vurdert, men gir bare 3,37:1 på bandicoot-600.
+     Rollene har lys-verdier her og mørk-verdier under MØRKE FLATER, lenger
+     ned. Komponenter bruker rollen og får riktig farge av seksjonen de står i.
 
-     MERK: rust kan ikke brukes i headeren. Mot Green Leaf er den 1,70:1,
-     langt under grenseflatekravet. Header-CTA bruker .btn--pa-gronn. */
+       Rolle            Lys bunn               Mørk bunn
+       action           gull, warm-tekst 6,52  samme
+       link             warm-dark 13,23 + u.   gull-l 5,56 (#444431) / 8,11
+       focus            warm-dark              gull-l
+       uthev            leaf-d1 9,08           gull-l 5,56 (#444431) / 8,11
+       signature        kobber (dekor)         kobber (dekor)
 
-    --color-primary: var(--rust-700);
-    --color-primary-l: var(--rust-200); /* for mørke flater — tåler tekst */
-    --color-primary-d: var(--rust-700);
-    --color-accent: var(--rust-700);
-    --color-accent-d: var(--rust-800); /* hover på CTA */
+     uthev er for tall, ikoner, nummerering og små etiketter — det som før
+     var rust-tekst. På mørk bunn er den gull-l og ikke gull: gull er 4,47 på
+     #444431, som ikke holder for små etiketter (.eyebrow er 0,75rem).
+
+     Headeren er Green Leaf, der gull er 1,79:1. Header-CTA bruker derfor
+     .btn--pa-gronn (nesten svart), ikke gull. */
+
+    --color-action: var(--gull);
+    --color-action-hover: var(--gull-l);
+    --color-action-active: var(--gull-d);
+    --color-action-tekst: var(--warm-dark);
+    --color-link: var(--warm-dark);
+    --color-link-inv: var(--gull-l); /* tekstlenker på mørk bunn */
+    --color-focus: var(--warm-dark);
+    --color-uthev: var(--leaf-d1);
+    --color-signature: var(--kobber);
+
+    /* Beholdt som alias for komponenter som ikke er skrevet om. primary-l er
+       lys-varianten for mørke flater og ER tekstfarge (gull-l, 5,56 / 8,11). */
+    --color-primary: var(--color-uthev);
+    --color-primary-l: var(--gull-l);
     --color-support: var(--bandicoot-900);
 
     /* ── Semantiske farger ──────────────────────────────────────────────────
      Utfordring / Løsning / Resultat i casestudie-kortene. Egne tokens fordi
      de betyr noe — de er ikke merkevare, og skal ikke følge aksenten.
-     Løsning ER aksenten, siden det er BRE Byggs bidrag i historien.
-     Målt som tekst på hvitt kort: 5,26 og 7,39. Verdiene sto tidligere som
-     literaler nede i fila på 3,08 og 3,99 — begge under AA. */
+     Løsning er handlingsfargen (gull), siden det er BRE Byggs bidrag i
+     historien. Gull brukes der bare som strek, aldri som tekst. */
 
-    --color-utfordring: #96601f;
+    /* Utfordring er nøytral olivengrå og ikke oker: oker lå for nær gull, som
+       nå er Løsning. Nøytral → gull → grønn leser som problem → grep → utfall.
+       Tekst på hvitt kort: 7,05 og 7,39. */
+    --color-utfordring: var(--bandicoot-600);
     --color-resultat: #276044;
 
     /* ── Kantlinjer ─────────────────────────────────────────────────────────
@@ -141,10 +158,11 @@
 
     /* ── RGB-komponenter for rgba() ─────────────────────────────────────── */
 
-    --rgb-dark: 88, 90, 75; /* B600 */
-    --rgb-dark-2: 43, 41, 34; /* B800 */
+    --rgb-dark: 68, 68, 49; /* leaf-d1 — MÅ følge --color-bg-dark */
+    --rgb-dark-2: 44, 41, 38; /* warm-dark — MÅ følge --color-bg-dark-2 */
     --rgb-deepest: 13, 13, 8; /* B950 — bunnen av hero-gradienten */
-    --rgb-primary: 154, 63, 31; /* Rust 700 — MÅ følge --color-primary */
+    --rgb-primary: 181, 90, 44; /* Kobber — kun dekor (glød, ramme, tint) */
+    --rgb-gull: 217, 166, 58;
     --rgb-inv: 249, 250, 249; /* B50 */
     --rgb-khaki: 30, 30, 21; /* B900 */
 
@@ -152,37 +170,27 @@
     --ff-display: var(--font-jakarta), system-ui, sans-serif;
     --ff-body: var(--font-jakarta), system-ui, sans-serif;
 
-    /* --- Avrunding --- */
-    --r-sm: 8px;
-    --r-md: 12px;
-    --r-lg: 20px;
-    --r-xl: 28px;
+    /* --- Avrunding ---
+       Nær manualens 6 px (knapper og felt i HMS-appen). Tidligere 8/12/20/28
+       px — de store, myke hjørnene ga et generisk «soft UI»-preg som ikke
+       passer det arkitektoniske uttrykket i manualen. xl er for store bilder. */
+    --r-sm: 6px;
+    --r-md: 6px;
+    --r-lg: 6px;
+    --r-xl: 8px;
     --r-full: 9999px;
 
-    /* --- Skygger, tonet med bandicoot-600 --- */
-    --shadow-sm:
-      0 1px 4px rgba(var(--rgb-dark), 0.07),
-      0 1px 2px rgba(var(--rgb-dark), 0.05);
-    --shadow-md:
-      0 4px 20px rgba(var(--rgb-dark), 0.1),
-      0 1px 4px rgba(var(--rgb-dark), 0.06);
+    /* --- Skygge ---
+       Bare for elementer som faktisk ligger over annet innhold (skip-lenken).
+       Kort og knapper bruker kantlinje. */
     --shadow-lg:
       0 16px 48px rgba(var(--rgb-dark), 0.14),
       0 4px 12px rgba(var(--rgb-dark), 0.08);
-    --shadow-xl:
-      0 32px 80px rgba(var(--rgb-dark), 0.18),
-      0 8px 24px rgba(var(--rgb-dark), 0.1);
 
     /* --- Ease-kurver --- */
     --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
     --ease-out: cubic-bezier(0, 0, 0.2, 1);
     --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
-    --ease-spring: cubic-bezier(
-      0.34,
-      1.56,
-      0.64,
-      1
-    ); /* Liten sprett for interaktive elementer */
 
     /* --- Transitions --- */
     --transition-fast: 0.15s var(--ease-out);
@@ -201,27 +209,36 @@
     --nav-height: 72px;
 
     /* --- Hero ---
-       Felles gulv for heroene på undersidene. Forsiden er med vilje utenfor:
-       den er sidens tese og skal være høyest — det hierarkiet bærer mening.
+       Én høyde for alle heroene på undersidene (Tjenester, Prosjekter, Om oss,
+       Kontakt, tjeneste- og prosjektsider), fra 1024 px og opp. Forsiden er
+       med vilje utenfor: den er sidens tese og skal være høyest.
+
+       Før september 2026 lå de mellom 420 og 849 px på 1280×800. Forskjellen
+       kom av tre ting: bildets aspect-ratio bestemte høyden, tre av heroene
+       hadde padding for en header som ikke lenger ligger oppå dem (den er
+       sticky), og hver hero hadde sitt eget gulv.
 
        Gulv og ikke tak. En max-height på en tekstflate klipper når tittelen
        blir lang fra Sanity, eller når brukeren zoomer til 200 % (WCAG 1.4.4).
-       Taket hører hjemme på bildet, ikke på seksjonen — se --hero-bilde-maks.
+       Innholdet er dimensjonert for å få plass innenfor 560 px, så i praksis
+       blir alle like høye.
 
-       svh og ikke vh: vh regner med adresselinja utslått, så heroen hopper i
-       høyde når mobilnettleseren skjuler den under scroll. .tjeneste-hero
-       brukte vh og .slug-hero svh, med 20 px ulikt gulv i tillegg. */
-    --hero-min: clamp(420px, 52svh, 600px);
+       Under 1024 px bestemmer innholdet høyden. Bildeheroene har --hero-min
+       som gulv, så bildet får plass. svh og ikke vh: vh regner med
+       adresselinja utslått, så heroen hopper i høyde når mobilnettleseren
+       skjuler den under scroll. */
+    --hero-hoyde: 560px;
+    /* H1 i undersidenes heroer. Var fire ulike størrelser (4, 3,75, 3,5 og
+       3,5rem) for fire hero-typer. */
+    --hero-tittel: clamp(2.25rem, 5vw, 3.5rem);
+    --hero-min: clamp(420px, 52svh, 560px);
 
-    /* Taket på hero-bildet. Uten det bestemmer bildets aspect-ratio
-       seksjonshøyden: 5/6 på en 60 %-kolonne ga 739 px på /om-oss/ mot 600 på
-       /tjenester/, der kolonnen er 45 %. Hele forskjellen på 139 px var
-       kolonnebredden, ikke en beslutning om hvor høy heroen skulle være.
-
-       600 og ikke 620: 620 kappet bare /om-oss/ og lot de to andre ligge på
-       600, så de tre sidene ble stående 20 px fra hverandre. 600 er høyden
-       den smale kolonnen gir av seg selv, og gjør alle tre like. */
-    --hero-bilde-maks: 600px;
+    /* Sløret over bildeheroene: ett jevnt lag i stedet for gradienter.
+       75 % er minste dekkevne som holder i verste fall (helt hvitt bilde):
+       overskrift 6,12:1, ingress (80 % hvit) 4,61:1. Kontrasten kan ikke
+       avhenge av hvilket bilde kunden laster opp i Sanity. Små tekster over
+       bilde må være minst 80 % hvite — 75 % gir 4,28:1. */
+    --hero-slor: rgba(var(--rgb-dark-2), 0.75);
 
     /* --- RGB-komponenter for rgba() ---
         rgba() kan ikke ta en hex-variabel, så de hardkodede fargene i scrim,
@@ -322,15 +339,19 @@
   }
 
   a {
-    /* Var var(--color-primary) = 3,78:1 på hvit. Lenker er normal tekst og må
-        over 4,5:1. */
-    color: var(--color-primary-d);
+    /* Lenkefarge er tekstfarge, ikke gull: gull er 2,03:1 på lys bunn.
+       Lenker i løpende tekst får understrek i .rik-tekst og .tel-lenke, så de
+       ikke skilles med farge alene (WCAG 1.4.1). På mørk bunn settes
+       --color-link til gull-l under MØRKE FLATER. */
+    color: var(--color-link);
     text-decoration: none;
     transition: color var(--transition-fast);
   }
 
   a:hover {
-    color: var(--color-accent-d);
+    color: var(--color-link);
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
 
   strong {
@@ -339,12 +360,6 @@
   }
   em {
     font-style: italic;
-  }
-  .p-italic {
-    font-style: italic;
-  }
-  .p-semibold {
-    font-weight: 600;
   }
   /* Eyebrow-label over seksjonstitler */
   .eyebrow {
@@ -355,7 +370,7 @@
     font-weight: 600;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--color-primary);
+    color: var(--color-uthev);
   }
 
   .eyebrow::before {
@@ -364,7 +379,7 @@
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background-color: var(--color-primary);
+    background-color: var(--color-signature);
     flex-shrink: 0;
   }
 
@@ -426,7 +441,7 @@
   .divider {
     width: 48px;
     height: 3px;
-    background-color: var(--color-primary);
+    background-color: var(--color-signature);
     border-radius: var(--r-full);
     margin-top: 1rem;
     margin-bottom: 2rem;
@@ -467,8 +482,8 @@
       transform 0.3s ease-in-out;
   }
 
-  /* Headeren står på Green Leaf, og rust er 1,70:1 mot den — ubrukelig som
-     flate der. Header-CTA er derfor en egen, navngitt variant og ikke en
+  /* Headeren står på Green Leaf, og gull er 1,79:1 mot den — for svak
+     avgrensning der (manualen § 7 kaller det et alvorlig avvik). Header-CTA er derfor en egen, navngitt variant og ikke en
      overstyring av .btn--primary. Da har primærknappen fortsatt én identitet,
      og unntaket står i klassenavnet i stedet for å være skjult i en override. */
   .btn--pa-gronn {
@@ -481,12 +496,9 @@
     background-color: var(--bandicoot-800);
     border-color: var(--bandicoot-800);
     color: var(--color-text-inv);
-    box-shadow: var(--shadow-md);
   }
 
-  .nav.scrolled {
-    box-shadow: var(--shadow-md);
-  }
+  /* Ingen skygge ved scroll: headeren har allerede en kantlinje nederst. */
 
   .nav__inner {
     display: flex;
@@ -499,25 +511,10 @@
     gap: 1rem;
   }
 
-  /* Desktop: logo til venstre, menypunktene midtstilt i headeren.
-     To like 1fr-kolonner rundt lenkene holder dem på midten uansett logoens
-     bredde. Logoen står fortsatt i linje med innholdet under, som den ville
-     sluttet å gjøre om headeren i stedet ble gjort smalere enn containeren.
-     Under 768 px er det hamburger, og flex-oppsettet over gjelder. */
-  @media (min-width: 768px) {
-    .nav__inner {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-    }
-
-    .nav__logo {
-      justify-self: start;
-    }
-
-    .nav__center {
-      justify-self: center;
-    }
-  }
+  /* Desktop: logo til venstre, menypunktene til høyre. Headeren har samme
+     maksbredde og sidemarg som .container, så begge kantene står i linje med
+     innholdet under. Flex-oppsettet over (space-between) gjør jobben på alle
+     bredder; under 768 px er det hamburger i stedet for lenkene. */
 
   /* Logo */
   .nav__logo {
@@ -537,17 +534,16 @@
     color: var(--color-text-on-green);
   }
 
-  /* Logobilde. Kildefila er ren hvit på transparent, laget for den gamle
-     mørke headeren. brightness(0) gjør den svart og beholder alfakanalen —
-     5,29:1 mot Green Leaf. Byttes ut med en ekte mørk variant den dagen
-     logoen finnes som vektor. */
+  /* Logobilde: positiv variant (mørk) fra kundens logofil september 2026.
+     Tidligere var kildefila hvit og ble gjort svart med filter: brightness(0).
+     Filene er WebP i 3× visningshøyde, trukket ut av SVG-ene kunden leverte
+     (som er innpakket PNG, ikke vektor). Byttes til ekte SVG når den finnes. */
   .nav__logo-img {
     height: 48px;
     width: auto;
     max-width: 200px;
     display: block;
     object-fit: contain;
-    filter: brightness(0);
   }
 
   .nav__links {
@@ -573,8 +569,9 @@
     white-space: nowrap;
   }
 
-  /* Understreken er bandicoot-950 og ikke aksenten: rust mot Green Leaf er
-     1,70:1 og ville vært usynlig. Aktiv side markeres uansett med både
+  /* Understreken er bandicoot-950 og ikke gull: gull mot Green Leaf er
+     1,79:1 og ville vært nesten usynlig. Bevisst avvik fra manualen, der
+     aktiv fane er gull. Aktiv side markeres uansett med både
      understrek og full tekstvekt, så farge er ikke eneste signal. */
   .nav__links a::after {
     content: "";
@@ -721,40 +718,37 @@
     user-select: none;
   }
 
-  .btn:hover {
-    transform: translateY(-1px);
-  }
-  .btn:active {
-    transform: translateY(0);
-  }
-
-  /* Primær: Rust 700, hvit tekst — 6,76:1.
-      Flaten er også 6,19:1 mot sidebakgrunnen, så knappens grense er synlig
-      uten kant (WCAG 1.4.11). Hover går til Rust 800 på 8,96:1. */
+  /* Knapper endrer farge ved hover, de løfter seg ikke og får ikke skygge. */
+  /* Primær: gull med warm-dark tekst, 6,52:1. Aldri hvit tekst — 2,22:1.
+     Kanten i gull-d gir knappen en avgrensning mot lys bunn. Hover blir
+     lysere (gull-l, 8,11:1) og aktiv mørkere, som i manualens knappespråk. */
   .btn--primary {
-    background-color: var(--color-primary-d);
-    color: #ffffff;
-    border-color: var(--color-primary-d);
+    background-color: var(--color-action);
+    color: var(--color-action-tekst);
+    border-color: var(--color-action-active);
   }
 
   .btn--primary:hover {
-    background-color: var(--color-accent-d);
-    border-color: var(--color-accent-d);
-    color: #ffffff;
-    box-shadow: var(--shadow-md);
+    background-color: var(--color-action-hover);
+    border-color: var(--color-action-active);
+    color: var(--color-action-tekst);
   }
 
-  /* Outline: gjennomsiktig, rustkant — 6,19:1 mot bakgrunnen */
+  .btn--primary:active {
+    background-color: var(--color-action-active);
+  }
+
+  /* Outline på lys bunn: warm-dark kant og tekst, 13,23:1. Ikke gull —
+     gull-d er 2,81:1 på hvitt og holder verken for tekst eller kant. */
   .btn--outline {
     background-color: transparent;
-    color: var(--color-primary);
-    border-color: var(--color-primary);
+    color: var(--color-text);
+    border-color: var(--color-text);
   }
 
   .btn--outline:hover {
-    background-color: var(--color-primary);
+    background-color: var(--color-text);
     color: #ffffff;
-    box-shadow: var(--shadow-sm);
   }
 
   /* Outline invertert: for mørke bakgrunner */
@@ -821,59 +815,79 @@
     object-position: center 30%;
   }
 
-  /* To gradienter, ikke én.
-      Målt på det nåværende hero-bildet lå eyebrow-teksten på 1,66:1 mot
-      bygningsfasaden. Kravet er 4,5:1.
-   
-      Den vertikale gradienten alene løser det ikke: teksten sitter midt i heroen,
-      der gradienten er svakest, og å skru opp den vertikale nok til å dekke det
-      ville gjort hele bildet grått.
-   
-      Løsningen er et venstreanker-scrim over tekstsonen. Effektiv alfa der
-      teksten står blir 1-(1-0,45)(1-0,70) = 0,835, som gir 8,9:1 mot dagens
-      bilde og 7,6:1 i verste tilfelle (hvit himmel bak).
-   
-      Dette er strukturelt viktig: fra fase 5 velger klienten hero-bildet selv i
-      Sanity. Kontrasten kan ikke avhenge av hvilket bilde som er lastet opp. */
+  /* ── SLØR: ÉN FELLES GRADIENT ──────────────────────────────────────────
+     Tekst over bilde utenfor heroene. Regelen er alltid den samme: teksten
+     står på den FASTE mørke delen, og gradienten er bare overgangen fra
+     tekstsiden inn i bildet. Samme farge overalt (warm dark).
+
+       --slor-retning  hvor tekstsiden er: 90deg = tekst til venstre,
+                       0deg = tekst nederst (mobil, kort, bildetekst)
+       --slor-fast     hvor langt den faste mørke delen går
+
+     Fordi teksten alltid står på helt mørk flate, er kontrasten den samme som
+     på footeren (hvit 14,46:1, ingress 9,37:1) uansett bilde. Heroene bruker
+     --hero-slor (jevnt) — der står teksten over hele bildet. */
+  .slor {
+    background-image: linear-gradient(
+      var(--slor-retning, 90deg),
+      rgb(var(--rgb-dark-2)) var(--slor-fast, 0%),
+      rgba(var(--rgb-dark-2), 0.7) calc(var(--slor-fast, 0%) + 14%),
+      rgba(var(--rgb-dark-2), 0) 90%
+    );
+  }
+
+  /* Festet variant: sløret ligger på selve tekstblokken, med overgangen
+     4rem opp i bildet. Brukes der teksten står nederst over hele bredden og
+     høyden varierer (kort, mobil). En prosentgrense holder ikke der: på 320 px
+     startet teksten i SoMe-blokken ved 79 % av høyden og havnet på 2,11:1. */
+  .slor-tekst {
+    padding-top: 4rem;
+    background-image: linear-gradient(
+      to top,
+      rgb(var(--rgb-dark-2)) calc(100% - 4rem),
+      rgba(var(--rgb-dark-2), 0.7) calc(100% - 2.25rem),
+      rgba(var(--rgb-dark-2), 0) 100%
+    );
+  }
+
+  /* ── FJELLKANT ────────────────────────────────────────────────────────
+     Underkanten på alle heroer: en lav fjellrygg hentet fra logoen, i stedet
+     for bølgen. Brukes som klassen .fjellkant på heroens rotelement.
+
+     Maske og ikke en SVG i seksjonsfargen under: masken gjør bunnen av
+     heroen gjennomsiktig, så heroen trenger ikke vite hvilken farge seksjonen
+     under har. Bølgen trengte det (nesteTema), og tok feil farge når kunden
+     byttet tema på seksjonen i Sanity.
+
+     Masken viser det som ligger BAK heroen. Derfor overlapper heroen
+     seksjonen under med fjellets høyde (negativ margin-bottom) og ligger over
+     den (z-index). Heroens padding-bottom må være større enn --fjell-h, ellers
+     kuttes innhold — alle fem heroene har det. */
+  .fjellkant {
+    --fjell-h: clamp(20px, 3.2vw, 44px);
+    position: relative;
+    z-index: 1;
+    margin-bottom: calc(-1 * var(--fjell-h));
+    mask-image:
+      linear-gradient(#000 0 0),
+      url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 48' preserveAspectRatio='none'><path d='M0 0H1440V44L1320 42L1210 38L1100 34L1020 25L950 28L885 15L835 21L785 10L745 13L695 2L640 9L590 21L545 17L480 31L410 28L320 38L230 36L110 41L0 44Z'/></svg>");
+    mask-size:
+      100% calc(100% - var(--fjell-h) + 1px),
+      100% var(--fjell-h);
+    mask-position: top, bottom;
+    mask-repeat: no-repeat;
+  }
+
+  /* Ett jevnt slør, ikke gradienter.
+      Tidligere to gradienter (venstreanker + vertikal) med egen variant for
+      mobil. Kunden ønsket uttrykket uten gradienter (september 2026). Sløret
+      er felles for alle bildeheroene — se --hero-slor for kontrastberegningen.
+      Kontrasten holder uansett hvilket bilde kunden velger i Sanity. */
   .hero__overlay {
     position: absolute;
     inset: 0;
     z-index: 1;
-    background:
-       /* 1. Scrim i tekstsonen — venstre mot høyre */
-      linear-gradient(
-        to right,
-        rgba(var(--rgb-dark-2), 0.7) 0%,
-        rgba(var(--rgb-dark-2), 0.55) 38%,
-        rgba(var(--rgb-dark-2), 0) 68%
-      ),
-      /* 2. Vertikal dybde — gir bunnen tyngde og topplinja luft */
-        linear-gradient(
-          to bottom,
-          rgba(var(--rgb-dark-2), 0.28) 0%,
-          rgba(var(--rgb-dark-2), 0.45) 40%,
-          rgba(var(--rgb-dark-2), 0.85) 75%,
-          rgba(var(--rgb-deepest), 0.96) 100%
-        );
-  }
-
-  /* På smal skjerm står teksten over hele bredden, så scrimet må også gjøre det. */
-  @media (max-width: 767px) {
-    .hero__overlay {
-      background:
-        linear-gradient(
-          to right,
-          rgba(var(--rgb-dark-2), 0.7) 0%,
-          rgba(var(--rgb-dark-2), 0.62) 100%
-        ),
-        linear-gradient(
-          to bottom,
-          rgba(var(--rgb-dark-2), 0.28) 0%,
-          rgba(var(--rgb-dark-2), 0.45) 40%,
-          rgba(var(--rgb-dark-2), 0.85) 75%,
-          rgba(var(--rgb-deepest), 0.96) 100%
-        );
-    }
+    background-color: var(--hero-slor);
   }
 
   .hero__content {
@@ -914,140 +928,11 @@
   }
 
   /* Stats under hero-tekst */
-  .hero__stats {
-    display: flex;
-    flex-wrap: wrap;
-    gap: clamp(1.5rem, 3vw, 2.5rem);
-    padding-top: 2rem;
-    border-top: 1px solid rgba(var(--rgb-inv), 0.12);
-  }
-
-  .hero-stat__num {
-    font-family: var(--ff-display);
-    font-size: clamp(2rem, 4vw, 3rem);
-    font-weight: 700;
-    color: var(--color-text-inv);
-    line-height: 1;
-    letter-spacing: -0.02em;
-  }
-
-  .hero-stat__label {
-    font-size: 0.8125rem;
-    color: var(--color-text-inv-m);
-    margin-top: 0.25rem;
-    font-weight: 500;
-  }
 
   /* --------------------------------------------------------------------------
          8. STATS-RAD
          -------------------------------------------------------------------------- */
 
-  .stats-row {
-    background-color: var(--color-bg-white);
-    padding-block: clamp(2.5rem, 5vw, 4rem);
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .stats-row__grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 2rem;
-  }
-
-  .stat-item {
-    text-align: center;
-  }
-
-  .stat-item__num {
-    font-family: var(--ff-display);
-    font-size: clamp(2rem, 4vw, 3rem);
-    font-weight: 700;
-    color: var(--color-primary);
-    line-height: 1;
-    letter-spacing: -0.02em;
-  }
-
-  .stat-item__label {
-    font-size: 0.875rem;
-    color: var(--color-text-m);
-    margin-top: 0.375rem;
-    font-weight: 500;
-  }
-
-  /* --------------------------------------------------------------------------
-         9. PÅGÅENDE-BANNER (ONGOING BANNER)
-         -------------------------------------------------------------------------- */
-
-  .ongoing-banner {
-    background-color: var(--color-bg-section);
-    padding-block: 1.25rem;
-    border-block: 1px solid var(--color-border);
-    overflow: hidden;
-  }
-
-  .ongoing-banner__inner {
-    display: flex;
-    align-items: center;
-    gap: 1.25rem;
-    flex-wrap: wrap;
-  }
-
-  .badge-dot {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--color-primary);
-    flex-shrink: 0;
-  }
-
-  .badge-dot::before {
-    content: "";
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: var(--color-primary);
-    animation: pulse-dot 2s ease-in-out infinite;
-  }
-
-  @keyframes pulse-dot {
-    0%,
-    100% {
-      opacity: 1;
-      transform: scale(1);
-    }
-    50% {
-      opacity: 0.5;
-      transform: scale(0.8);
-    }
-  }
-
-  .ongoing-banner__text {
-    font-size: 0.9375rem;
-    color: var(--color-text);
-    font-weight: 500;
-    flex: 1;
-    min-width: 200px;
-  }
-
-  .progress-bar {
-    width: 140px;
-    height: 4px;
-    background-color: var(--color-border);
-    border-radius: var(--r-full);
-    overflow: hidden;
-    flex-shrink: 0;
-  }
-
-  .progress-bar__fill {
-    height: 100%;
-    background-color: var(--color-primary);
-    border-radius: var(--r-full);
-    transition: width 1.2s var(--ease-out);
-  }
 
   /* --------------------------------------------------------------------------
          10. TJENESTER — BENTO GRID
@@ -1056,7 +941,9 @@
   .tjeneste-section {
     background-color: var(--color-bg-dark);
     position: relative;
-    overflow: hidden;
+    /* clip og ikke hidden: hidden gjør seksjonen til en scroll-container,
+       og .reveal inni kobler seg da til en tidslinje som aldri går. */
+    overflow: clip;
   }
 
   /* Subtil bakgrunnstekstur */
@@ -1085,9 +972,6 @@
   }
 
   /* Andre rad: alle tre spenner likt */
-  .tjeneste-card--third {
-    grid-column: span 4;
-  }
 
   /* Full-bredd rad — brukes for siste/fremhevet tjeneste */
   .tjeneste-card--full {
@@ -1097,15 +981,8 @@
 
   @media (max-width: 1023px) {
     .tjeneste-card--large,
-    .tjeneste-card--small,
-    .tjeneste-card--third {
+    .tjeneste-card--small {
       grid-column: span 12;
-    }
-  }
-
-  @media (min-width: 640px) and (max-width: 1023px) {
-    .tjeneste-card--third {
-      grid-column: span 6;
     }
   }
 
@@ -1115,6 +992,9 @@
     overflow: hidden;
     min-height: 320px;
     cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
   }
 
   .tjeneste-card--large {
@@ -1123,22 +1003,19 @@
   .tjeneste-card--small {
     min-height: 320px;
   }
-  .tjeneste-card--third {
-    min-height: 260px;
+
+  /* Mobil: begge kortene like høye. Med sløret festet til teksten tar
+     teksten mesteparten av et 320 px-kort, og bildet ble en smal stripe. */
+  @media (max-width: 767px) {
+    .tjeneste-card--small {
+      min-height: 420px;
+    }
   }
 
   .tjeneste-card__img-wrap {
     position: absolute;
     inset: 0;
     z-index: 0;
-    /* CSS parallax */
-    transform: scale(1.05);
-    transition: transform 0.7s var(--ease-out);
-  }
-
-  .tjeneste-card:hover .tjeneste-card__img-wrap,
-  .tjeneste-card:focus-within .tjeneste-card__img-wrap {
-    transform: scale(1.1);
   }
 
   .tjeneste-card__img-wrap img {
@@ -1147,37 +1024,18 @@
     object-fit: cover;
   }
 
-  .tjeneste-card__overlay {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    background: linear-gradient(
-      to top,
-      color-mix(in srgb, var(--color-bg-dark-2) 92%, transparent) 0%,
-      color-mix(in srgb, var(--color-bg-dark-2) 55%, transparent) 40%,
-      color-mix(in srgb, var(--color-bg-dark-2) 15%, transparent) 100%
-    );
-    transition: background var(--transition-slow);
-  }
 
-  .tjeneste-card:hover .tjeneste-card__overlay,
-  .tjeneste-card:focus-within .tjeneste-card__overlay {
-    background: linear-gradient(
-      to top,
-      color-mix(in srgb, var(--color-bg-dark-2) 96%, transparent) 0%,
-      color-mix(in srgb, var(--color-bg-dark-2) 65%, transparent) 50%,
-      color-mix(in srgb, var(--color-bg-dark-2) 25%, transparent) 100%
-    );
-  }
 
+  /* Sløret er festet til tekstblokken (.slor-tekst), ikke til kortet. En
+     prosentgrense på kortet holdt ikke: på mobil starter teksten ved 79 % av
+     det lave kortets høyde, og toppen av den havnet på 1,55:1 mot et lyst
+     bilde. */
   .tjeneste-card__body {
     position: relative;
     z-index: 2;
-    padding: 1.75rem;
-    height: 100%;
+    padding: 4rem 1.75rem 1.75rem;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
   }
 
   .tjeneste-card__title {
@@ -1189,28 +1047,17 @@
     line-height: 1.2;
   }
 
-  /* Hover-reveal beskrivelse */
+  /* Beskrivelse og lenke er alltid synlige.
+     Tidligere var begge skjult (max-height: 0, opacity: 0) til musepekeren
+     var over kortet. På mobil og nettbrett finnes ingen hover, så innholdet
+     ble aldri vist der. Hover gir nå bare en tydeligere pil. */
   .tjeneste-card__desc {
     font-size: 0.9375rem;
     color: var(--color-text-inv-m);
     line-height: 1.6;
-    max-height: 0;
-    overflow: hidden;
-    opacity: 0;
-    transition:
-      max-height 0.4s var(--ease-out),
-      opacity 0.35s var(--ease-out),
-      margin 0.3s var(--ease-out);
-  }
-
-  .tjeneste-card:hover .tjeneste-card__desc,
-  .tjeneste-card:focus-within .tjeneste-card__desc {
-    max-height: 130px;
-    opacity: 1;
     margin-bottom: 1rem;
   }
 
-  /* Hover-reveal lenke */
   .tjeneste-card__link {
     display: inline-flex;
     align-items: center;
@@ -1220,12 +1067,7 @@
     font-weight: 600;
     color: var(--color-primary-l);
     text-decoration: none;
-    opacity: 0;
-    transform: translateY(8px);
-    transition:
-      opacity 0.3s var(--ease-out),
-      transform 0.3s var(--ease-out),
-      color var(--transition-fast);
+    transition: color var(--transition-fast);
   }
 
   .tjeneste-card__link::after {
@@ -1234,46 +1076,49 @@
     inset: 0;
   }
 
-  .tjeneste-card:hover .tjeneste-card__link,
-  .tjeneste-card:focus-within .tjeneste-card__link {
-    opacity: 1;
-    transform: translateY(0);
-    transition-delay: 0.05s;
-  }
-
-  .tjeneste-card__link:hover {
-    color: var(--color-text-inv);
-  }
-
   .tjeneste-card__link svg {
     transition: transform var(--transition-fast);
   }
 
-  .tjeneste-card__link:hover svg {
-    transform: translateX(3px);
+  @media (hover: hover) and (pointer: fine) {
+    .tjeneste-card:hover .tjeneste-card__link {
+      color: var(--color-text-inv);
+    }
+    .tjeneste-card:hover .tjeneste-card__link svg {
+      transform: translateX(3px);
+    }
   }
 
   /* --------------------------------------------------------------------------
          11. PROSJEKTKORT
          -------------------------------------------------------------------------- */
 
+  /* Kantlinje i stedet for skygge. Mørkere kant og understreket tittel ved
+     hover, se .prosjekt-card:hover lenger ned. */
   .prosjekt-card {
     background-color: var(--color-bg-white);
     border-radius: var(--r-lg);
     overflow: hidden;
-    box-shadow: var(--shadow-sm);
-    transition:
-      box-shadow var(--transition-base),
-      transform var(--transition-base);
+    border: 1px solid var(--color-border-l);
+    transition: border-color var(--transition-base);
     text-decoration: none;
     display: flex; /* ← ny */
     flex-direction: column; /* ← ny */
     height: 100%; /* ← ny */
   }
 
+  /* Hover løfter ikke kortet og zoomer ikke bildet (september 2026: fjernet
+     som «AI-preg»). Tilstanden vises med understreket tittel i stedet —
+     tydelig, og den virker likt med tastatur (:focus-visible). */
   .prosjekt-card:hover {
-    box-shadow: var(--shadow-lg);
-    transform: translateY(-4px);
+    border-color: var(--color-border);
+  }
+
+  .prosjekt-card:hover .prosjekt-card__title,
+  .prosjekt-card:focus-visible .prosjekt-card__title {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
   }
 
   .prosjekt-card__img {
@@ -1285,11 +1130,6 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.5s var(--ease-out);
-  }
-
-  .prosjekt-card:hover .prosjekt-card__img img {
-    transform: scale(1.04);
   }
 
   .prosjekt-card__body {
@@ -1299,18 +1139,35 @@
     flex: 1;
   }
 
+  /* Kategori som ren etikett, ikke tonet pille. Versaler beholdes: det er
+     en merkelapp, og kategorien er informasjon. */
   .prosjekt-card__tag {
     display: inline-flex;
     align-self: flex-start;
-    padding: 0.25rem 0.75rem;
-    background-color: var(--color-bg-section);
-    color: var(--color-text-m);
-    border-radius: var(--r-full);
+    color: var(--color-uthev);
     font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.06em;
     margin-bottom: 0.75rem;
+  }
+
+  /* Status på samme linje som kategorien, med gullprikk som på prosjekt-
+     siden. Klassen sto i markupen uten noen stil, og «Pågående» lå som løs
+     tekst over kategorien. */
+  .prosjekt-card__pagaende {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-left: 0.75rem;
+    color: var(--color-text-m);
+  }
+  .prosjekt-card__pagaende::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--gull-d);
   }
 
   .prosjekt-card__title {
@@ -1373,36 +1230,36 @@
     color: var(--color-text-m);
     background-color: var(--color-bg-white);
     border: 1.5px solid var(--color-border);
-    border-radius: var(--r-full);
+    /* Rektangulær med 6 px, som manualens kategoriknapper. */
+    border-radius: var(--r-sm);
     cursor: pointer;
     white-space: nowrap;
     transition:
       color 0.15s ease,
       background-color 0.15s ease,
-      border-color 0.15s ease,
-      box-shadow 0.15s ease;
+      border-color 0.15s ease;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
   }
 
   .filter-btn:hover {
-    border-color: var(--color-primary);
-    color: var(--color-primary);
+    border-color: var(--color-text);
+    color: var(--color-text);
   }
 
+  /* Aktivt filter som manualens aktive kategori: gull, warm-dark tekst. */
   .filter-btn--aktiv,
   .filter-btn[aria-pressed="true"] {
-    background-color: var(--color-primary);
-    border-color: var(--color-primary);
-    color: #ffffff;
-    box-shadow: var(--shadow-sm);
+    background-color: var(--color-action);
+    border-color: var(--color-action-active);
+    color: var(--color-action-tekst);
   }
 
   .filter-btn--aktiv:hover,
   .filter-btn[aria-pressed="true"]:hover {
-    background-color: var(--color-accent-d);
-    border-color: var(--color-accent-d);
-    color: #ffffff;
+    background-color: var(--color-action-hover);
+    border-color: var(--color-action-active);
+    color: var(--color-action-tekst);
   }
 
   /* Tellerboble inne i filterknappen */
@@ -1416,17 +1273,12 @@
     font-size: 0.6875rem;
     font-weight: 700;
     line-height: 1;
-    border-radius: var(--r-full);
+    border-radius: var(--r-sm);
     background-color: rgba(var(--rgb-dark), 0.1);
     color: var(--color-text-m);
     transition:
       background-color 0.15s ease,
       color 0.15s ease;
-  }
-
-  .filter-btn__count--aktiv {
-    background-color: rgba(255, 255, 255, 0.25);
-    color: #ffffff;
   }
 
   /* Galleri-toprad: tittel + filterbar side om side på desktop */
@@ -1485,20 +1337,6 @@
   }
 
   /* Kort-inngang animasjon */
-  @keyframes galleri-fade-in {
-    from {
-      opacity: 0;
-      transform: translateY(10px) scale(0.985);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-  }
-
-  .galleri-kort-enter {
-    animation: galleri-fade-in 0.25s var(--ease-out) both;
-  }
 
   /* Pågående-merke */
 
@@ -1584,23 +1422,17 @@
     }
   }
 
-  /* .strip__item:hover {
-    background-color: var(--color-bg-section);
-  } */
-
-  /* Ikon-sirkel */
+  /* Ikon */
   .strip__icon-wrap {
     width: 44px;
     height: 44px;
     flex-shrink: 0;
     display: flex;
     align-items: center;
-    justify-content: center;
-    background-color: rgba(var(--rgb-primary), 0.1);
-    border-radius: var(--r-md);
-    color: var(--color-primary);
-    transition: background-color var(--transition-fast);
-    margin-bottom: 0.75rem;
+    justify-content: flex-start;
+    /* Bare ikonet, ingen tonet flate bak. */
+    color: var(--color-uthev);
+    margin-bottom: 0.25rem;
   }
 
   @media (max-width: 479px) {
@@ -1620,8 +1452,7 @@
   .strip__label {
     font-size: 0.6875rem;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.01em;
     color: var(--color-text-s);
     margin-bottom: 0.25rem;
   }
@@ -1644,7 +1475,9 @@
   }
 
   .strip__value:hover {
-    color: var(--color-primary);
+    color: var(--color-link);
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
 
   .strip__value--small {
@@ -1675,11 +1508,14 @@
   .kart-ramme {
     border-radius: var(--r-lg);
     overflow: hidden;
-    box-shadow: var(--shadow-lg);
     border: 1px solid var(--color-border);
     aspect-ratio: 16 / 7;
     min-height: 280px;
     max-height: 520px;
+    /* width: 100% og ikke auto: med aspect-ratio og min-height regnet Chrome
+       bredden ut fra minstehøyden (280 × 4/3 = 373 px), og rammen stakk ut av
+       skjermen på mobil. Med fast bredde følger høyden forholdet og min-height. */
+    width: 100%;
     background-color: var(--color-bg-white);
     position: relative;
   }
@@ -1876,77 +1712,82 @@
   }
 
   /* --------------------------------------------------------------------------
-         14. SCROLL-REVEAL ANIMASJONER
-         Scroll-drevne animasjoner med animation-timeline: view()
-         Fallback: opacity + translateY ved hjelp av Intersection Observer
+         14. SCROLL-REVEAL — én gang, uten JavaScript
+
+         Bruk: legg .reveal på en CONTAINER. Barna tones inn ett for ett
+         (90 ms mellom) første gang containeren kommer inn i bildet, og blir
+         stående synlige når man scroller opp igjen.
+
+         Slik virker det:
+           1. .reveal har en scroll-tidslinje (view()) som vipper
+              --reveal-inne fra «nei» til «ja» når containeren er ~20 % inne.
+              Egendefinerte egenskaper uten @property vipper diskret på 50 %
+              av området entry 0–40 %.
+           2. Barna har en vanlig tidsbasert inntoning (0,6 s). Den står på
+              pause så lenge forelderen er «nei» (container style query), og
+              spilles én gang når den blir «ja». En ferdigspilt animasjon
+              reverseres ikke av at den settes på pause igjen.
+
+         Feilsikkert med vilje: GRUNNVERDIEN er «ja». «nei» kommer bare fra
+         animasjonen, før elementet er i bildet. Mangler nettleseren støtte for
+         scroll-tidslinjer, er tidslinjen inaktiv, eller forstår den ikke style
+         queries, spilles inntoningen straks — innholdet blir aldri stående
+         usynlig. Den gamle løsningen trengte et JS-sikkerhetsnett for dette.
+
+         To fallgruver, begge målt på denne siden:
+           · Skriv ALDRI animation-timeline sammen med animation-forkortelsen.
+             lightningcss (Vite 8) slår dem sammen til «animation: … view()»,
+             som Chrome forkaster i sin helhet. Den gamle reveal-koden virket
+             derfor aldri i Chrome, Edge eller Safari.
+           · Ingen .reveal inni en forelder med overflow: hidden/auto. view()
+             kobler seg til nærmeste scroll-container, og en som ikke scroller
+             gir inaktiv tidslinje. Bruk overflow: clip for å kutte dekor.
+
+         Støtte (sept. 2026): scroll-tidslinjer Chrome/Edge 115+, Safari 26+,
+         Firefox 159+. Style queries Chrome 111+, Safari 18+, Firefox 151+.
          -------------------------------------------------------------------------- */
 
   @supports (animation-timeline: view()) {
-    .reveal {
-      animation: reveal-anim both;
-      animation-timeline: view();
-      animation-range: entry 0% entry 30%;
-    }
-
-    .reveal-d1 {
-      animation: reveal-anim both;
-      animation-timeline: view();
-      animation-range: entry 5% entry 35%;
-    }
-
-    .reveal-d2 {
-      animation: reveal-anim both;
-      animation-timeline: view();
-      animation-range: entry 10% entry 40%;
-    }
-
-    .reveal-d3 {
-      animation: reveal-anim both;
-      animation-timeline: view();
-      animation-range: entry 15% entry 45%;
-    }
-
-    @keyframes reveal-anim {
-      from {
-        opacity: 0;
-        transform: translateY(28px);
+    @media (prefers-reduced-motion: no-preference) {
+      .reveal {
+        --reveal-inne: ja;
+        animation-name: reveal-las;
+        animation-fill-mode: both;
+        animation-timing-function: linear;
+        animation-timeline: view();
+        animation-range: entry 0% entry 40%;
       }
-      to {
-        opacity: 1;
-        transform: translateY(0);
+
+      .reveal > * {
+        animation-name: reveal-inn;
+        animation-duration: 0.6s;
+        animation-timing-function: var(--ease-out);
+        animation-fill-mode: both;
+        animation-delay: calc(var(--reveal-nr, 0) * 90ms);
+      }
+
+      .reveal > :nth-child(2) { --reveal-nr: 1; }
+      .reveal > :nth-child(3) { --reveal-nr: 2; }
+      .reveal > :nth-child(4) { --reveal-nr: 3; }
+      .reveal > :nth-child(n + 5) { --reveal-nr: 4; }
+
+      @container style(--reveal-inne: nei) {
+        .reveal > * {
+          animation-play-state: paused;
+        }
       }
     }
   }
 
-  /* Fallback for nettlesere uten scroll-timeline-støtte */
-  @supports not (animation-timeline: view()) {
-    .reveal,
-    .reveal-d1,
-    .reveal-d2,
-    .reveal-d3 {
+  @keyframes reveal-las {
+    from { --reveal-inne: nei; }
+    to   { --reveal-inne: ja; }
+  }
+
+  @keyframes reveal-inn {
+    from {
       opacity: 0;
-      transform: translateY(28px);
-      transition:
-        opacity 0.6s var(--ease-out),
-        transform 0.6s var(--ease-out);
-    }
-
-    .reveal.is-visible,
-    .reveal-d1.is-visible,
-    .reveal-d2.is-visible,
-    .reveal-d3.is-visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .reveal-d1.is-visible {
-      transition-delay: 0.1s;
-    }
-    .reveal-d2.is-visible {
-      transition-delay: 0.2s;
-    }
-    .reveal-d3.is-visible {
-      transition-delay: 0.3s;
+      translate: 0 24px;
     }
   }
 
@@ -2092,27 +1933,6 @@
   /* --------------------------------------------------------------------------
          16. BADGE / TAG KOMPONENTER
          -------------------------------------------------------------------------- */
-
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    padding: 0.3rem 0.75rem;
-    border-radius: var(--r-full);
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-  }
-
-  .badge--charcoal {
-    background-color: rgba(var(--rgb-dark), 0.1);
-    color: var(--color-bg-dark);
-  }
-
-  .badge--light {
-    background-color: var(--color-bg-section);
-    color: var(--color-text-m);
-  }
 }
 @layer utilities {
   /* --------------------------------------------------------------------------
@@ -2134,24 +1954,12 @@
 
   /* Fokusring for tilgjengelighet */
   :focus-visible {
-    outline: 2px solid var(--color-primary);
+    outline: 2px solid var(--color-focus);
     outline-offset: 3px;
     border-radius: 2px;
   }
 
   /* Aspect ratio containers */
-  .aspect-video {
-    aspect-ratio: 16 / 9;
-  }
-  .aspect-photo {
-    aspect-ratio: 4 / 3;
-  }
-  .aspect-portrait {
-    aspect-ratio: 3 / 4;
-  }
-  .aspect-square {
-    aspect-ratio: 1 / 1;
-  }
 
   /* Smooth scroll offset for sticky nav */
   [id] {
@@ -2232,23 +2040,20 @@
     object-position: center 35%;
   }
 
+  /* Felles slør for bildeheroene — se --hero-slor. */
   .slug-hero__overlay {
     position: absolute;
     inset: 0;
     z-index: 1;
-    background: linear-gradient(
-      to bottom,
-      rgba(var(--rgb-dark-2), 0.25) 0%,
-      rgba(var(--rgb-dark-2), 0.5) 45%,
-      rgba(var(--rgb-deepest), 0.92) 100%
-    );
+    background-color: var(--hero-slor);
   }
 
   .slug-hero__content {
     position: relative;
     z-index: 2;
     width: 100%;
-    padding-top: calc(var(--nav-height) + 1rem);
+    /* Ikke nav-høyde her lenger: headeren er sticky og ligger over, ikke oppå. */
+    padding-top: clamp(2.5rem, 5vw, 4rem);
     padding-bottom: clamp(2.5rem, 5vw, 4rem);
   }
 
@@ -2257,14 +2062,15 @@
     align-items: center;
     gap: 0.35rem;
     padding: 0.3rem 0.75rem;
-    background-color: rgba(var(--rgb-primary), 0.28);
-    border: 1px solid rgba(var(--rgb-primary), 0.4);
-    border-radius: var(--r-full);
+    /* Ensfarget merkelapp, ikke gjennomsiktig pille: fast warm dark gir
+       14,46:1 for hvit tekst uansett bilde bak. Gullet ligger i prikken. */
+    background-color: rgb(var(--rgb-dark-2));
+    border-radius: var(--r-sm);
     font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: var(--color-primary-l);
+    color: var(--color-text-inv);
     margin-bottom: 1rem;
   }
 
@@ -2272,17 +2078,12 @@
     width: 5px;
     height: 5px;
     border-radius: 50%;
-    background-color: var(--color-primary);
+    background-color: var(--gull);
     flex-shrink: 0;
   }
 
-  /* Pulserende for pågående */
-  .slug-hero__tag--pågående .slug-hero__tag-dot {
-    animation: pulse-dot 2s ease-in-out infinite;
-  }
-
   .slug-hero__heading {
-    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-size: var(--hero-tittel);
     font-weight: 700;
     line-height: 1.08;
     letter-spacing: -0.03em;
@@ -2352,7 +2153,7 @@
     font-family: var(--ff-display);
     font-size: clamp(1.375rem, 3vw, 2rem);
     font-weight: 700;
-    color: var(--color-primary);
+    color: var(--color-uthev);
     line-height: 1;
     letter-spacing: -0.02em;
   }
@@ -2395,7 +2196,6 @@
     border-radius: var(--r-lg);
     border: 1px solid var(--color-border);
     background-color: var(--color-bg-white);
-    box-shadow: var(--shadow-sm);
     position: relative;
     overflow: hidden;
   }
@@ -2415,7 +2215,7 @@
     background: var(--color-utfordring);
   }
   .casestudie-kort--losning::before {
-    background: var(--color-primary);
+    background: var(--gull);
   }
   .casestudie-kort--resultat::before {
     background: var(--color-resultat);
@@ -2433,7 +2233,7 @@
     color: var(--color-utfordring);
   }
   .casestudie-kort--losning .casestudie-kort__label {
-    color: var(--color-primary);
+    color: var(--color-uthev);
   }
   .casestudie-kort--resultat .casestudie-kort__label {
     color: var(--color-resultat);
@@ -2467,21 +2267,19 @@
     border: 1px solid var(--color-border);
     border-radius: var(--r-lg);
     overflow: hidden;
-    box-shadow: var(--shadow-sm);
   }
 
   .casestudie-meta-kort__header {
     padding: 1.25rem 1.5rem;
     background-color: var(--color-bg-dark);
-    border-bottom: 3px solid var(--color-primary);
+    border-bottom: 3px solid var(--color-signature);
   }
 
   .casestudie-meta-kort__tittel {
     font-family: var(--ff-display);
     font-size: 0.75rem;
     font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.01em;
     color: var(--color-text-inv-m);
     margin: 0;
     max-width: none;
@@ -2541,7 +2339,9 @@
   }
 
   .casestudie-sidebar__tilbake:hover {
-    color: var(--color-primary);
+    color: var(--color-link);
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
 
   .casestudie-sidebar__tilbake:hover svg {
@@ -2615,31 +2415,21 @@
     display: block;
   }
 
-  .casestudie-galleri__item:hover img {
-    transform: scale(1.04);
-  }
 
-  /* Caption: slide opp fra bunn på hover */
+  /* Bildetekst: alltid synlig. Den lå tidligere skjult under bildet og gled
+     opp ved hover — på mobil ble den aldri vist. Felles slør (.slor) med
+     teksten på den faste delen nederst. */
   .casestudie-galleri__caption {
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
-    padding: 0.625rem 0.875rem;
-    background: linear-gradient(
-      to top,
-      rgba(var(--rgb-deepest), 0.85),
-      transparent
-    );
+    padding: 1.5rem 0.875rem 0.625rem;
+    --slor-retning: 0deg;
+    --slor-fast: 40%;
     font-size: 0.75rem;
     color: rgba(var(--rgb-inv), 0.9);
     line-height: 1.4;
-    transform: translateY(100%);
-    transition: transform 0.28s var(--ease-out);
-  }
-
-  .casestudie-galleri__item:hover .casestudie-galleri__caption {
-    transform: translateY(0);
   }
 
   /* ── Relaterte prosjekter ──────────────────────────────────────────────── */
@@ -2668,14 +2458,57 @@
     }
   }
 
-  @keyframes hero-fade-up {
+  /* Heroene: én rolig inntoning av hele tekstblokken ved sidelast.
+     Erstatter tre–fem trinnvise animasjoner per hero (overskrift, strek,
+     ingress, knapper med 0,2–0,6 s forsinkelse) og et bilde som gled inn fra
+     siden. Ligger bak no-preference, så tekstblokken aldri står på opacity: 0
+     for den som har bedt om redusert bevegelse. */
+  @media (prefers-reduced-motion: no-preference) {
+    .hero__content,
+    .page-hero__text,
+    .kontakt-banner__content,
+    .tjeneste-hero__innhold,
+    .slug-hero__content {
+      animation-name: hero-inn;
+      animation-duration: 0.6s;
+      animation-timing-function: var(--ease-out);
+      animation-fill-mode: both;
+    }
+  }
+
+  @keyframes hero-inn {
     from {
       opacity: 0;
-      transform: translateY(22px);
+      translate: 0 12px;
     }
+  }
+
+  /* Dekor-bevegelse (arkitekturens system 2.1): bildet i bildeheroene
+     forstørres svakt mens heroen scrolles ut. Bare dekor — tekst beveger seg
+     aldri med scroll.
+
+     scroll(root) og ikke view(): heroene har overflow: hidden, og view() ville
+     koblet seg til heroen selv, som aldri scroller. Rotens tidslinje over
+     heroens høyde gir samme effekt uten den fella. Skrevet med longhands, så
+     lightningcss ikke slår dem sammen til en forkortelse Chrome avviser. */
+  @supports (animation-timeline: scroll()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .hero__bg,
+      .tjeneste-hero__bg,
+      .slug-hero__bg {
+        transform-origin: 50% 100%;
+        animation-name: hero-dybde;
+        animation-timing-function: linear;
+        animation-fill-mode: both;
+        animation-timeline: scroll(root block);
+        animation-range: 0px var(--hero-hoyde);
+      }
+    }
+  }
+
+  @keyframes hero-dybde {
     to {
-      opacity: 1;
-      transform: translateY(0);
+      scale: 1.08;
     }
   }
 }
@@ -2709,28 +2542,6 @@
   .flex-shrink-0 {
     flex-shrink: 0;
   }
-  .items-center {
-    align-items: center;
-  }
-  .items-start {
-    align-items: flex-start;
-  }
-  .gap-1\.5 {
-    gap: 0.375rem;
-  }
-  .gap-2 {
-    gap: 0.5rem;
-  }
-
-  .m-0 {
-    margin: 0;
-  }
-  .mt-0\.5 {
-    margin-top: 0.125rem;
-  }
-  .mt-1 {
-    margin-top: 0.25rem;
-  }
   .mt-2 {
     margin-top: 0.5rem;
   }
@@ -2742,36 +2553,6 @@
   }
   .mt-5 {
     margin-top: 1.25rem;
-  }
-  .mt-6 {
-    margin-top: 1.5rem;
-  }
-  .p-0 {
-    padding: 0;
-  }
-  .py-3 {
-    padding-block: 0.75rem;
-  }
-
-  .list-none {
-    list-style: none;
-  }
-  .font-medium {
-    font-weight: 500;
-  }
-  .text-sm {
-    font-size: 0.875rem;
-    line-height: 1.6;
-  }
-  .opacity-40 {
-    opacity: 0.4;
-  }
-  .transition-colors {
-    transition-property: color, background-color, border-color;
-    transition-timing-function: var(--ease-out);
-  }
-  .duration-150 {
-    transition-duration: 150ms;
   }
   .hover\:text-white:hover {
     color: #fff;
@@ -2799,8 +2580,8 @@
     padding: 0.5rem 1rem;
     overflow: visible;
     clip-path: none;
-    background-color: var(--color-primary);
-    color: #fff;
+    background-color: var(--color-action);
+    color: var(--color-action-tekst);
     border-radius: var(--r-sm);
     font-weight: 600;
     font-size: 0.875rem;
@@ -2849,6 +2630,65 @@
   .sek--mork p,
   .sek--khaki p {
     color: var(--color-text-inv-m);
+  }
+
+  /* ── MØRKE FLATER ──────────────────────────────────────────────────────
+     Mørk-verdiene for rollene (se «Roller» i :root). Satt på containeren,
+     så alt inni arver riktig farge uten at komponentene vet om temaet.
+
+     Lista må holdes komplett: en mørk flate som mangler her, får lys-
+     verdiene — leaf-d1 på #444431 er 1,0:1, altså usynlig. Nye mørke
+     komponenter legges til her, eller bruker et sek--*-tema.
+
+     --color-primary settes på nytt fordi aliaset i :root er løst opp der og
+     ellers ville arvet lys-verdien. */
+  :is(
+      .sek--mork,
+      .sek--khaki,
+      .cta-seksjon--dark,
+      .page-hero,
+      .tjeneste-hero,
+      .slug-hero,
+      .hero,
+      .footer,
+      .kontakt-banner,
+      .verdier-seksjon,
+      .team-slider__ramme,
+      .text-inv,
+      .casestudie-meta-kort__header
+    ) {
+    --color-uthev: var(--gull-l);
+    --color-primary: var(--gull-l);
+    --color-link: var(--gull-l);
+    --color-focus: var(--gull-l);
+  }
+
+  /* Lyse kort inne i mørke seksjoner — prosjektkort i en karusell på mørkt
+     tema, for eksempel — får lys-verdiene tilbake. Uten dette ble teksten
+     gull på hvitt, 2,22:1. */
+
+  /* Lenker på mørk bunn.
+     Uten denne arvet alle lenker uten egen klasse den globale lenkefargen,
+     som er laget for lys bunn. «Ring 452 22 385» i CTA-en på /tjenester/
+     havnet på 1,04:1 — iOS hadde gjort nummeret om til en lenke.
+     :where() holder spesifisiteten på 0,0,1: regelen tar bare lenker som
+     ikke har egen stil (tekstlenker, tel-lenker), aldri kort eller knapper. */
+  :where(.sek--mork, .sek--khaki, .cta-seksjon--dark, .page-hero) a:where(:not(.btn)) {
+    color: var(--color-link-inv);
+    text-decoration: underline;
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 3px;
+  }
+
+  /* Firmanummeret i løpende tekst (TekstMedTelefon.astro). Arver
+     tekstfargen, så det er lesbart på alle temaer, og skilles med understrek. */
+  .tel-lenke {
+    color: inherit;
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 3px;
+    white-space: nowrap;
   }
 
   /* ==========================================================================
@@ -2904,8 +2744,10 @@
 
   /* På mørk bakgrunn — f.eks. prosjekt-heroen. Kontrasten her var det som ga
       den uleselige brødstien i skjermbildet. */
+  /* 0,85 og ikke 0,75: over et lyst bilde bak --hero-slor ga 0,75 bare
+     4,28:1. 0,85 gir over 4,5:1 i verste fall. */
   .brodsti--inv {
-    color: rgba(255, 255, 255, 0.75);
+    color: rgba(255, 255, 255, 0.85);
   }
   .brodsti--inv .brodsti__lenke:hover,
   .brodsti--inv .brodsti__navarende {
@@ -2941,19 +2783,13 @@
     object-fit: cover;
   }
 
-  /* Gradienten er tyngre nederst enn øverst. Brødsti og ingress ligger i det
-      nedre feltet, og det er der kontrasten må holde uansett hvilket bilde
-      klienten laster opp senere. */
+  /* Felles slør for bildeheroene — se --hero-slor. Kontrasten må holde
+      uansett hvilket bilde kunden laster opp. */
   .tjeneste-hero__bg::after {
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(
-      180deg,
-      rgba(var(--rgb-dark), 0.55) 0%,
-      rgba(var(--rgb-dark), 0.72) 45%,
-      rgba(var(--rgb-khaki), 0.9) 100%
-    );
+    background-color: var(--hero-slor);
   }
 
   .tjeneste-hero__innhold {
@@ -2965,7 +2801,7 @@
   .tjeneste-hero__tittel {
     font-family: var(--ff-display);
     font-weight: 700;
-    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-size: var(--hero-tittel);
     line-height: 1.08;
     letter-spacing: -0.02em;
     color: var(--color-text-inv);
@@ -2988,16 +2824,18 @@
     margin-top: 2rem;
   }
 
-  /* ── Todelt: liste + prosa ────────────────────────────────────────────── */
-  .tjeneste-todelt {
-    display: grid;
-    gap: clamp(2rem, 5vw, 4rem);
-  }
-  @media (min-width: 900px) {
-    .tjeneste-todelt {
-      grid-template-columns: 5fr 6fr;
+  /* Felles høyde på desktop for alle undersidenes heroer. Står etter
+     grunnreglene til .slug-hero og .tjeneste-hero, ellers vinner deres
+     min-height på rekkefølge. .page-hero og .kontakt-banner er scoped i sine
+     komponenter og har samme regel der. */
+  @media (min-width: 1024px) {
+    .slug-hero,
+    .tjeneste-hero {
+      min-height: var(--hero-hoyde);
     }
   }
+
+  /* ── Todelt: liste + prosa ────────────────────────────────────────────── */
 
   .tjeneste-liste {
     list-style: none;
@@ -3017,24 +2855,77 @@
   .tjeneste-liste__item:last-child {
     border-bottom: 1px solid var(--color-border-l);
   }
+  /* Full bredde: to kolonner på desktop, så punktene ikke blir én lang
+     remse når lista står alene i seksjonen. */
+  @media (min-width: 900px) {
+    .tjeneste-liste--bred {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      column-gap: clamp(2rem, 5vw, 4rem);
+    }
+    .tjeneste-liste--bred .tjeneste-liste__item:nth-last-child(2):nth-child(odd) {
+      border-bottom: 1px solid var(--color-border-l);
+    }
+  }
   .tjeneste-liste__item svg {
-    color: var(--color-primary);
+    color: var(--color-uthev);
     margin-top: 0.3rem;
   }
 
-  .tjeneste-prosa h2 {
+  /* ── Rik tekst (RikTekst.astro) ───────────────────────────────────────
+     Portable Text fra Sanity. Farger arves fra seksjonen, så samme regler
+     virker på lys og mørk bunn. Lenker skilles med understrek og ikke med
+     farge alene (WCAG 1.4.1). */
+  .rik-tekst {
+    max-width: var(--reading-width);
+  }
+  /* Flyt med em (layout-primitiv «flow»): avstanden regnes ut fra
+     elementets egen skriftstørrelse, så en H2 automatisk får større luft over
+     seg enn et avsnitt uten egne regler per nivå. */
+  .rik-tekst > * + * {
+    margin-block-start: var(--flyt, 0.9em);
+  }
+  .rik-tekst h2,
+  .rik-tekst h3,
+  .rik-tekst h4 {
     font-family: var(--ff-display);
-    font-size: clamp(1.25rem, 2.2vw, 1.6rem);
     font-weight: 600;
-    margin-top: 2rem;
-    color: var(--color-text);
+    line-height: 1.25;
+    color: inherit;
   }
-  .tjeneste-prosa h2:first-child {
-    margin-top: 0;
+  .rik-tekst h2 {
+    font-size: clamp(1.25rem, 2.2vw, 1.6rem);
   }
-  .tjeneste-prosa p {
-    margin-top: 0.9rem;
+  .rik-tekst h3 {
+    font-size: 1.15rem;
+  }
+  .rik-tekst h4 {
+    font-size: 1rem;
+  }
+  .rik-tekst > * + :is(h2, h3, h4) {
+    --flyt: 1.4em;
+  }
+  .rik-tekst p,
+  .rik-tekst li {
     line-height: 1.7;
+  }
+  .rik-tekst ul,
+  .rik-tekst ol {
+    padding-left: 1.25rem;
+  }
+  .rik-tekst li + li {
+    margin-top: 0.35rem;
+  }
+  .rik-tekst a {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 3px;
+  }
+  .rik-tekst blockquote {
+    border-left: 3px solid var(--color-border);
+    padding-left: 1rem;
+    font-style: italic;
   }
 
   /* ── Prosess ──────────────────────────────────────────────────────────── */
@@ -3068,7 +2959,7 @@
     font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.12em;
-    color: var(--color-primary);
+    color: var(--color-uthev);
   }
 
   .tjeneste-prosess__tittel {
@@ -3135,8 +3026,8 @@
     flex-shrink: 0;
     width: 10px;
     height: 10px;
-    border-right: 2px solid var(--color-primary);
-    border-bottom: 2px solid var(--color-primary);
+    border-right: 2px solid var(--color-uthev);
+    border-bottom: 2px solid var(--color-uthev);
     transform: rotate(45deg) translateY(-2px);
     transition: transform var(--transition-fast);
   }
@@ -3152,7 +3043,7 @@
   }
 
   .tjeneste-faq__sporsmaal:focus-visible {
-    outline: 2px solid var(--color-primary);
+    outline: 2px solid var(--color-focus);
     outline-offset: 2px;
     border-radius: var(--r-sm);
   }
@@ -3202,8 +3093,8 @@
     }
 
     .kontaktbar__knapp--primar {
-      background-color: var(--color-primary);
-      color: #fff;
+      background-color: var(--color-action);
+      color: var(--color-action-tekst);
     }
 
     .kontaktbar__knapp:focus-visible {
@@ -3264,7 +3155,7 @@
   /* ==========================================================================
       REDUSERT BEVEGELSE
       Én blokk for hele nettstedet. Før denne fantes bare tre lokale hensyn —
-      .scroll-smooth, .kontaktbar og en JS-sjekk i OngoingBanner — mens alle
+      .scroll-smooth og .kontaktbar — mens alle
       reveal-animasjonene, hele hero-sekvensen og den uendelige scroll-linja
       kjørte uansett hva brukeren hadde bedt om.
 
@@ -3288,23 +3179,8 @@
       scroll-behavior: auto;
     }
 
-    /* Innhold som ellers venter på en animasjon for å bli synlig. */
-    .reveal,
-    .reveal-d1,
-    .reveal-d2,
-    .reveal-d3,
-    .hero__heading,
-    .hero__lead,
-    .hero__actions,
-    .hero__scroll-hint {
-      opacity: 1 !important;
-      transform: none !important;
-      animation: none !important;
-    }
+    /* Reveal og hero-inntoningen trenger ingen overstyring her: begge ligger
+       bak prefers-reduced-motion: no-preference og slås aldri på. */
 
-    /* Ren dekor som ikke bærer innhold — den kjørte infinite. */
-    .hero__scroll-line {
-      display: none;
-    }
   }
 }

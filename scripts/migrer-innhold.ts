@@ -242,8 +242,8 @@ async function migrerProsjekter() {
       varighet:  p.data.varighet,
       klient:    p.data.klient,
       fremhevet: p.data.fremhevet ?? false,
-      // Tjeneste-referansen utledes av kategorien: tjenesteslugene er nybygg,
-      // rehabilitering og naeringsbygg, altså nøyaktig de tre kategoriverdiene.
+      // Tjeneste-referansen utledes av kategorien: tjenesteslugene er nybygg
+      // og rehabilitering, altså nøyaktig de to kategoriverdiene.
       // Det gir prosjektet en vei tilbake til tjenestesiden uten manuell
       // kobling i Studio etterpå.
       tjeneste: p.data.kategori
@@ -280,7 +280,7 @@ async function migrerForside() {
     _type: "forside",
     hero: {
       tittel:  "Totalentreprenør i Vestfold",
-      ingress: "BRE Bygg tar fullt ansvar for byggeprosessen — fra prosjektering til du får nøklene. Enten det er nybygg i Tønsberg, rehabilitering i Sandefjord eller næringsbygg i Larvik.",
+      ingress: "BRE Bygg tar fullt ansvar for byggeprosessen — fra prosjektering til du får nøklene. Enten det er nybygg i Tønsberg eller rehabilitering i Sandefjord.",
       bilde:   await lastOppBilde("/images/hero-forside.webp", "Byggeplass i Vestfold"),
       knapper: [
         { _key: "k1", tekst: "Se prosjekter",  url: "/prosjekter/", stil: "primary" },

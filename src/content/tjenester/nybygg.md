@@ -41,7 +41,6 @@ faq:
 relaterteProsjekter:
   - "tonsberg-tomannsbolig-nybygg"
   - "enebolig-i-sandefjord-passivhusstandard"
-  - "kontorbygg-larvik-sentrum"
 seoTitle: "Nybygg i Vestfold — totalentreprenør | BRE Bygg"
 seoDescription: "Nybygg i Tønsberg, Sandefjord, Larvik og Horten. BRE Bygg tar totalentreprisen fra tomt til overlevering — én avtale, én prosjektleder."
 ---

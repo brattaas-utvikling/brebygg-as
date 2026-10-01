@@ -1,8 +1,8 @@
 ---
 title: "Rehabilitering i Vestfold"
 kortTittel: "Rehabilitering"
-description: "Oppgradering av bolig og næringsbygg i Tønsberg, Sandefjord, Larvik og Horten. BRE Bygg tar hele jobben, også det som dukker opp bak veggen."
-ingress: "BRE Bygg rehabiliterer boliger og næringsbygg i Vestfold — fra bad og fasade til full oppgradering av bygg fra sytti- og åttitallet. Eldre bygg skjuler nesten alltid noe. Vi sier hva vi tror vi finner allerede i tilbudet, og hva det i så fall koster."
+description: "Oppgradering av boliger og offentlige bygg i Tønsberg, Sandefjord, Larvik og Horten. BRE Bygg tar hele jobben, også det som dukker opp bak veggen."
+ingress: "BRE Bygg rehabiliterer boliger og offentlige bygg i Vestfold — fra bad og fasade til full oppgradering av bygg fra sytti- og åttitallet. Eldre bygg skjuler nesten alltid noe. Vi sier hva vi tror vi finner allerede i tilbudet, og hva det i så fall koster."
 heroImage:
   src: "/images/prosjekter/rehabilitering.webp"
   alt: "Rehabilitering av bygg i Vestfold"
@@ -41,7 +41,7 @@ faq:
 relaterteProsjekter:
   - "rehabilitering-av-kontorbygg-i-horten"
 seoTitle: "Rehabilitering i Vestfold — totalentreprenør | BRE Bygg"
-seoDescription: "Rehabilitering av bolig og næringsbygg i Tønsberg, Sandefjord, Larvik og Horten. BRE Bygg tar hele jobben, også det uventede."
+seoDescription: "Rehabilitering av boliger og offentlige bygg i Tønsberg, Sandefjord, Larvik og Horten. BRE Bygg tar hele jobben, også det uventede."
 ---
 
 ## Hvorfor rehabilitering er vanskeligere å prise enn nybygg

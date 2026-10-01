@@ -1,16 +1,19 @@
 ---
 import SeksjonsSkall from "../SeksjonsSkall.astro";
 import Bilde from "@components/sanity/Bilde.astro";
+import RikTekst from "@components/ui/RikTekst.astro";
 interface Props { blokk: Record<string, any> }
 const { blokk } = Astro.props;
 const layout = blokk.layout ?? "bildeHoyre";
 const cta = blokk.cta;
 ---
 <SeksjonsSkall tema={blokk.tema}>
-  <div class:list={["tekstbilde", `tekstbilde--${layout}`]}>
+  <div class:list={["tekstbilde", `tekstbilde--${layout}`, "reveal"]}>
     <div class="tekstbilde__tekst">
       {blokk.overskrift && <h2 class="section-title mt-2">{blokk.overskrift}</h2>}
-      {blokk.tekst      && <p class="section-desc mt-3">{blokk.tekst}</p>}
+      {/* tekstBilde gir Portable Text, omOssTeaser en streng. Begge går
+          gjennom RikTekst — før ble arrayet skrevet ut som «[object Object]». */}
+      <RikTekst verdi={blokk.tekst} class="section-desc mt-3" />
       {cta && (
         <a href={cta.url} class:list={["btn", "mt-5", cta.stil === "outline" ? "btn--outline" : "btn--primary"]}>
           {cta.tekst}

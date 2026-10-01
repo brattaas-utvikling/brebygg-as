@@ -7,6 +7,7 @@
 //   variant="dark"  — mørk bakgrunn (var(--color-bg-dark))
 
 import { NAP } from "@config/site";
+import TekstMedTelefon from "@components/ui/TekstMedTelefon.astro";
 
 interface Props {
   variant?: "light" | "dark";
@@ -38,7 +39,7 @@ const isDark = variant === "dark";
           {heading}
         </h2>
         <p class={`cta-sub ${isDark ? "text-inv-sub" : ""}`}>
-          {sub}
+          <TekstMedTelefon tekst={sub} />
         </p>
       </div>
 
@@ -70,7 +71,9 @@ const isDark = variant === "dark";
 
 <style>
   .cta-seksjon {
-    overflow: hidden;
+    /* clip og ikke hidden: hidden gjør seksjonen til en scroll-container,
+       og .reveal inni kobler seg da til en tidslinje som aldri går. */
+    overflow: clip;
   }
   /* ── Lys variant ─────────────────────────────────────────────────── */
   .cta-seksjon--light {
@@ -81,7 +84,9 @@ const isDark = variant === "dark";
   .cta-seksjon--dark {
     background-color: var(--color-bg-dark);
     position: relative;
-    overflow: hidden;
+    /* clip og ikke hidden: hidden gjør seksjonen til en scroll-container,
+       og .reveal inni kobler seg da til en tidslinje som aldri går. */
+    overflow: clip;
   }
 
   /* ── Dekorativt bak-element ──────────────────────────────────────── */

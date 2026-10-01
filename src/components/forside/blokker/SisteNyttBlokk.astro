@@ -1,0 +1,247 @@
+---
+// src/components/forside/blokker/SisteNyttBlokk.astro
+//
+// Siste nytt: de nyeste sakene fra «Siste nytt» i Studio.
+//
+// Hentes ved bygg, som alt annet innhold. Utløpte saker (visTil i fortiden)
+// er filtrert bort i spørringen; de forsvinner derfor ved neste bygg, ikke på
+// dagen. Uten publiserte saker rendres ingenting — ingen tom seksjon.
+//
+// Ingen JavaScript. Sakene står under hverandre på mobil og i et rutenett på
+// større skjermer. En sak med flere bilder får en bildekarusell med
+// scroll-snap, som kan sveipes eller scrolles med tastatur (tabindex).
+//
+// Ikke en sidelengs rad på mobil: da lå bildekarusellen inni en annen
+// sidelengs scrollflate, og sveip i bildet og sveip i lista kjempet om samme
+// bevegelse.
+//
+// Sakene står uten kortramme, rett på seksjonsflaten. Da følger tekstfargene
+// temaet kunden velger (lys eller mørk), og siden får ikke enda et
+// kortrutenett.
+//
+// `nyheter` kan sendes inn som prop. Brukes bare til testing; ellers hentes
+// sakene fra Sanity.
+
+import SeksjonsSkall from "../SeksjonsSkall.astro";
+import Bilde from "@components/sanity/Bilde.astro";
+import SomeIkon from "@components/ui/SomeIkon.astro";
+import { BRUKER_SANITY, sanityKlient } from "@lib/sanity/client";
+import { Q_NYHETER } from "@lib/sanity/queries";
+import { erMorkt } from "@lib/sanity/tema";
+import { SOME_KANALER } from "@config/site";
+import type { Bilde as BildeType } from "@/content.config";
+
+type Nyhet = {
+  _id: string;
+  tittel: string;
+  dato: string;
+  tekst?: string | null;
+  lenke?: string | null;
+  plattform?: "linkedin" | "instagram" | "facebook" | "annet" | null;
+  fremhevet?: boolean;
+  bilder: (BildeType & Record<string, unknown>)[];
+};
+
+interface Props {
+  blokk: Record<string, any>;
+  nyheter?: Nyhet[];
+}
+
+const { blokk } = Astro.props;
+const antall = Math.min(8, Math.max(1, Number(blokk.antall) || 4));
+const idag = new Date().toISOString().slice(0, 10);
+
+const nyheter: Nyhet[] =
+  Astro.props.nyheter ??
+  (BRUKER_SANITY ? await sanityKlient().fetch<Nyhet[]>(Q_NYHETER, { idag, antall }) : []);
+
+const synlige = nyheter.filter((n) => Array.isArray(n.bilder) && n.bilder.length > 0);
+
+const LENKETEKST = {
+  linkedin:  "Se innlegget på LinkedIn",
+  instagram: "Se innlegget på Instagram",
+  facebook:  "Se innlegget på Facebook",
+  annet:     "Les mer",
+} as const;
+
+const datoTekst = (iso: string) =>
+  new Date(`${iso}T12:00:00`).toLocaleDateString("nb-NO", { day: "numeric", month: "long", year: "numeric" });
+
+const visSome = blokk.visSome !== false;
+const mork = erMorkt(blokk.tema ?? "lys");
+---
+
+{synlige.length > 0 && (
+  <SeksjonsSkall tema={blokk.tema} overskrift={blokk.overskrift ?? "Siste nytt"} ingress={blokk.ingress} class="siste-nytt">
+    <ul class="nytt-liste reveal" role="list">
+      {synlige.map((n) => {
+        const flere = n.bilder.length > 1;
+        return (
+          <li class="nytt">
+            <div class="nytt__media">
+              <div
+                class="nytt__bilder"
+                tabindex={flere ? 0 : undefined}
+                role={flere ? "region" : undefined}
+                aria-label={flere ? `Bilder: ${n.tittel}, ${n.bilder.length} bilder` : undefined}
+              >
+                {n.bilder.map((b) => (
+                  <div class="nytt__bilde">
+                    <Bilde
+                      kilde={b}
+                      fyll
+                      sizes="(min-width: 1024px) 25vw, (min-width: 640px) 45vw, 85vw"
+                      bredde={800}
+                      hoyde={600}
+                    />
+                  </div>
+                ))}
+              </div>
+              {flere && <span class="nytt__antall" aria-hidden="true">{n.bilder.length} bilder</span>}
+            </div>
+
+            <div class="nytt__tekst">
+              <time class="nytt__dato" datetime={n.dato}>{datoTekst(n.dato)}</time>
+              <h3 class="nytt__tittel">{n.tittel}</h3>
+              {n.tekst && <p class="nytt__ingress">{n.tekst}</p>}
+              {n.lenke && (
+                <a class="nytt__lenke" href={n.lenke} target="_blank" rel="noopener noreferrer">
+                  {LENKETEKST[n.plattform ?? "annet"] ?? LENKETEKST.annet}
+                  <span class="sr-only"> (åpnes i ny fane)</span>
+                </a>
+              )}
+            </div>
+          </li>
+        );
+      })}
+    </ul>
+
+    {visSome && (
+      <ul class="nytt-some" role="list" aria-label="Følg oss">
+        {SOME_KANALER.map((k) => (
+          <li>
+            <a
+              href={k.url}
+              class:list={["btn", "btn--sm", mork ? "btn--outline-inv" : "btn--outline"]}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <SomeIkon kanal={k.id} />
+              {k.navn}
+              <span class="sr-only"> (åpnes i ny fane)</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
+  </SeksjonsSkall>
+)}
+
+<style>
+  /* Én kolonne på mobil, rutenett fra 640 px. */
+  .nytt-liste {
+    list-style: none;
+    padding: 0;
+    margin: 2rem 0 0;
+    display: grid;
+    gap: 2rem 1.5rem;
+  }
+
+  @media (min-width: 640px) {
+    .nytt-liste {
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+    }
+  }
+
+  .nytt {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .nytt__media {
+    position: relative;
+  }
+
+  /* Bildekarusell inne i saken. */
+  .nytt__bilder {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: inline mandatory;
+    border-radius: var(--r-md);
+    aspect-ratio: 4 / 3;
+    scrollbar-width: none;
+  }
+  .nytt__bilder::-webkit-scrollbar {
+    display: none;
+  }
+  .nytt__bilder:focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 3px;
+  }
+
+  .nytt__bilde {
+    flex: 0 0 100%;
+    scroll-snap-align: start;
+    aspect-ratio: 4 / 3;
+  }
+
+  /* Liten merkelapp på ensfarget flate, så teksten er lesbar på alle bilder. */
+  .nytt__antall {
+    position: absolute;
+    right: 0.5rem;
+    bottom: 0.5rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: var(--r-sm);
+    background-color: rgb(var(--rgb-dark-2));
+    color: var(--color-text-inv);
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .nytt__tekst {
+    padding-top: 1rem;
+  }
+
+  .nytt__dato {
+    display: block;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-uthev);
+  }
+
+  .nytt__tittel {
+    margin-top: 0.35rem;
+    font-size: 1.125rem;
+    line-height: 1.3;
+  }
+
+  .nytt__ingress {
+    margin-top: 0.5rem;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+  }
+
+  .nytt__lenke {
+    display: inline-block;
+    margin-top: 0.75rem;
+    min-height: 24px;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .nytt-some {
+    list-style: none;
+    padding: 0;
+    margin: 2.5rem 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .nytt-some :global(svg) {
+    width: 16px;
+    height: 16px;
+  }
+</style>

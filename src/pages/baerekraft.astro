@@ -1,0 +1,38 @@
+---
+// src/pages/baerekraft.astro
+// Bærekraft og miljø. Innholdet redigeres i Studio under Sider → Bærekraft;
+// standardteksten (plassholder til dokumentasjonen foreligger) ligger i
+// src/lib/sanity/sider.ts.
+
+import PageLayout from "@layouts/PageLayout.astro";
+import HeroPage from "@components/sections/HeroPage.astro";
+import Seksjoner from "@components/forside/Seksjoner.astro";
+import CtaSeksjon from "@components/sections/CtaSeksjon.astro";
+
+import { PAGE_META } from "@config/site";
+import { getBaerekraftSchema } from "@lib/seo/jsonld";
+import { hentBaerekraftSide, medSeo, heroPreloadBilde, SIDEHERO_SIZES } from "@lib/sanity/sider";
+
+const side = await hentBaerekraftSide();
+const meta = medSeo(PAGE_META.baerekraft, side.seo);
+const schema = getBaerekraftSchema(PAGE_META.baerekraft.canonical, meta.title, meta.description);
+---
+
+<PageLayout
+  meta={meta}
+  schema={schema}
+  heroImage={heroPreloadBilde(side.hero.bilde)}
+  heroSizes={SIDEHERO_SIZES}
+>
+  <main id="main-content">
+    <HeroPage
+      heading={side.hero.tittel}
+      lead={side.hero.ingress}
+      bilde={side.hero.bilde}
+    />
+
+    <Seksjoner seksjoner={side.seksjoner} />
+
+    <CtaSeksjon variant="dark" />
+  </main>
+</PageLayout>
