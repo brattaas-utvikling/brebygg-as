@@ -45,7 +45,7 @@ const SEKSJONER = `seksjoner[]{
     tall[]{ label, verdi },
     punkter[]{ label, verdi },
     sporsmaal[]{ sporsmaal, svar },
-    antall, kunFremhevede,
+    antall, kunFremhevede, visSome,
     prosjekt-> ${PROSJEKT_KORT}
   }`;
 
@@ -130,6 +130,17 @@ export const Q_TJENESTER = `*[_type == "tjeneste" && defined(slug.current)] | or
   cta { overskrift, tekst },
   "seoTitle":       seo.tittel,
   "seoDescription": seo.beskrivelse
+}`;
+
+/**
+ * Siste nytt. $idag settes ved bygg: utløpte saker (visTil i fortiden) tas
+ * ikke med. Fremhevede først, så nyeste.
+ */
+export const Q_NYHETER = `*[_type == "nyhet" && defined(tittel) && (!defined(visTil) || visTil >= $idag)]
+  | order(coalesce(fremhevet, false) desc, dato desc) [0...$antall] {
+  _id, tittel, dato, tekst, lenke, plattform,
+  "fremhevet": coalesce(fremhevet, false),
+  bilder[] ${BILDE}
 }`;
 
 export const Q_TEAM = `*[_type == "teamMedlem"] | order(sortering asc) {

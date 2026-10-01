@@ -74,12 +74,11 @@ function antall(id: string): number {
             </div>
 
             <div class="prosjekt-card__body">
-              {entry.data.status === "pagaende" && (
-                <div class="prosjekt-card__pagaende">Pågående</div>
-              )}
-
               <span class="prosjekt-card__tag">
                 {KATEGORI_LABEL[entry.data.kategori]}
+                {entry.data.status === "pagaende" && (
+                  <span class="prosjekt-card__pagaende">Pågående</span>
+                )}
               </span>
 
               <h3 class="prosjekt-card__title">{entry.data.title}</h3>

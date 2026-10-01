@@ -5,7 +5,7 @@ const { blokk } = Astro.props;
 const tall = Array.isArray(blokk.tall) ? blokk.tall : [];
 ---
 <SeksjonsSkall tema={blokk.tema}>
-  <dl class="stats-rad">
+  <dl class="stats-rad reveal">
     {tall.map((t: any) => (
       <div class="stats-rad__post">
         <dt class="stats-rad__verdi">{t.verdi}</dt>

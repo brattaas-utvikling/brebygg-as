@@ -78,8 +78,9 @@ Typografi: **Plus Jakarta Sans** (600–700 for overskrifter, 400 for brødtekst
 
 All synlig tekst og alle bilder redigeres i Studio (`/studio`):
 
-- **Sider**: Forside, Tjenester, Prosjekter, Om oss, Kontakt. Tomme felt viser standardteksten fra `src/lib/sanity/sider.ts`.
+- **Sider**: Forside, Tjenester, Prosjekter, Om oss, Bærekraft, Kontakt. Tomme felt viser standardteksten fra `src/lib/sanity/sider.ts`.
 - **Tjenester, Prosjekter, Personer**: innholdet sidene viser.
+- **Siste nytt**: nyhetssaker med bilde(r), kort tekst og lenke til innlegget på sosiale medier. Vises med blokken «Siste nytt» på forsiden (legg den til under Sider → Forside → Seksjoner). En sak med «Vis til»-dato forsvinner ved neste bygg etter datoen — sett opp en daglig bygging (Vercel Deploy Hook via cron) hvis det skal skje på dagen.
 - **Innstillinger**: navn, adresse, telefon, e-post, åpningstider, områder og SoMe-lenker. Brukes i header, footer, JSON-LD og llms.txt.
 
 Engangsskript (kjør tørt først, skriving krever `SANITY_API_WRITE_TOKEN` med rollen Editor):

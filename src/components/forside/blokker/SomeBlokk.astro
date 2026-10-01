@@ -45,9 +45,9 @@ const overskriftId = `some-${blokk._key ?? "blokk"}`;
   <div class="some__media" aria-hidden="true">
     <Bilde kilde={bilde} alt="" sizes="100vw" fyll />
   </div>
-  <div class="some__slor" aria-hidden="true"></div>
+  <div class="some__slor slor" aria-hidden="true"></div>
 
-  <div class="container some__innhold text-inv">
+  <div class="container some__innhold text-inv reveal slor-tekst">
     <h2 class="section-title" id={overskriftId}>{blokk.overskrift}</h2>
     {blokk.ingress && <p class="section-desc mt-3">{blokk.ingress}</p>}
 
@@ -77,7 +77,9 @@ const overskriftId = `some-${blokk._key ?? "blokk"}`;
   .some {
     position: relative;
     isolation: isolate;
-    overflow: hidden;
+    /* clip og ikke hidden: hidden gjør seksjonen til en scroll-container,
+       og .reveal inni kobler seg da til en tidslinje som aldri går. */
+    overflow: clip;
     display: grid;
     align-items: end;
     /* Mobil: høy nok til at mobilen i bildet synes over teksten. */
@@ -98,7 +100,7 @@ const overskriftId = `some-${blokk._key ?? "blokk"}`;
       align-items: center;
       min-height: clamp(32rem, 42vw, 40rem);
       /* Samme farge som sløret, så overgangen til bildet blir sømløs. */
-      background-color: rgb(var(--rgb-deepest));
+      background-color: rgb(var(--rgb-dark-2));
     }
   }
 
@@ -136,27 +138,27 @@ const overskriftId = `some-${blokk._key ?? "blokk"}`;
   /* ── Sløret ─────────────────────────────────────────────────────────
      Mørkest der teksten står. Uten det ville lesbarheten avhenge av hvilket
      bilde klienten velger i Studio. */
+  /* Felles slør. Mobil og iPad: tekstblokken har sitt eget festede slør
+     (.slor-tekst), og .slor her dekker bare luften under den. Desktop: helt
+     mørk til bildekanten på 38 %, så overgang inn i bildet. */
   .some__slor {
     position: absolute;
     inset: 0;
     z-index: -1;
-    background: linear-gradient(
-      0deg,
-      rgba(var(--rgb-deepest), 0.94) 0%,
-      rgba(var(--rgb-deepest), 0.82) 50%,
-      rgba(var(--rgb-deepest), 0.3) 100%
-    );
+    --slor-retning: 0deg;
+    --slor-fast: 20%;
   }
 
   @media (min-width: 1024px) {
     .some__slor {
-      /* Helt mørk til bildekanten på 38 %, så myk overgang inn i bildet. */
-      background: linear-gradient(
-        90deg,
-        rgb(var(--rgb-deepest)) 38%,
-        rgba(var(--rgb-deepest), 0.7) 52%,
-        rgba(var(--rgb-deepest), 0.1) 80%
-      );
+      --slor-retning: 90deg;
+      --slor-fast: 38%;
+    }
+    /* Desktop: teksten står på den faste flaten til venstre, så tekstblokken
+       trenger ikke sitt eget slør. */
+    .some__innhold.slor-tekst {
+      background-image: none;
+      padding-top: 0;
     }
   }
 

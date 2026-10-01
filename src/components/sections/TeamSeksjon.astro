@@ -36,7 +36,6 @@ function initialer(navn: string): string {
   return (første + siste).toUpperCase();
 }
 
-const tosifret = (n: number) => String(n).padStart(2, "0");
 
 // Viser initialene når bildet mangler. Samme mønster som før.
 const visInitialer =
@@ -60,12 +59,10 @@ const visInitialer =
       aria-roledescription="karusell"
       aria-label="Teamet i BRE Bygg"
     >
-      {/* Venstre: teller, etikett og miniatyrer */}
+      {/* Venstre: etikett og miniatyrer. Telleren «01 / 03» er fjernet —
+          nummerering der rekkefølgen ikke betyr noe, er bare pynt. */}
       <div class="team-slider__meta">
         <div class="team-slider__topp">
-          <p class="team-slider__teller" aria-hidden="true">
-            <span data-teller>01</span> / {tosifret(TEAM.length)}
-          </p>
           <p class="team-slider__etikett" aria-hidden="true">Teamet</p>
         </div>
 
@@ -249,8 +246,7 @@ const visInitialer =
 
   /* ── Rammen ─────────────────────────────────────────────────────────
      Mørk flate inne i den hvite seksjonen. Seksjonen selv forblir hvit, så
-     overgangen fra heroen (nesteTema="hvit") og til den mørke
-     VerdierSeksjon under stemmer fortsatt.
+     overgangen til den mørke VerdierSeksjon under stemmer fortsatt.
 
      Én kolonne på mobil: bilde, tekst, miniatyrer. */
   .team-slider {
@@ -292,21 +288,12 @@ const visInitialer =
     gap: 1.5rem;
   }
 
-  .team-slider__teller {
-    margin: 0;
-    font-size: 0.875rem;
-    font-variant-numeric: tabular-nums;
-    letter-spacing: 0.06em;
-    color: var(--color-text-inv-m);
-  }
-
   .team-slider__etikett {
     display: none;
     margin: 0;
     font-size: 0.8125rem;
     font-weight: 600;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
+    letter-spacing: 0.01em;
     color: var(--color-text-inv);
     writing-mode: vertical-rl;
     transform: rotate(180deg);
@@ -575,7 +562,6 @@ const visInitialer =
     const bilder = [...rot.querySelectorAll<HTMLElement>("[data-bilde]")];
     const paneler = [...rot.querySelectorAll<HTMLElement>("[data-panel]")];
     const miniatyrer = [...rot.querySelectorAll<HTMLButtonElement>("[data-til]")];
-    const teller = rot.querySelector<HTMLElement>("[data-teller]");
     const antall = paneler.length;
     if (antall < 2) return;
 
@@ -613,7 +599,6 @@ const visInitialer =
       panelInn.setAttribute("data-aktiv", "");
       panelInn.inert = false;
 
-      if (teller) teller.textContent = String(neste + 1).padStart(2, "0");
 
       // Miniatyren som ble klikket forsvinner. Fokus flyttes til den som
       // tar plassen, i stedet for å falle tilbake til <body>.

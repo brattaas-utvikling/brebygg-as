@@ -32,7 +32,7 @@ function fallback(): ForsideData {
   return {
     hero: {
       tittel:  "Totalentreprenør i Vestfold",
-      ingress: "BRE Bygg tar fullt ansvar for byggeprosessen — fra prosjektering til du får nøklene. Enten det er nybygg i Tønsberg eller rehabilitering i Sandefjord.",
+      ingress: "BRE Bygg tar ansvar for hele byggeprosessen, fra prosjektering til du får nøklene. Vi bygger nytt og rehabiliterer i Vestfold og Telemark.",
       knapper: [
         { tekst: "Se prosjekter",           url: "/prosjekter/", stil: "primary" },
         { tekst: NAP.phoneDisplay,          url: NAP.phoneHref,  stil: "outline" },
@@ -47,7 +47,7 @@ function fallback(): ForsideData {
         sporsmaal: FAQ_ITEMS.map((f) => ({ sporsmaal: f.question, svar: f.answer })) },
       { _type: "someBlokk",        _key: "f5",
         overskrift: "Følg oss i sosiale medier",
-        ingress: "Vi deler bilder og oppdateringer fra prosjektene våre underveis – fra grunnarbeid til overlevering." },
+        ingress: "Vi deler bilder og oppdateringer fra prosjektene underveis." },
       { _type: "ctaBanner",        _key: "f4", tema: "mork",
         overskrift: "Skal du bygge i Vestfold?",
         tekst: "Ring for en uforpliktende befaring. Vi sier fra med én gang hvis vi ikke er riktig entreprenør for jobben.",

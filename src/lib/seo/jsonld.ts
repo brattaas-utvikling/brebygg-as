@@ -314,6 +314,25 @@ export function getProsjektSlugSchema(article: ArticleInput, projectTitle: strin
   );
 }
 
+export function getBaerekraftSchema(canonical: string, navn: string, beskrivelse: string) {
+  return komponerGraf(
+    {
+      "@type":       "WebPage",
+      "@id":         `${canonical}#webpage`,
+      "url":         canonical,
+      "name":        navn,
+      "description": beskrivelse,
+      "inLanguage":  "nb-NO",
+      "isPartOf":    { "@id": websiteId() },
+      "about":       { "@id": orgId() },
+    },
+    buildBreadcrumbList([
+      { label: "Hjem",      url: `${SITE_URL}/` },
+      { label: "Bærekraft", url: canonical },
+    ]),
+  );
+}
+
 export function getKontaktSchema(canonical: string) {
   return komponerGraf(
     buildContactPage(canonical),

@@ -62,6 +62,10 @@ export const GET: APIRoute = async () => {
       `- [${t.data.title}](${SITE_URL}/tjenester/${t.id}/): ${t.data.description}`
     ),
     ``,
+    `## Bærekraft`,
+    ``,
+    `- [Bærekraft og miljø](${SITE_URL}/baerekraft/)`,
+    ``,
     `## Vanlige spørsmål`,
     ``,
     // Q/A-par er det formatet svarmotorer plukker opp lettest. Vi tar med

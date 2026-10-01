@@ -170,37 +170,27 @@
     --ff-display: var(--font-jakarta), system-ui, sans-serif;
     --ff-body: var(--font-jakarta), system-ui, sans-serif;
 
-    /* --- Avrunding --- */
-    --r-sm: 8px;
-    --r-md: 12px;
-    --r-lg: 20px;
-    --r-xl: 28px;
+    /* --- Avrunding ---
+       Nær manualens 6 px (knapper og felt i HMS-appen). Tidligere 8/12/20/28
+       px — de store, myke hjørnene ga et generisk «soft UI»-preg som ikke
+       passer det arkitektoniske uttrykket i manualen. xl er for store bilder. */
+    --r-sm: 6px;
+    --r-md: 6px;
+    --r-lg: 6px;
+    --r-xl: 8px;
     --r-full: 9999px;
 
-    /* --- Skygger, tonet med bandicoot-600 --- */
-    --shadow-sm:
-      0 1px 4px rgba(var(--rgb-dark), 0.07),
-      0 1px 2px rgba(var(--rgb-dark), 0.05);
-    --shadow-md:
-      0 4px 20px rgba(var(--rgb-dark), 0.1),
-      0 1px 4px rgba(var(--rgb-dark), 0.06);
+    /* --- Skygge ---
+       Bare for elementer som faktisk ligger over annet innhold (skip-lenken).
+       Kort og knapper bruker kantlinje. */
     --shadow-lg:
       0 16px 48px rgba(var(--rgb-dark), 0.14),
       0 4px 12px rgba(var(--rgb-dark), 0.08);
-    --shadow-xl:
-      0 32px 80px rgba(var(--rgb-dark), 0.18),
-      0 8px 24px rgba(var(--rgb-dark), 0.1);
 
     /* --- Ease-kurver --- */
     --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
     --ease-out: cubic-bezier(0, 0, 0.2, 1);
     --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
-    --ease-spring: cubic-bezier(
-      0.34,
-      1.56,
-      0.64,
-      1
-    ); /* Liten sprett for interaktive elementer */
 
     /* --- Transitions --- */
     --transition-fast: 0.15s var(--ease-out);
@@ -371,12 +361,6 @@
   em {
     font-style: italic;
   }
-  .p-italic {
-    font-style: italic;
-  }
-  .p-semibold {
-    font-weight: 600;
-  }
   /* Eyebrow-label over seksjonstitler */
   .eyebrow {
     display: inline-flex;
@@ -512,12 +496,9 @@
     background-color: var(--bandicoot-800);
     border-color: var(--bandicoot-800);
     color: var(--color-text-inv);
-    box-shadow: var(--shadow-md);
   }
 
-  .nav.scrolled {
-    box-shadow: var(--shadow-md);
-  }
+  /* Ingen skygge ved scroll: headeren har allerede en kantlinje nederst. */
 
   .nav__inner {
     display: flex;
@@ -530,25 +511,10 @@
     gap: 1rem;
   }
 
-  /* Desktop: logo til venstre, menypunktene midtstilt i headeren.
-     To like 1fr-kolonner rundt lenkene holder dem på midten uansett logoens
-     bredde. Logoen står fortsatt i linje med innholdet under, som den ville
-     sluttet å gjøre om headeren i stedet ble gjort smalere enn containeren.
-     Under 768 px er det hamburger, og flex-oppsettet over gjelder. */
-  @media (min-width: 768px) {
-    .nav__inner {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-    }
-
-    .nav__logo {
-      justify-self: start;
-    }
-
-    .nav__center {
-      justify-self: center;
-    }
-  }
+  /* Desktop: logo til venstre, menypunktene til høyre. Headeren har samme
+     maksbredde og sidemarg som .container, så begge kantene står i linje med
+     innholdet under. Flex-oppsettet over (space-between) gjør jobben på alle
+     bredder; under 768 px er det hamburger i stedet for lenkene. */
 
   /* Logo */
   .nav__logo {
@@ -752,16 +718,7 @@
     user-select: none;
   }
 
-  .btn:hover {
-    transform: translateY(-1px);
-  }
-  .btn:active {
-    transform: translateY(0);
-  }
-
-  /* Primær: Rust 700, hvit tekst — 6,76:1.
-      Flaten er også 6,19:1 mot sidebakgrunnen, så knappens grense er synlig
-      uten kant (WCAG 1.4.11). Hover går til Rust 800 på 8,96:1. */
+  /* Knapper endrer farge ved hover, de løfter seg ikke og får ikke skygge. */
   /* Primær: gull med warm-dark tekst, 6,52:1. Aldri hvit tekst — 2,22:1.
      Kanten i gull-d gir knappen en avgrensning mot lys bunn. Hover blir
      lysere (gull-l, 8,11:1) og aktiv mørkere, som i manualens knappespråk. */
@@ -775,7 +732,6 @@
     background-color: var(--color-action-hover);
     border-color: var(--color-action-active);
     color: var(--color-action-tekst);
-    box-shadow: var(--shadow-md);
   }
 
   .btn--primary:active {
@@ -793,7 +749,6 @@
   .btn--outline:hover {
     background-color: var(--color-text);
     color: #ffffff;
-    box-shadow: var(--shadow-sm);
   }
 
   /* Outline invertert: for mørke bakgrunner */
@@ -860,6 +815,69 @@
     object-position: center 30%;
   }
 
+  /* ── SLØR: ÉN FELLES GRADIENT ──────────────────────────────────────────
+     Tekst over bilde utenfor heroene. Regelen er alltid den samme: teksten
+     står på den FASTE mørke delen, og gradienten er bare overgangen fra
+     tekstsiden inn i bildet. Samme farge overalt (warm dark).
+
+       --slor-retning  hvor tekstsiden er: 90deg = tekst til venstre,
+                       0deg = tekst nederst (mobil, kort, bildetekst)
+       --slor-fast     hvor langt den faste mørke delen går
+
+     Fordi teksten alltid står på helt mørk flate, er kontrasten den samme som
+     på footeren (hvit 14,46:1, ingress 9,37:1) uansett bilde. Heroene bruker
+     --hero-slor (jevnt) — der står teksten over hele bildet. */
+  .slor {
+    background-image: linear-gradient(
+      var(--slor-retning, 90deg),
+      rgb(var(--rgb-dark-2)) var(--slor-fast, 0%),
+      rgba(var(--rgb-dark-2), 0.7) calc(var(--slor-fast, 0%) + 14%),
+      rgba(var(--rgb-dark-2), 0) 90%
+    );
+  }
+
+  /* Festet variant: sløret ligger på selve tekstblokken, med overgangen
+     4rem opp i bildet. Brukes der teksten står nederst over hele bredden og
+     høyden varierer (kort, mobil). En prosentgrense holder ikke der: på 320 px
+     startet teksten i SoMe-blokken ved 79 % av høyden og havnet på 2,11:1. */
+  .slor-tekst {
+    padding-top: 4rem;
+    background-image: linear-gradient(
+      to top,
+      rgb(var(--rgb-dark-2)) calc(100% - 4rem),
+      rgba(var(--rgb-dark-2), 0.7) calc(100% - 2.25rem),
+      rgba(var(--rgb-dark-2), 0) 100%
+    );
+  }
+
+  /* ── FJELLKANT ────────────────────────────────────────────────────────
+     Underkanten på alle heroer: en lav fjellrygg hentet fra logoen, i stedet
+     for bølgen. Brukes som klassen .fjellkant på heroens rotelement.
+
+     Maske og ikke en SVG i seksjonsfargen under: masken gjør bunnen av
+     heroen gjennomsiktig, så heroen trenger ikke vite hvilken farge seksjonen
+     under har. Bølgen trengte det (nesteTema), og tok feil farge når kunden
+     byttet tema på seksjonen i Sanity.
+
+     Masken viser det som ligger BAK heroen. Derfor overlapper heroen
+     seksjonen under med fjellets høyde (negativ margin-bottom) og ligger over
+     den (z-index). Heroens padding-bottom må være større enn --fjell-h, ellers
+     kuttes innhold — alle fem heroene har det. */
+  .fjellkant {
+    --fjell-h: clamp(20px, 3.2vw, 44px);
+    position: relative;
+    z-index: 1;
+    margin-bottom: calc(-1 * var(--fjell-h));
+    mask-image:
+      linear-gradient(#000 0 0),
+      url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 48' preserveAspectRatio='none'><path d='M0 0H1440V44L1320 42L1210 38L1100 34L1020 25L950 28L885 15L835 21L785 10L745 13L695 2L640 9L590 21L545 17L480 31L410 28L320 38L230 36L110 41L0 44Z'/></svg>");
+    mask-size:
+      100% calc(100% - var(--fjell-h) + 1px),
+      100% var(--fjell-h);
+    mask-position: top, bottom;
+    mask-repeat: no-repeat;
+  }
+
   /* Ett jevnt slør, ikke gradienter.
       Tidligere to gradienter (venstreanker + vertikal) med egen variant for
       mobil. Kunden ønsket uttrykket uten gradienter (september 2026). Sløret
@@ -910,140 +928,11 @@
   }
 
   /* Stats under hero-tekst */
-  .hero__stats {
-    display: flex;
-    flex-wrap: wrap;
-    gap: clamp(1.5rem, 3vw, 2.5rem);
-    padding-top: 2rem;
-    border-top: 1px solid rgba(var(--rgb-inv), 0.12);
-  }
-
-  .hero-stat__num {
-    font-family: var(--ff-display);
-    font-size: clamp(2rem, 4vw, 3rem);
-    font-weight: 700;
-    color: var(--color-text-inv);
-    line-height: 1;
-    letter-spacing: -0.02em;
-  }
-
-  .hero-stat__label {
-    font-size: 0.8125rem;
-    color: var(--color-text-inv-m);
-    margin-top: 0.25rem;
-    font-weight: 500;
-  }
 
   /* --------------------------------------------------------------------------
          8. STATS-RAD
          -------------------------------------------------------------------------- */
 
-  .stats-row {
-    background-color: var(--color-bg-white);
-    padding-block: clamp(2.5rem, 5vw, 4rem);
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .stats-row__grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 2rem;
-  }
-
-  .stat-item {
-    text-align: center;
-  }
-
-  .stat-item__num {
-    font-family: var(--ff-display);
-    font-size: clamp(2rem, 4vw, 3rem);
-    font-weight: 700;
-    color: var(--color-uthev);
-    line-height: 1;
-    letter-spacing: -0.02em;
-  }
-
-  .stat-item__label {
-    font-size: 0.875rem;
-    color: var(--color-text-m);
-    margin-top: 0.375rem;
-    font-weight: 500;
-  }
-
-  /* --------------------------------------------------------------------------
-         9. PÅGÅENDE-BANNER (ONGOING BANNER)
-         -------------------------------------------------------------------------- */
-
-  .ongoing-banner {
-    background-color: var(--color-bg-section);
-    padding-block: 1.25rem;
-    border-block: 1px solid var(--color-border);
-    overflow: hidden;
-  }
-
-  .ongoing-banner__inner {
-    display: flex;
-    align-items: center;
-    gap: 1.25rem;
-    flex-wrap: wrap;
-  }
-
-  .badge-dot {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--color-uthev);
-    flex-shrink: 0;
-  }
-
-  .badge-dot::before {
-    content: "";
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: var(--gull-d);
-    animation: pulse-dot 2s ease-in-out infinite;
-  }
-
-  @keyframes pulse-dot {
-    0%,
-    100% {
-      opacity: 1;
-      transform: scale(1);
-    }
-    50% {
-      opacity: 0.5;
-      transform: scale(0.8);
-    }
-  }
-
-  .ongoing-banner__text {
-    font-size: 0.9375rem;
-    color: var(--color-text);
-    font-weight: 500;
-    flex: 1;
-    min-width: 200px;
-  }
-
-  .progress-bar {
-    width: 140px;
-    height: 4px;
-    background-color: var(--color-border);
-    border-radius: var(--r-full);
-    overflow: hidden;
-    flex-shrink: 0;
-  }
-
-  .progress-bar__fill {
-    height: 100%;
-    background-color: var(--color-uthev);
-    border-radius: var(--r-full);
-    transition: width 1.2s var(--ease-out);
-  }
 
   /* --------------------------------------------------------------------------
          10. TJENESTER — BENTO GRID
@@ -1052,7 +941,9 @@
   .tjeneste-section {
     background-color: var(--color-bg-dark);
     position: relative;
-    overflow: hidden;
+    /* clip og ikke hidden: hidden gjør seksjonen til en scroll-container,
+       og .reveal inni kobler seg da til en tidslinje som aldri går. */
+    overflow: clip;
   }
 
   /* Subtil bakgrunnstekstur */
@@ -1081,9 +972,6 @@
   }
 
   /* Andre rad: alle tre spenner likt */
-  .tjeneste-card--third {
-    grid-column: span 4;
-  }
 
   /* Full-bredd rad — brukes for siste/fremhevet tjeneste */
   .tjeneste-card--full {
@@ -1093,15 +981,8 @@
 
   @media (max-width: 1023px) {
     .tjeneste-card--large,
-    .tjeneste-card--small,
-    .tjeneste-card--third {
+    .tjeneste-card--small {
       grid-column: span 12;
-    }
-  }
-
-  @media (min-width: 640px) and (max-width: 1023px) {
-    .tjeneste-card--third {
-      grid-column: span 6;
     }
   }
 
@@ -1111,6 +992,9 @@
     overflow: hidden;
     min-height: 320px;
     cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
   }
 
   .tjeneste-card--large {
@@ -1119,22 +1003,19 @@
   .tjeneste-card--small {
     min-height: 320px;
   }
-  .tjeneste-card--third {
-    min-height: 260px;
+
+  /* Mobil: begge kortene like høye. Med sløret festet til teksten tar
+     teksten mesteparten av et 320 px-kort, og bildet ble en smal stripe. */
+  @media (max-width: 767px) {
+    .tjeneste-card--small {
+      min-height: 420px;
+    }
   }
 
   .tjeneste-card__img-wrap {
     position: absolute;
     inset: 0;
     z-index: 0;
-    /* CSS parallax */
-    transform: scale(1.05);
-    transition: transform 0.7s var(--ease-out);
-  }
-
-  .tjeneste-card:hover .tjeneste-card__img-wrap,
-  .tjeneste-card:focus-within .tjeneste-card__img-wrap {
-    transform: scale(1.1);
   }
 
   .tjeneste-card__img-wrap img {
@@ -1143,37 +1024,18 @@
     object-fit: cover;
   }
 
-  .tjeneste-card__overlay {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    background: linear-gradient(
-      to top,
-      color-mix(in srgb, var(--color-bg-dark-2) 92%, transparent) 0%,
-      color-mix(in srgb, var(--color-bg-dark-2) 55%, transparent) 40%,
-      color-mix(in srgb, var(--color-bg-dark-2) 15%, transparent) 100%
-    );
-    transition: background var(--transition-slow);
-  }
 
-  .tjeneste-card:hover .tjeneste-card__overlay,
-  .tjeneste-card:focus-within .tjeneste-card__overlay {
-    background: linear-gradient(
-      to top,
-      color-mix(in srgb, var(--color-bg-dark-2) 96%, transparent) 0%,
-      color-mix(in srgb, var(--color-bg-dark-2) 65%, transparent) 50%,
-      color-mix(in srgb, var(--color-bg-dark-2) 25%, transparent) 100%
-    );
-  }
 
+  /* Sløret er festet til tekstblokken (.slor-tekst), ikke til kortet. En
+     prosentgrense på kortet holdt ikke: på mobil starter teksten ved 79 % av
+     det lave kortets høyde, og toppen av den havnet på 1,55:1 mot et lyst
+     bilde. */
   .tjeneste-card__body {
     position: relative;
     z-index: 2;
-    padding: 1.75rem;
-    height: 100%;
+    padding: 4rem 1.75rem 1.75rem;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
   }
 
   .tjeneste-card__title {
@@ -1185,28 +1047,17 @@
     line-height: 1.2;
   }
 
-  /* Hover-reveal beskrivelse */
+  /* Beskrivelse og lenke er alltid synlige.
+     Tidligere var begge skjult (max-height: 0, opacity: 0) til musepekeren
+     var over kortet. På mobil og nettbrett finnes ingen hover, så innholdet
+     ble aldri vist der. Hover gir nå bare en tydeligere pil. */
   .tjeneste-card__desc {
     font-size: 0.9375rem;
     color: var(--color-text-inv-m);
     line-height: 1.6;
-    max-height: 0;
-    overflow: hidden;
-    opacity: 0;
-    transition:
-      max-height 0.4s var(--ease-out),
-      opacity 0.35s var(--ease-out),
-      margin 0.3s var(--ease-out);
-  }
-
-  .tjeneste-card:hover .tjeneste-card__desc,
-  .tjeneste-card:focus-within .tjeneste-card__desc {
-    max-height: 130px;
-    opacity: 1;
     margin-bottom: 1rem;
   }
 
-  /* Hover-reveal lenke */
   .tjeneste-card__link {
     display: inline-flex;
     align-items: center;
@@ -1216,12 +1067,7 @@
     font-weight: 600;
     color: var(--color-primary-l);
     text-decoration: none;
-    opacity: 0;
-    transform: translateY(8px);
-    transition:
-      opacity 0.3s var(--ease-out),
-      transform 0.3s var(--ease-out),
-      color var(--transition-fast);
+    transition: color var(--transition-fast);
   }
 
   .tjeneste-card__link::after {
@@ -1230,46 +1076,49 @@
     inset: 0;
   }
 
-  .tjeneste-card:hover .tjeneste-card__link,
-  .tjeneste-card:focus-within .tjeneste-card__link {
-    opacity: 1;
-    transform: translateY(0);
-    transition-delay: 0.05s;
-  }
-
-  .tjeneste-card__link:hover {
-    color: var(--color-text-inv);
-  }
-
   .tjeneste-card__link svg {
     transition: transform var(--transition-fast);
   }
 
-  .tjeneste-card__link:hover svg {
-    transform: translateX(3px);
+  @media (hover: hover) and (pointer: fine) {
+    .tjeneste-card:hover .tjeneste-card__link {
+      color: var(--color-text-inv);
+    }
+    .tjeneste-card:hover .tjeneste-card__link svg {
+      transform: translateX(3px);
+    }
   }
 
   /* --------------------------------------------------------------------------
          11. PROSJEKTKORT
          -------------------------------------------------------------------------- */
 
+  /* Kantlinje i stedet for skygge. Mørkere kant og understreket tittel ved
+     hover, se .prosjekt-card:hover lenger ned. */
   .prosjekt-card {
     background-color: var(--color-bg-white);
     border-radius: var(--r-lg);
     overflow: hidden;
-    box-shadow: var(--shadow-sm);
-    transition:
-      box-shadow var(--transition-base),
-      transform var(--transition-base);
+    border: 1px solid var(--color-border-l);
+    transition: border-color var(--transition-base);
     text-decoration: none;
     display: flex; /* ← ny */
     flex-direction: column; /* ← ny */
     height: 100%; /* ← ny */
   }
 
+  /* Hover løfter ikke kortet og zoomer ikke bildet (september 2026: fjernet
+     som «AI-preg»). Tilstanden vises med understreket tittel i stedet —
+     tydelig, og den virker likt med tastatur (:focus-visible). */
   .prosjekt-card:hover {
-    box-shadow: var(--shadow-lg);
-    transform: translateY(-4px);
+    border-color: var(--color-border);
+  }
+
+  .prosjekt-card:hover .prosjekt-card__title,
+  .prosjekt-card:focus-visible .prosjekt-card__title {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
   }
 
   .prosjekt-card__img {
@@ -1281,11 +1130,6 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.5s var(--ease-out);
-  }
-
-  .prosjekt-card:hover .prosjekt-card__img img {
-    transform: scale(1.04);
   }
 
   .prosjekt-card__body {
@@ -1295,18 +1139,35 @@
     flex: 1;
   }
 
+  /* Kategori som ren etikett, ikke tonet pille. Versaler beholdes: det er
+     en merkelapp, og kategorien er informasjon. */
   .prosjekt-card__tag {
     display: inline-flex;
     align-self: flex-start;
-    padding: 0.25rem 0.75rem;
-    background-color: var(--color-bg-section);
-    color: var(--color-text-m);
-    border-radius: var(--r-full);
+    color: var(--color-uthev);
     font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.06em;
     margin-bottom: 0.75rem;
+  }
+
+  /* Status på samme linje som kategorien, med gullprikk som på prosjekt-
+     siden. Klassen sto i markupen uten noen stil, og «Pågående» lå som løs
+     tekst over kategorien. */
+  .prosjekt-card__pagaende {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-left: 0.75rem;
+    color: var(--color-text-m);
+  }
+  .prosjekt-card__pagaende::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--gull-d);
   }
 
   .prosjekt-card__title {
@@ -1369,14 +1230,14 @@
     color: var(--color-text-m);
     background-color: var(--color-bg-white);
     border: 1.5px solid var(--color-border);
-    border-radius: var(--r-full);
+    /* Rektangulær med 6 px, som manualens kategoriknapper. */
+    border-radius: var(--r-sm);
     cursor: pointer;
     white-space: nowrap;
     transition:
       color 0.15s ease,
       background-color 0.15s ease,
-      border-color 0.15s ease,
-      box-shadow 0.15s ease;
+      border-color 0.15s ease;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
   }
@@ -1392,7 +1253,6 @@
     background-color: var(--color-action);
     border-color: var(--color-action-active);
     color: var(--color-action-tekst);
-    box-shadow: var(--shadow-sm);
   }
 
   .filter-btn--aktiv:hover,
@@ -1413,17 +1273,12 @@
     font-size: 0.6875rem;
     font-weight: 700;
     line-height: 1;
-    border-radius: var(--r-full);
+    border-radius: var(--r-sm);
     background-color: rgba(var(--rgb-dark), 0.1);
     color: var(--color-text-m);
     transition:
       background-color 0.15s ease,
       color 0.15s ease;
-  }
-
-  .filter-btn__count--aktiv {
-    background-color: rgba(255, 255, 255, 0.25);
-    color: #ffffff;
   }
 
   /* Galleri-toprad: tittel + filterbar side om side på desktop */
@@ -1482,20 +1337,6 @@
   }
 
   /* Kort-inngang animasjon */
-  @keyframes galleri-fade-in {
-    from {
-      opacity: 0;
-      transform: translateY(10px) scale(0.985);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-  }
-
-  .galleri-kort-enter {
-    animation: galleri-fade-in 0.25s var(--ease-out) both;
-  }
 
   /* Pågående-merke */
 
@@ -1581,23 +1422,17 @@
     }
   }
 
-  /* .strip__item:hover {
-    background-color: var(--color-bg-section);
-  } */
-
-  /* Ikon-sirkel */
+  /* Ikon */
   .strip__icon-wrap {
     width: 44px;
     height: 44px;
     flex-shrink: 0;
     display: flex;
     align-items: center;
-    justify-content: center;
-    background-color: rgba(var(--rgb-gull), 0.18);
-    border-radius: var(--r-md);
+    justify-content: flex-start;
+    /* Bare ikonet, ingen tonet flate bak. */
     color: var(--color-uthev);
-    transition: background-color var(--transition-fast);
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.25rem;
   }
 
   @media (max-width: 479px) {
@@ -1617,8 +1452,7 @@
   .strip__label {
     font-size: 0.6875rem;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.01em;
     color: var(--color-text-s);
     margin-bottom: 0.25rem;
   }
@@ -1674,11 +1508,14 @@
   .kart-ramme {
     border-radius: var(--r-lg);
     overflow: hidden;
-    box-shadow: var(--shadow-lg);
     border: 1px solid var(--color-border);
     aspect-ratio: 16 / 7;
     min-height: 280px;
     max-height: 520px;
+    /* width: 100% og ikke auto: med aspect-ratio og min-height regnet Chrome
+       bredden ut fra minstehøyden (280 × 4/3 = 373 px), og rammen stakk ut av
+       skjermen på mobil. Med fast bredde følger høyden forholdet og min-height. */
+    width: 100%;
     background-color: var(--color-bg-white);
     position: relative;
   }
@@ -1875,77 +1712,82 @@
   }
 
   /* --------------------------------------------------------------------------
-         14. SCROLL-REVEAL ANIMASJONER
-         Scroll-drevne animasjoner med animation-timeline: view()
-         Fallback: opacity + translateY ved hjelp av Intersection Observer
+         14. SCROLL-REVEAL — én gang, uten JavaScript
+
+         Bruk: legg .reveal på en CONTAINER. Barna tones inn ett for ett
+         (90 ms mellom) første gang containeren kommer inn i bildet, og blir
+         stående synlige når man scroller opp igjen.
+
+         Slik virker det:
+           1. .reveal har en scroll-tidslinje (view()) som vipper
+              --reveal-inne fra «nei» til «ja» når containeren er ~20 % inne.
+              Egendefinerte egenskaper uten @property vipper diskret på 50 %
+              av området entry 0–40 %.
+           2. Barna har en vanlig tidsbasert inntoning (0,6 s). Den står på
+              pause så lenge forelderen er «nei» (container style query), og
+              spilles én gang når den blir «ja». En ferdigspilt animasjon
+              reverseres ikke av at den settes på pause igjen.
+
+         Feilsikkert med vilje: GRUNNVERDIEN er «ja». «nei» kommer bare fra
+         animasjonen, før elementet er i bildet. Mangler nettleseren støtte for
+         scroll-tidslinjer, er tidslinjen inaktiv, eller forstår den ikke style
+         queries, spilles inntoningen straks — innholdet blir aldri stående
+         usynlig. Den gamle løsningen trengte et JS-sikkerhetsnett for dette.
+
+         To fallgruver, begge målt på denne siden:
+           · Skriv ALDRI animation-timeline sammen med animation-forkortelsen.
+             lightningcss (Vite 8) slår dem sammen til «animation: … view()»,
+             som Chrome forkaster i sin helhet. Den gamle reveal-koden virket
+             derfor aldri i Chrome, Edge eller Safari.
+           · Ingen .reveal inni en forelder med overflow: hidden/auto. view()
+             kobler seg til nærmeste scroll-container, og en som ikke scroller
+             gir inaktiv tidslinje. Bruk overflow: clip for å kutte dekor.
+
+         Støtte (sept. 2026): scroll-tidslinjer Chrome/Edge 115+, Safari 26+,
+         Firefox 159+. Style queries Chrome 111+, Safari 18+, Firefox 151+.
          -------------------------------------------------------------------------- */
 
   @supports (animation-timeline: view()) {
-    .reveal {
-      animation: reveal-anim both;
-      animation-timeline: view();
-      animation-range: entry 0% entry 30%;
-    }
-
-    .reveal-d1 {
-      animation: reveal-anim both;
-      animation-timeline: view();
-      animation-range: entry 5% entry 35%;
-    }
-
-    .reveal-d2 {
-      animation: reveal-anim both;
-      animation-timeline: view();
-      animation-range: entry 10% entry 40%;
-    }
-
-    .reveal-d3 {
-      animation: reveal-anim both;
-      animation-timeline: view();
-      animation-range: entry 15% entry 45%;
-    }
-
-    @keyframes reveal-anim {
-      from {
-        opacity: 0;
-        transform: translateY(28px);
+    @media (prefers-reduced-motion: no-preference) {
+      .reveal {
+        --reveal-inne: ja;
+        animation-name: reveal-las;
+        animation-fill-mode: both;
+        animation-timing-function: linear;
+        animation-timeline: view();
+        animation-range: entry 0% entry 40%;
       }
-      to {
-        opacity: 1;
-        transform: translateY(0);
+
+      .reveal > * {
+        animation-name: reveal-inn;
+        animation-duration: 0.6s;
+        animation-timing-function: var(--ease-out);
+        animation-fill-mode: both;
+        animation-delay: calc(var(--reveal-nr, 0) * 90ms);
+      }
+
+      .reveal > :nth-child(2) { --reveal-nr: 1; }
+      .reveal > :nth-child(3) { --reveal-nr: 2; }
+      .reveal > :nth-child(4) { --reveal-nr: 3; }
+      .reveal > :nth-child(n + 5) { --reveal-nr: 4; }
+
+      @container style(--reveal-inne: nei) {
+        .reveal > * {
+          animation-play-state: paused;
+        }
       }
     }
   }
 
-  /* Fallback for nettlesere uten scroll-timeline-støtte */
-  @supports not (animation-timeline: view()) {
-    .reveal,
-    .reveal-d1,
-    .reveal-d2,
-    .reveal-d3 {
+  @keyframes reveal-las {
+    from { --reveal-inne: nei; }
+    to   { --reveal-inne: ja; }
+  }
+
+  @keyframes reveal-inn {
+    from {
       opacity: 0;
-      transform: translateY(28px);
-      transition:
-        opacity 0.6s var(--ease-out),
-        transform 0.6s var(--ease-out);
-    }
-
-    .reveal.is-visible,
-    .reveal-d1.is-visible,
-    .reveal-d2.is-visible,
-    .reveal-d3.is-visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .reveal-d1.is-visible {
-      transition-delay: 0.1s;
-    }
-    .reveal-d2.is-visible {
-      transition-delay: 0.2s;
-    }
-    .reveal-d3.is-visible {
-      transition-delay: 0.3s;
+      translate: 0 24px;
     }
   }
 
@@ -2091,27 +1933,6 @@
   /* --------------------------------------------------------------------------
          16. BADGE / TAG KOMPONENTER
          -------------------------------------------------------------------------- */
-
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    padding: 0.3rem 0.75rem;
-    border-radius: var(--r-full);
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-  }
-
-  .badge--charcoal {
-    background-color: rgba(var(--rgb-dark), 0.1);
-    color: var(--color-bg-dark);
-  }
-
-  .badge--light {
-    background-color: var(--color-bg-section);
-    color: var(--color-text-m);
-  }
 }
 @layer utilities {
   /* --------------------------------------------------------------------------
@@ -2139,18 +1960,6 @@
   }
 
   /* Aspect ratio containers */
-  .aspect-video {
-    aspect-ratio: 16 / 9;
-  }
-  .aspect-photo {
-    aspect-ratio: 4 / 3;
-  }
-  .aspect-portrait {
-    aspect-ratio: 3 / 4;
-  }
-  .aspect-square {
-    aspect-ratio: 1 / 1;
-  }
 
   /* Smooth scroll offset for sticky nav */
   [id] {
@@ -2253,15 +2062,14 @@
     align-items: center;
     gap: 0.35rem;
     padding: 0.3rem 0.75rem;
-    background-color: rgba(var(--rgb-gull), 0.2);
-    border: 1px solid rgba(var(--rgb-gull), 0.45);
-    border-radius: var(--r-full);
+    /* Ensfarget merkelapp, ikke gjennomsiktig pille: fast warm dark gir
+       14,46:1 for hvit tekst uansett bilde bak. Gullet ligger i prikken. */
+    background-color: rgb(var(--rgb-dark-2));
+    border-radius: var(--r-sm);
     font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    /* Hvit og ikke gull-l: over et lyst bilde gir gull-l bare 2,86:1 på
-       tagflaten, hvit 4,87:1. Gullet ligger i kant og prikk. */
     color: var(--color-text-inv);
     margin-bottom: 1rem;
   }
@@ -2272,11 +2080,6 @@
     border-radius: 50%;
     background-color: var(--gull);
     flex-shrink: 0;
-  }
-
-  /* Pulserende for pågående */
-  .slug-hero__tag--pågående .slug-hero__tag-dot {
-    animation: pulse-dot 2s ease-in-out infinite;
   }
 
   .slug-hero__heading {
@@ -2393,7 +2196,6 @@
     border-radius: var(--r-lg);
     border: 1px solid var(--color-border);
     background-color: var(--color-bg-white);
-    box-shadow: var(--shadow-sm);
     position: relative;
     overflow: hidden;
   }
@@ -2465,7 +2267,6 @@
     border: 1px solid var(--color-border);
     border-radius: var(--r-lg);
     overflow: hidden;
-    box-shadow: var(--shadow-sm);
   }
 
   .casestudie-meta-kort__header {
@@ -2478,8 +2279,7 @@
     font-family: var(--ff-display);
     font-size: 0.75rem;
     font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.01em;
     color: var(--color-text-inv-m);
     margin: 0;
     max-width: none;
@@ -2615,31 +2415,21 @@
     display: block;
   }
 
-  .casestudie-galleri__item:hover img {
-    transform: scale(1.04);
-  }
 
-  /* Caption: slide opp fra bunn på hover */
+  /* Bildetekst: alltid synlig. Den lå tidligere skjult under bildet og gled
+     opp ved hover — på mobil ble den aldri vist. Felles slør (.slor) med
+     teksten på den faste delen nederst. */
   .casestudie-galleri__caption {
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
-    padding: 0.625rem 0.875rem;
-    background: linear-gradient(
-      to top,
-      rgba(var(--rgb-deepest), 0.85),
-      transparent
-    );
+    padding: 1.5rem 0.875rem 0.625rem;
+    --slor-retning: 0deg;
+    --slor-fast: 40%;
     font-size: 0.75rem;
     color: rgba(var(--rgb-inv), 0.9);
     line-height: 1.4;
-    transform: translateY(100%);
-    transition: transform 0.28s var(--ease-out);
-  }
-
-  .casestudie-galleri__item:hover .casestudie-galleri__caption {
-    transform: translateY(0);
   }
 
   /* ── Relaterte prosjekter ──────────────────────────────────────────────── */
@@ -2668,14 +2458,57 @@
     }
   }
 
-  @keyframes hero-fade-up {
+  /* Heroene: én rolig inntoning av hele tekstblokken ved sidelast.
+     Erstatter tre–fem trinnvise animasjoner per hero (overskrift, strek,
+     ingress, knapper med 0,2–0,6 s forsinkelse) og et bilde som gled inn fra
+     siden. Ligger bak no-preference, så tekstblokken aldri står på opacity: 0
+     for den som har bedt om redusert bevegelse. */
+  @media (prefers-reduced-motion: no-preference) {
+    .hero__content,
+    .page-hero__text,
+    .kontakt-banner__content,
+    .tjeneste-hero__innhold,
+    .slug-hero__content {
+      animation-name: hero-inn;
+      animation-duration: 0.6s;
+      animation-timing-function: var(--ease-out);
+      animation-fill-mode: both;
+    }
+  }
+
+  @keyframes hero-inn {
     from {
       opacity: 0;
-      transform: translateY(22px);
+      translate: 0 12px;
     }
+  }
+
+  /* Dekor-bevegelse (arkitekturens system 2.1): bildet i bildeheroene
+     forstørres svakt mens heroen scrolles ut. Bare dekor — tekst beveger seg
+     aldri med scroll.
+
+     scroll(root) og ikke view(): heroene har overflow: hidden, og view() ville
+     koblet seg til heroen selv, som aldri scroller. Rotens tidslinje over
+     heroens høyde gir samme effekt uten den fella. Skrevet med longhands, så
+     lightningcss ikke slår dem sammen til en forkortelse Chrome avviser. */
+  @supports (animation-timeline: scroll()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .hero__bg,
+      .tjeneste-hero__bg,
+      .slug-hero__bg {
+        transform-origin: 50% 100%;
+        animation-name: hero-dybde;
+        animation-timing-function: linear;
+        animation-fill-mode: both;
+        animation-timeline: scroll(root block);
+        animation-range: 0px var(--hero-hoyde);
+      }
+    }
+  }
+
+  @keyframes hero-dybde {
     to {
-      opacity: 1;
-      transform: translateY(0);
+      scale: 1.08;
     }
   }
 }
@@ -2709,28 +2542,6 @@
   .flex-shrink-0 {
     flex-shrink: 0;
   }
-  .items-center {
-    align-items: center;
-  }
-  .items-start {
-    align-items: flex-start;
-  }
-  .gap-1\.5 {
-    gap: 0.375rem;
-  }
-  .gap-2 {
-    gap: 0.5rem;
-  }
-
-  .m-0 {
-    margin: 0;
-  }
-  .mt-0\.5 {
-    margin-top: 0.125rem;
-  }
-  .mt-1 {
-    margin-top: 0.25rem;
-  }
   .mt-2 {
     margin-top: 0.5rem;
   }
@@ -2742,36 +2553,6 @@
   }
   .mt-5 {
     margin-top: 1.25rem;
-  }
-  .mt-6 {
-    margin-top: 1.5rem;
-  }
-  .p-0 {
-    padding: 0;
-  }
-  .py-3 {
-    padding-block: 0.75rem;
-  }
-
-  .list-none {
-    list-style: none;
-  }
-  .font-medium {
-    font-weight: 500;
-  }
-  .text-sm {
-    font-size: 0.875rem;
-    line-height: 1.6;
-  }
-  .opacity-40 {
-    opacity: 0.4;
-  }
-  .transition-colors {
-    transition-property: color, background-color, border-color;
-    transition-timing-function: var(--ease-out);
-  }
-  .duration-150 {
-    transition-duration: 150ms;
   }
   .hover\:text-white:hover {
     color: #fff;
@@ -2885,25 +2666,6 @@
   /* Lyse kort inne i mørke seksjoner — prosjektkort i en karusell på mørkt
      tema, for eksempel — får lys-verdiene tilbake. Uten dette ble teksten
      gull på hvitt, 2,22:1. */
-  :is(
-      .sek--lys,
-      .sek--hvit,
-      .sek--seksjon,
-      .prosjekt-card,
-      .paagaende,
-      .casestudie-kort,
-      .nokkeltall-strip,
-      .stats-row,
-      .strip,
-      .tjeneste-prosess__steg,
-      .sert-badge,
-      .team-seksjon
-    ) {
-    --color-uthev: var(--leaf-d1);
-    --color-primary: var(--leaf-d1);
-    --color-link: var(--warm-dark);
-    --color-focus: var(--warm-dark);
-  }
 
   /* Lenker på mørk bunn.
      Uten denne arvet alle lenker uten egen klasse den globale lenkefargen,
@@ -3074,15 +2836,6 @@
   }
 
   /* ── Todelt: liste + prosa ────────────────────────────────────────────── */
-  .tjeneste-todelt {
-    display: grid;
-    gap: clamp(2rem, 5vw, 4rem);
-  }
-  @media (min-width: 900px) {
-    .tjeneste-todelt {
-      grid-template-columns: 5fr 6fr;
-    }
-  }
 
   .tjeneste-liste {
     list-style: none;
@@ -3126,8 +2879,11 @@
   .rik-tekst {
     max-width: var(--reading-width);
   }
+  /* Flyt med em (layout-primitiv «flow»): avstanden regnes ut fra
+     elementets egen skriftstørrelse, så en H2 automatisk får større luft over
+     seg enn et avsnitt uten egne regler per nivå. */
   .rik-tekst > * + * {
-    margin-top: 0.9rem;
+    margin-block-start: var(--flyt, 0.9em);
   }
   .rik-tekst h2,
   .rik-tekst h3,
@@ -3147,7 +2903,7 @@
     font-size: 1rem;
   }
   .rik-tekst > * + :is(h2, h3, h4) {
-    margin-top: 2rem;
+    --flyt: 1.4em;
   }
   .rik-tekst p,
   .rik-tekst li {
@@ -3399,7 +3155,7 @@
   /* ==========================================================================
       REDUSERT BEVEGELSE
       Én blokk for hele nettstedet. Før denne fantes bare tre lokale hensyn —
-      .scroll-smooth, .kontaktbar og en JS-sjekk i OngoingBanner — mens alle
+      .scroll-smooth og .kontaktbar — mens alle
       reveal-animasjonene, hele hero-sekvensen og den uendelige scroll-linja
       kjørte uansett hva brukeren hadde bedt om.
 
@@ -3423,23 +3179,8 @@
       scroll-behavior: auto;
     }
 
-    /* Innhold som ellers venter på en animasjon for å bli synlig. */
-    .reveal,
-    .reveal-d1,
-    .reveal-d2,
-    .reveal-d3,
-    .hero__heading,
-    .hero__lead,
-    .hero__actions,
-    .hero__scroll-hint {
-      opacity: 1 !important;
-      transform: none !important;
-      animation: none !important;
-    }
+    /* Reveal og hero-inntoningen trenger ingen overstyring her: begge ligger
+       bak prefers-reduced-motion: no-preference og slås aldri på. */
 
-    /* Ren dekor som ikke bærer innhold — den kjørte infinite. */
-    .hero__scroll-line {
-      display: none;
-    }
   }
 }

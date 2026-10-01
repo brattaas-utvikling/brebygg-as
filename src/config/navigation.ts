@@ -20,6 +20,7 @@ export const MAIN_NAV: NavItem[] = [
   { label: "Tjenester",  href: "/tjenester/" },
   { label: "Prosjekter", href: "/prosjekter/" },
   { label: "Om oss",     href: "/om-oss/" },
+  { label: "Bærekraft",  href: "/baerekraft/" },
   { label: "Kontakt",    href: "/kontakt/" },
 ] as const;
 
@@ -45,6 +46,7 @@ export const FOOTER_NAV: FooterNavGroup[] = [
     items: [
       { label: "Om oss",    href: "/om-oss/" },
       { label: "Prosjekter", href: "/prosjekter/" },
+      { label: "Bærekraft", href: "/baerekraft/" },
       { label: "Kontakt",   href: "/kontakt/" },
     ],
   },
@@ -74,6 +76,7 @@ export function buildBreadcrumbs(
     "om-oss":     "Om oss",
     "prosjekter": "Prosjekter",
     "kontakt":    "Kontakt",
+    "baerekraft": "Bærekraft",
     "tjenester":  "Tjenester",
     "nybygg":     "Nybygg",
     "rehabilitering": "Rehabilitering",

@@ -153,7 +153,7 @@ export const FAKTA_UBEKREFTET = {
 
 export const SEO_DEFAULTS = {
   title:       "BRE Bygg — Totalentreprenør i Vestfold",
-  description: "BRE Bygg bygger i Vestfold og Telemark. Nybygg og rehabilitering — med fullt ansvar fra første møte til du får nøklene.",
+  description: "BRE Bygg bygger i Vestfold og Telemark. Nybygg og rehabilitering, med fullt ansvar fra første møte til du får nøklene.",
   ogImage:     `${SITE_URL}/images/og-standard.jpg`,
   locale:      "nb_NO",
   twitterCard: "summary_large_image",
@@ -179,7 +179,7 @@ export type PageMeta = {
 export const PAGE_META = {
   home: {
     title:       "BRE Bygg — Totalentreprenør i Vestfold",
-    description: "BRE Bygg bygger i Vestfold. Nybygg og rehabilitering — med fullt ansvar fra første møte til du får nøklene.",
+    description: "BRE Bygg bygger i Vestfold. Nybygg og rehabilitering, med fullt ansvar fra første møte til du får nøklene.",
     canonical:   `${SITE_URL}/`,
   },
   omOss: {
@@ -191,6 +191,11 @@ export const PAGE_META = {
     title:       "Prosjekter — BRE Bygg | Nybygg og rehabilitering i Vestfold",
     description: "Ferdige prosjekter fra BRE Bygg i Vestfold. Vi viser hva vi tok på oss, hva som var krevende og hva vi faktisk leverte.",
     canonical:   `${SITE_URL}/prosjekter/`,
+  },
+  baerekraft: {
+    title:       "Bærekraft og miljø — BRE Bygg",
+    description: "Hvordan BRE Bygg jobber med miljø i byggeprosjektene i Vestfold og Telemark, med lenke til bærekraftsrapporten i Miljøfyrtårn-portalen.",
+    canonical:   `${SITE_URL}/baerekraft/`,
   },
   kontakt: {
     title:       "Kontakt BRE Bygg — Totalentreprenør Vestfold",
@@ -261,7 +266,7 @@ export type FaqItem = {
 export const FAQ_ITEMS: readonly FaqItem[] = [
   {
     question: "Hva er en totalentreprenør?",
-    answer:   "En totalentreprenør tar ansvar for hele byggeprosessen — prosjektering, koordinering av underentreprenører og ferdigstillelse. Du forholder deg til én aktør, ikke ti.",
+    answer:   "En totalentreprenør tar ansvar for hele byggeprosessen: prosjektering, koordinering av underentreprenører og ferdigstillelse. Du har én kontaktperson gjennom hele prosjektet.",
   },
   {
     question: "Hvilke kommuner jobber BRE Bygg i?",
@@ -269,7 +274,7 @@ export const FAQ_ITEMS: readonly FaqItem[] = [
   },
   {
     question: "Hvordan får jeg et tilbud?",
-    answer:   "Ring eller send en e-post. Vi setter opp et møte der vi går gjennom prosjektet ditt og gir deg et konkret tilbud — uten forpliktelser.",
+    answer:   "Ring eller send en e-post. Vi avtaler et møte, går gjennom prosjektet ditt og gir deg et skriftlig tilbud. Det er uforpliktende.",
   },
   {
     question: "Tar dere på dere rehabilitering av eldre bygg?",
@@ -286,7 +291,7 @@ export const FAQ_ITEMS: readonly FaqItem[] = [
 //
 // Blokken erstattet i sin tid de oppdiktede tallene («120+ prosjekter»,
 // «18 år i bransjen»). Kunden vil ikke ha en tallrad i det hele tatt, så både
-// heroen på forsiden, /om-oss/ og OmOssTeaser står nå uten.
+// heroen på forsiden og /om-oss/ står nå uten.
 //
 // Trenger dere den tilbake senere: statsRad-blokken i Sanity gjør det samme,
 // og lar klienten skrive tallene selv.

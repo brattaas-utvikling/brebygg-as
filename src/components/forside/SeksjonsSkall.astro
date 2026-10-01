@@ -29,7 +29,7 @@ const overskriftId = id ?? (overskrift ? `s-${overskrift.toLowerCase().replace(/
 >
   <div class="container">
     {(overskrift || ingress) && (
-      <header class="seksjon-topp">
+      <header class="seksjon-topp reveal">
         {overskrift && <h2 class="section-title" id={overskriftId}>{overskrift}</h2>}
         {ingress    && <p class="section-desc mt-3">{ingress}</p>}
       </header>

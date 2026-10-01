@@ -136,7 +136,7 @@ const harCasestudie  = data.utfordring  || data.losning  || data.resultat;
     {/* ================================================================
          1. SLUG-HERO
          ================================================================ */}
-    <section class="slug-hero" aria-labelledby="prosjekt-heading">
+    <section class="slug-hero fjellkant" aria-labelledby="prosjekt-heading">
 
       {/* Bakgrunnsbilde — preloadet via heroImage-prop i PageLayout */}
       <div class="slug-hero__bg" aria-hidden="true">
@@ -230,7 +230,7 @@ const harCasestudie  = data.utfordring  || data.losning  || data.resultat;
 
             {/* Ingress — description fra frontmatter */}
             <p
-              class="casestudie-ingress reveal"
+              class="casestudie-ingress"
               style="font-size: clamp(1.0625rem, 2vw, 1.2rem); line-height: 1.7; color: var(--color-text-m); margin-bottom: 2rem;"
             >
               {data.description}
@@ -264,9 +264,13 @@ const harCasestudie  = data.utfordring  || data.losning  || data.resultat;
             )}
 
             {/* Markdown-brødtekst */}
-            <div class="prose reveal">
-              <Content />
-            </div>
+            {/* Bare markdown-reserven har brødtekst her. Sanity-prosjekter bruker
+                utfordring/løsning/resultat over, og ga en tom boks. */}
+            {entry.rendered?.html && (
+              <div class="prose reveal">
+                <Content />
+              </div>
+            )}
 
             {/* ── Bildegalleri ──────────────────────────────────────── */}
             {harGalleri && (
@@ -286,7 +290,7 @@ const harCasestudie  = data.utfordring  || data.losning  || data.resultat;
                       <Bilde kilde={bilde} alt={bilde.alt} />
                       {bildeTekst(bilde) && (
                         <div
-                          class="casestudie-galleri__caption"
+                          class="casestudie-galleri__caption slor"
                           aria-label={bildeTekst(bilde)}
                         >
                           {bildeTekst(bilde)}
@@ -346,7 +350,7 @@ const harCasestudie  = data.utfordring  || data.losning  || data.resultat;
                   <span class="casestudie-meta-list__val">
                     {erPågående ? (
                       <span style="color: var(--color-uthev); display: flex; align-items: center; gap: 0.3rem;">
-                        <span style="width:6px;height:6px;border-radius:50%;background:var(--gull-d);animation:pulse-dot 2s ease-in-out infinite;display:inline-block"></span>
+                        <span style="width:6px;height:6px;border-radius:50%;background:var(--gull-d);display:inline-block" aria-hidden="true"></span>
                         Pågående
                       </span>
                     ) : "Ferdigstilt"}
@@ -401,11 +405,11 @@ const harCasestudie  = data.utfordring  || data.losning  || data.resultat;
             <div class="divider"></div>
           </div>
 
-          <div class="relaterte-grid">
-            {visRelaterte.map((p, i) => (
+          <div class="relaterte-grid reveal">
+            {visRelaterte.map((p) => (
               <a
                 href={`/prosjekter/${p.id}/`}
-                class={`prosjekt-card reveal-d${Math.min(i, 2) as 0|1|2}`}
+                class="prosjekt-card"
                 aria-label={`${p.data.title}, ${p.data.location}, ${p.data.aar}`}
               >
                 <div class="prosjekt-card__img">

@@ -204,4 +204,23 @@ export const kontaktSide = defineType({
   preview: { prepare: () => ({ title: "Kontakt", subtitle: "/kontakt/" }) },
 });
 
-export const sideSingletons = [tjenesterSide, prosjekterSide, omOssSide, kontaktSide];
+/**
+ * Bærekraft. Fri sammensetning: toppseksjon og blokker fra biblioteket, så
+ * kunden kan bygge siden selv etter hvert som dokumentasjonen foreligger.
+ */
+export const baerekraftSide = defineType({
+  name: "baerekraftSide", title: "Bærekraft", type: "document",
+  groups: grupper.filter((g) => g.name !== "innhold"),
+  fields: [
+    heroFelt(),
+    defineField({
+      name: "seksjoner", title: "Seksjoner", type: "array", group: "seksjoner",
+      description: "Innholdet på siden. Miljøpåstander må kunne dokumenteres (markedsføringsloven § 7 og Forbrukertilsynets veiledning): skriv konkrete tiltak og tall, ikke «grønnere fremtid». Dra for å endre rekkefølge, og veksle mellom lys og mørk bakgrunn.",
+      of: alleBlokker.map((b) => defineArrayMember({ type: b.name })),
+    }),
+    seoFelt(),
+  ],
+  preview: { prepare: () => ({ title: "Bærekraft", subtitle: "/baerekraft/" }) },
+});
+
+export const sideSingletons = [tjenesterSide, prosjekterSide, omOssSide, baerekraftSide, kontaktSide];

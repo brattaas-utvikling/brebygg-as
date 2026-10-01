@@ -8,7 +8,7 @@ const layout = blokk.layout ?? "bildeHoyre";
 const cta = blokk.cta;
 ---
 <SeksjonsSkall tema={blokk.tema}>
-  <div class:list={["tekstbilde", `tekstbilde--${layout}`]}>
+  <div class:list={["tekstbilde", `tekstbilde--${layout}`, "reveal"]}>
     <div class="tekstbilde__tekst">
       {blokk.overskrift && <h2 class="section-title mt-2">{blokk.overskrift}</h2>}
       {/* tekstBilde gir Portable Text, omOssTeaser en streng. Begge går

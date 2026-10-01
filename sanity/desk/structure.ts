@@ -36,6 +36,7 @@ export const structure: StructureResolver = (S) =>
               singleton(S, "tjenesterSide",  "Tjenester"),
               singleton(S, "prosjekterSide", "Prosjekter"),
               singleton(S, "omOssSide",      "Om oss"),
+              singleton(S, "baerekraftSide", "Bærekraft"),
               singleton(S, "kontaktSide",    "Kontakt"),
             ])
         ),
@@ -64,6 +65,10 @@ export const structure: StructureResolver = (S) =>
               ),
             ])
         ),
+
+      S.listItem()
+        .title("Siste nytt")
+        .child(S.documentTypeList("nyhet").title("Siste nytt").defaultOrdering([{ field: "dato", direction: "desc" }])),
 
       S.listItem()
         .title("Personer")

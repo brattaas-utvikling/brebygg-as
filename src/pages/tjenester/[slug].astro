@@ -103,7 +103,7 @@ const schema = getTjenesteSchema(
 >
   <main id="main-content">
     {/* Hero */}
-    <section class="tjeneste-hero" aria-labelledby="tjeneste-tittel">
+    <section class="tjeneste-hero fjellkant" aria-labelledby="tjeneste-tittel">
       <div class="tjeneste-hero__bg" aria-hidden="true">
         <Bilde
           kilde={data.heroImage}
@@ -159,7 +159,7 @@ const schema = getTjenesteSchema(
       <div class="container">
         <div>
           <h2 class="section-title mt-2" id="inkludert-tittel">{tekster.inkludert}</h2>
-          <ul class="tjeneste-liste tjeneste-liste--bred">
+          <ul class="tjeneste-liste tjeneste-liste--bred reveal">
             {
               data.inkludert.map((punkt) => (
                 <li class="tjeneste-liste__item">
@@ -193,7 +193,7 @@ const schema = getTjenesteSchema(
       <div class="container">
         <h2 class="section-title mt-2" id="prosess-tittel">{tekster.prosess}</h2>
 
-        <ol class="tjeneste-prosess">
+        <ol class="tjeneste-prosess reveal">
           {
             data.prosess.map((steg, i) => (
               <li class="tjeneste-prosess__steg">
@@ -226,7 +226,7 @@ const schema = getTjenesteSchema(
               </a>
             </div>
 
-            <div class="tjeneste-relaterte" role="list">
+            <div class="tjeneste-relaterte reveal" role="list">
               {relaterte.map((p) => (
                 <a
                   href={`/prosjekter/${p.id}/`}
@@ -267,7 +267,7 @@ const schema = getTjenesteSchema(
           <div class="container tjeneste-faq">
             <h2 class="section-title mt-2" id="faq-tittel">{tekster.faq}</h2>
 
-            <div class="tjeneste-faq__liste">
+            <div class="tjeneste-faq__liste reveal">
               {data.faq.map((f) => (
                 <details class="tjeneste-faq__item">
                   <summary class="tjeneste-faq__sporsmaal">

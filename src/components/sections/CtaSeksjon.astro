@@ -71,7 +71,9 @@ const isDark = variant === "dark";
 
 <style>
   .cta-seksjon {
-    overflow: hidden;
+    /* clip og ikke hidden: hidden gjør seksjonen til en scroll-container,
+       og .reveal inni kobler seg da til en tidslinje som aldri går. */
+    overflow: clip;
   }
   /* ── Lys variant ─────────────────────────────────────────────────── */
   .cta-seksjon--light {
@@ -82,7 +84,9 @@ const isDark = variant === "dark";
   .cta-seksjon--dark {
     background-color: var(--color-bg-dark);
     position: relative;
-    overflow: hidden;
+    /* clip og ikke hidden: hidden gjør seksjonen til en scroll-container,
+       og .reveal inni kobler seg da til en tidslinje som aldri går. */
+    overflow: clip;
   }
 
   /* ── Dekorativt bak-element ──────────────────────────────────────── */

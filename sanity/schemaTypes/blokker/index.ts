@@ -164,9 +164,31 @@ export const someBlokk = defineType({
   preview: { select: { subtitle: "overskrift", media: "bilde" }, prepare: ({ subtitle, media }) => ({ title: "Sosiale medier", subtitle, media }) },
 });
 
+/**
+ * Siste nytt. Sakene hentes fra «Siste nytt» i Studio; blokken bestemmer bare
+ * hvor på forsiden de vises og hvor mange. Uten publiserte saker vises ingenting.
+ */
+export const sisteNytt = defineType({
+  name: "sisteNytt", title: "Siste nytt", type: "object",
+  fields: [
+    temaFelt(),
+    defineField({ name: "overskrift", title: "Overskrift", type: "string", initialValue: "Siste nytt", validation: (r) => r.required() }),
+    defineField({ name: "ingress", title: "Ingress", type: "text", rows: 2 }),
+    defineField({
+      name: "antall", title: "Antall saker", type: "number", initialValue: 4,
+      validation: (r) => r.required().min(1).max(8),
+    }),
+    defineField({
+      name: "visSome", title: "Vis lenker til sosiale medier under", type: "boolean", initialValue: true,
+      description: "Lenkene hentes fra Innstillinger. Slå av hvis siden allerede har blokken «Sosiale medier».",
+    }),
+  ],
+  preview: { select: { subtitle: "overskrift", antall: "antall" }, prepare: ({ subtitle, antall }) => ({ title: "Siste nytt", subtitle: `${subtitle ?? ""} · ${antall ?? 4} saker` }) },
+});
+
 export const alleBlokker = [
   statsRad, paagaendeBanner, tjenesterBento, prosjektKarusell,
-  omOssTeaser, baerekraft, faqBlokk, ctaBanner, tekstBilde, someBlokk,
+  omOssTeaser, baerekraft, faqBlokk, ctaBanner, tekstBilde, someBlokk, sisteNytt,
 ];
 
 /** Navnene brukes både i forside-arrayet og i blokk-dispatcheren i Astro. */

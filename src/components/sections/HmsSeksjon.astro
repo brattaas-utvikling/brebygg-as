@@ -58,7 +58,7 @@ const { overskrift, tekst, punkter, boksTittel, boksTekst, boksSporsmaal, boksKn
            Tiltaksklasse 2» og «Godkjent lærebedrift» uten at noen av dem var
            verifisert. Det er lovregulerte påstander, ikke markedsføring.
            Sett inn igjen når SERTIFISERINGER er bekreftet i om-oss.ts. */}
-      <div class="hms-sertifiseringer reveal-d1">
+      <div class="hms-sertifiseringer reveal">
 
         <div class="sert-header">
           <h3 class="sert-tittel">{boksTittel}</h3>
@@ -133,8 +133,6 @@ const { overskrift, tekst, punkter, boksTittel, boksTekst, boksSporsmaal, boksKn
     display:     flex;
     align-items: center;
     justify-content: center;
-    background-color: rgba(var(--rgb-gull), 0.18);
-    border-radius: 50%;
   }
 
   /* ── Sertifiseringer (høyre kolonne) ─────────────────────────────── */
@@ -181,7 +179,6 @@ const { overskrift, tekst, punkter, boksTittel, boksTekst, boksSporsmaal, boksKn
   }
 
   .sert-badge:hover {
-    box-shadow:   var(--shadow-sm);
     border-color: var(--color-uthev);
   }
 

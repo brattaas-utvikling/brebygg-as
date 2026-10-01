@@ -40,6 +40,7 @@ export type OmOssSide = Felles & {
   verdier: { overskrift: string; ingress: string; punkter: { kategori: string; tittel: string; tekst: string; bilde: SanityBildeObj }[] };
   hms:     { overskrift: string; tekst: RikTekst; punkter: string[]; boksTittel: string; boksTekst: string; boksSporsmaal: string; boksKnapp: string };
 };
+export type BaerekraftSide = Felles;
 export type KontaktSide = Felles & {
   some: { overskrift: string; ingress: string; bilde?: SanityBildeObj | null };
   kartOverskrift: string;
@@ -87,7 +88,7 @@ const FALLBACK = {
   prosjekterSide: {
     hero: {
       tittel: "Prosjekter i Vestfold",
-      ingress: "Vi viser hva vi tok på oss, hva som var krevende og hva vi faktisk leverte. Ingen prosjekter er identiske — men arbeidsmåten er den samme.",
+      ingress: "Her er prosjektene vi har levert og jobber med nå. For hvert prosjekt skriver vi hva som var krevende og hvordan vi løste det.",
       bilde: lokalt("/images/prosjekter-hero.webp", "Byggeplass i Vestfold med kran og stålkonstruksjon"),
     },
     // Var «Prosjekter i Vestfold», altså identisk med H1.
@@ -99,7 +100,7 @@ const FALLBACK = {
     hero: {
       tittel: "Totalentreprenør i Vestfold og Telemark",
       // Antall ansatte settes inn i hentOmOssSide, fra Innstillinger.
-      ingress: "BRE Bygg er {ansatte} personer med base i Sandefjord. Vi leverer nybygg og rehabilitering i Tønsberg, Sandefjord, Larvik og Horten — som totalentreprenør, med én prosjektleder på hvert oppdrag.",
+      ingress: "BRE Bygg er {ansatte} personer med kontor i Sandefjord. Vi er totalentreprenør for nybygg og rehabilitering i Tønsberg, Sandefjord, Larvik og Horten, og hvert oppdrag har én prosjektleder fra start til slutt.",
       bilde: lokalt("/images/om-oss-hero.webp", "BRE Bygg-team på byggeplass i Vestfold"),
       sitat: "Vi lever av anbefalinger. Det er det ærligste kvalitetsbeviset vi kan ha.",
       sitatKilde: "Rudi, BRE Bygg AS",
@@ -118,7 +119,7 @@ const FALLBACK = {
     },
     verdier: {
       overskrift: "Det vi faktisk mener",
-      ingress: "Disse fire punktene er ikke plakater på veggen. De er beslutninger vi tar daglig — og som kundene våre merker over tid.",
+      ingress: "Dette er fire prinsipper vi styrer etter i hvert prosjekt.",
       punkter: VERDIER.map((v) => ({
         kategori: v.kategori, tittel: v.tittel, tekst: v.tekst,
         bilde: lokalt(v.bilde, v.bildeAlt, 600, 400),
@@ -127,8 +128,8 @@ const FALLBACK = {
     hms: {
       overskrift: "Helse, miljø og sikkerhet",
       tekst: [
-        avsnitt("BRE Bygg er godkjent etter kravene i byggherreforskriften. Vi utarbeider SHA-plan for alle prosjekter og gjennomfører ukentlige vernerunder på aktive byggeplasser."),
-        avsnitt("Krav til HMS-egenerklæring fra underentreprenører er ikke noe vi spør om — det er et vilkår for å jobbe med oss."),
+        avsnitt("Vi følger byggherreforskriften. Alle prosjekter får en SHA-plan, og vi har vernerunde hver uke på byggeplassene som er i gang."),
+        avsnitt("Underentreprenører må levere gyldig HMS-egenerklæring før de kan jobbe for oss."),
       ] as RikTekst,
       punkter: [...HMS_PUNKTER],
       boksTittel: "Slik jobber vi med sikkerhet",
@@ -139,22 +140,48 @@ const FALLBACK = {
     seksjoner: [],
   } satisfies OmOssSide,
 
+  // Plassholder til dokumentasjonen foreligger. Bevisst uten påstander: ingen
+  // tall, sertifiseringer eller «grønn»-formuleringer — miljøpåstander i
+  // markedsføring må kunne dokumenteres. Den eneste koblingen er rapporten i
+  // Miljøfyrtårn-portalen, som kunden selv har lenket til fra forsiden.
+  baerekraftSide: {
+    hero: {
+      tittel: "Bærekraft og miljø",
+      ingress: "Her samler vi hvordan BRE Bygg jobber med miljø i prosjektene. Siden oppdateres med konkrete tiltak og tall.",
+    },
+    seksjoner: [
+      {
+        _type: "tekstBilde", _key: "b1", tema: "hvit", layout: "full",
+        overskrift: "Slik jobber vi",
+        tekst: [
+          avsnitt("Denne delen beskriver hvordan vi håndterer avfall, materialvalg og energi på byggeplassen. Innholdet legges inn når dokumentasjonen er klar."),
+        ],
+      },
+      {
+        _type: "tekstBilde", _key: "b2", tema: "seksjon", layout: "full",
+        overskrift: "Bærekraftsrapport",
+        tekst: [avsnitt("Rapporten vår ligger i Miljøfyrtårn-portalen.")],
+        cta: { tekst: "Les rapporten", url: "https://portal.miljofyrtarn.no/sustainabilityReport/7a617a77-e9d0-4b91-9386-30e9cf65da4d", stil: "primary" },
+      },
+    ],
+  } satisfies BaerekraftSide,
+
   kontaktSide: {
     hero: {
       tittel: "Ta kontakt",
-      ingress: "BRE Bygg svarer på henvendelser om byggeprosjekter i Vestfold og Telemark innen én arbeidsdag. Ring direkte eller send en e-post — så setter vi opp et møte uten forpliktelser.",
+      ingress: "Vi svarer på henvendelser om byggeprosjekter i Vestfold og Telemark innen én arbeidsdag. Ring eller send en e-post, så avtaler vi et uforpliktende møte.",
     },
     some: {
       overskrift: "Følg oss i sosiale medier",
-      ingress: "Vi deler bilder og oppdateringer fra prosjektene våre underveis – fra grunnarbeid til overlevering.",
+      ingress: "Vi deler bilder og oppdateringer fra prosjektene underveis.",
     },
     kartOverskrift: `Vi holder til i ${NAP.address.city}`,
     steg: {
       overskrift: "Hva skjer etter du tar kontakt?",
       punkter: [
-        { tittel: "Vi svarer innen én arbeidsdag", tekst: "Enten per telefon eller e-post — avhengig av hva du brukte." },
+        { tittel: "Vi svarer innen én arbeidsdag", tekst: "Vi svarer på samme måte som du tok kontakt, på telefon eller e-post." },
         { tittel: "Møte på stedet eller digitalt", tekst: "Vi gjennomgår prosjektet ditt og avklarer omfang og tidsplan." },
-        { tittel: "Konkret tilbud", tekst: "Ingen vage estimater. Du får et skriftlig tilbud med fast pris eller prisramme." },
+        { tittel: "Konkret tilbud", tekst: "Du får et skriftlig tilbud med fast pris eller en prisramme." },
       ],
     },
     seksjoner: [],
@@ -212,6 +239,7 @@ async function hentSide<K extends SideId>(id: K): Promise<(typeof FALLBACK)[K]> 
 export const hentTjenesterSide  = () => hentSide("tjenesterSide")  as Promise<TjenesterSide>;
 export const hentProsjekterSide = () => hentSide("prosjekterSide") as Promise<ProsjekterSide>;
 export const hentKontaktSide    = () => hentSide("kontaktSide")    as Promise<KontaktSide>;
+export const hentBaerekraftSide = () => hentSide("baerekraftSide") as Promise<BaerekraftSide>;
 
 export async function hentOmOssSide(ansatte: number): Promise<OmOssSide> {
   const side = (await hentSide("omOssSide")) as OmOssSide;
