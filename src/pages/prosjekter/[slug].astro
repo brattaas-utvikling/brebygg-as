@@ -67,7 +67,7 @@ const erPågående = data.status === "pagaende";
 const canonicalPath = `/prosjekter/${entry.id}/`;
 const canonical = `${SITE_URL}${canonicalPath}`;
 
-const seoTitle       = data.seoTitle       ?? `${data.title} — ${NAP.name}`;
+const seoTitle       = data.seoTitle       ?? `${data.title} | ${NAP.name}`;
 const seoDescription = data.seoDescription ?? data.description;
 // Article-schema trenger en dato — bruk 1. januar i prosjektåret
 const datePublished = `${data.aar}-01-01`;

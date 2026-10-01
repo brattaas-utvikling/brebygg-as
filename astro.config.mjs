@@ -95,6 +95,16 @@ export default defineConfig({
     }),
   ],
 
+  // Studio-pakkene forhåndsbygges ved oppstart. Uten dette oppdager Vite dem
+  // først når /studio lastes, bygger om mellomlageret midt i sidelastingen,
+  // og nettleseren får «504 Outdated Optimize Dep». Studio blir stående blankt
+  // til man laster på nytt.
+  vite: {
+    optimizeDeps: {
+      include: ["sanity", "sanity/structure", "@sanity/vision"],
+    },
+  },
+
   image: {
     // Sanity CDN leverer og transformerer bilder — se §3.5 i migreringsplanen.
     // remotePatterns kreves likevel for at <Image> skal godta cdn.sanity.io

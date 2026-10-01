@@ -121,7 +121,7 @@ export const VERDIER: Verdi[] = [
     nr:       "02",
     kategori: "Risiko",
     tittel:   "Ærlighet om risiko",
-    tekst:    "Eldre bygg skjuler ofte overraskelser. I tilbudet skriver vi hva vi tror kan dukke opp og hvordan det håndteres, så du vet det før arbeidet starter.",
+    tekst:    "Eldre bygg skjuler ofte overraskelser. I tilbudet skriver vi hva vi tror kan dukke opp, og hva vi gjør hvis det skjer. Da vet du det før arbeidet starter.",
     bilde:    "/images/verdier/risiko.webp",
     bildeAlt: "Rehabilitering av eldre bygg med synlige konstruksjonsdetaljer",
   },
@@ -158,9 +158,9 @@ export const VERDIER: Verdi[] = [
 // --------------------------------------------------------------------------
 
 export const HMS_PUNKTER = [
-  "Alle ansatte har HMS-kort på person.",
-  "SHA-plan utarbeides for hvert prosjekt og gjennomgås med underentreprenører på oppstartsmøtet.",
-  "Vernerunde gjennomføres ukentlig på aktive byggeplasser.",
-  "Avvik og nestenulykker registreres og følges opp.",
-  "Krav om gyldig HMS-egenerklæring fra alle underentreprenører før oppstart.",
+  "Alle ansatte bærer HMS-kort.",
+  "Hvert prosjekt får en SHA-plan, som vi går gjennom med underentreprenørene på oppstartsmøtet.",
+  "Vi går vernerunde hver uke på byggeplassene som er i gang.",
+  "Avvik og nestenulykker blir registrert og fulgt opp.",
+  "Underentreprenører må levere gyldig HMS-egenerklæring før de starter.",
 ] as const;

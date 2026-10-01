@@ -16,6 +16,7 @@
 //   Heading, lead og knapper fader opp med forsinkelse. CSS-only, ingen JS.
 
 import { NAP } from "@config/site";
+import { erEkstern, lenkeAttr } from "@lib/lenke";
 import Bilde from "@components/sanity/Bilde.astro";
 import type { Bilde as BildeType } from "@/content.config";
 
@@ -79,6 +80,7 @@ const {
           knapper.map((k) => (
             <a
               href={k.url}
+              {...lenkeAttr(k.url)}
               class:list={[
                 "btn",
                 "btn--lg",
@@ -103,6 +105,7 @@ const {
                 </svg>
               )}
               {k.tekst}
+              {erEkstern(k.url) && <span class="sr-only"> (åpnes i ny fane)</span>}
               {!k.url.startsWith("tel:") && (
                 <svg
                   width="16"

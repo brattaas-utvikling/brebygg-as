@@ -7,7 +7,7 @@ import { getCollection } from "astro:content";
 import PageLayout from "@layouts/PageLayout.astro";
 import HeroPage from "@components/sections/HeroPage.astro";
 import CtaSeksjon from "@components/sections/CtaSeksjon.astro";
-import { SITE_URL, HOVEDKOMMUNER, type PageMeta } from "@config/site";
+import { SITE_URL, PAGE_META, type PageMeta } from "@config/site";
 import {
   komponerGraf,
   buildBreadcrumbList,
@@ -27,11 +27,7 @@ const tjenester = (await getCollection("tjenester")).sort(
 
 const canonical = `${SITE_URL}/tjenester/`;
 
-const pageMeta: PageMeta = medSeo({
-  title: "Tjenester — totalentreprenør i Vestfold | BRE Bygg",
-  description: `Nybygg og rehabilitering i ${HOVEDKOMMUNER.join(", ")}. BRE Bygg tar totalentreprisen — én avtale, én prosjektleder.`,
-  canonical,
-}, side.seo);
+const pageMeta: PageMeta = medSeo(PAGE_META.tjenester, side.seo);
 
 // Én Service-node per tjeneste. Alle kobles til LocalBusiness via provider,
 // så Google ser hvilket selskap som leverer hva.

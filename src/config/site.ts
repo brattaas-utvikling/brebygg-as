@@ -176,30 +176,41 @@ export type PageMeta = {
   pageType?:    "website" | "article";
 };
 
+/** «Tønsberg, Sandefjord, Larvik og Horten» — til løpende tekst i meta-beskrivelser. */
+const KOMMUNER_I_TEKST =
+  HOVEDKOMMUNER.length > 1
+    ? `${HOVEDKOMMUNER.slice(0, -1).join(", ")} og ${HOVEDKOMMUNER.at(-1)}`
+    : HOVEDKOMMUNER.join("");
+
 export const PAGE_META = {
   home: {
-    title:       "BRE Bygg — Totalentreprenør i Vestfold",
-    description: "BRE Bygg bygger i Vestfold. Nybygg og rehabilitering, med fullt ansvar fra første møte til du får nøklene.",
+    title:       "BRE Bygg | Totalentreprenør i Vestfold og Telemark",
+    description: `Vi bygger nytt og rehabiliterer bygg i ${KOMMUNER_I_TEKST}. Samme prosjektleder følger deg fra første møte til du får nøklene.`,
     canonical:   `${SITE_URL}/`,
   },
+  tjenester: {
+    title:       "Nybygg og rehabilitering i Vestfold | BRE Bygg",
+    description: `Totalentreprise på nybygg og rehabilitering i ${KOMMUNER_I_TEKST}. Du har én kontrakt og samme prosjektleder hele veien.`,
+    canonical:   `${SITE_URL}/tjenester/`,
+  },
   omOss: {
-    title:       "Om BRE Bygg — Totalentreprenør i Vestfold",
-    description: "Tre personer, én kontaktflate. Møt menneskene bak prosjektene i Tønsberg, Sandefjord, Larvik og Horten.",
+    title:       "Om BRE Bygg | Totalentreprenør med kontor i Sandefjord",
+    description: "Møt de som leder prosjektene dine. BRE Bygg er et lite firma i Sandefjord, og her står det hvordan vi jobber med risiko og HMS.",
     canonical:   `${SITE_URL}/om-oss/`,
   },
   prosjekter: {
-    title:       "Prosjekter — BRE Bygg | Nybygg og rehabilitering i Vestfold",
-    description: "Ferdige prosjekter fra BRE Bygg i Vestfold. Vi viser hva vi tok på oss, hva som var krevende og hva vi faktisk leverte.",
+    title:       "Byggeprosjekter i Vestfold | BRE Bygg",
+    description: "Skoler, kommunale bygg og uteanlegg vi har levert eller holder på med i Vestfold. For hvert prosjekt står det hva som var krevende, og hvordan vi løste det.",
     canonical:   `${SITE_URL}/prosjekter/`,
   },
   baerekraft: {
-    title:       "Bærekraft og miljø — BRE Bygg",
-    description: "Hvordan BRE Bygg jobber med miljø i byggeprosjektene i Vestfold og Telemark, med lenke til bærekraftsrapporten i Miljøfyrtårn-portalen.",
+    title:       "Bærekraft og miljø | BRE Bygg",
+    description: "Her samler vi det BRE Bygg gjør for miljøet i byggeprosjektene. Bærekraftsrapporten vår ligger i Miljøfyrtårn-portalen.",
     canonical:   `${SITE_URL}/baerekraft/`,
   },
   kontakt: {
-    title:       "Kontakt BRE Bygg — Totalentreprenør Vestfold",
-    description: "Ring eller send en e-post. BRE Bygg svarer på henvendelser om byggeprosjekter i Vestfold innen én arbeidsdag.",
+    title:       "Kontakt BRE Bygg | Totalentreprenør i Sandefjord",
+    description: `Ring ${NAP.phoneDisplay} eller send en e-post om byggeprosjektet ditt. Vi svarer innen én arbeidsdag, og kontoret ligger i ${NAP.address.city}.`,
     canonical:   `${SITE_URL}/kontakt/`,
   },
 } as const satisfies Record<string, PageMeta>;

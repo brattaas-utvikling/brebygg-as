@@ -6,7 +6,7 @@ export const cta = defineType({
     defineField({ name: "tekst", title: "Knappetekst", type: "string", validation: (r) => r.required() }),
     defineField({
       name: "url", title: "Lenke", type: "string",
-      description: "Intern sti som /prosjekter/, eller tel:/mailto: for kontakt.",
+      description: "Intern sti som /prosjekter/, tel:/mailto: for kontakt, eller en hel adresse (https://…). Lenker til andre nettsteder åpnes automatisk i ny fane.",
       validation: (r) => r.required(),
     }),
     defineField({
