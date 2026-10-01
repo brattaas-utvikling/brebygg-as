@@ -38,9 +38,17 @@ export function beskaretUrl(kilde: Image, bredde: number, hoyde: number, kvalite
   return bygger.image(kilde).width(bredde).height(hoyde).fit("crop").quality(kvalitet).auto("format").url();
 }
 
+/**
+ * Standardbreddene opp til originalen, pluss originalen selv.
+ *
+ * Uten originalen fikk et bilde på 768 px bare 400w i srcset, fordi 800 er
+ * større enn originalen. Nettleseren valgte da 400 px også der bildet vises
+ * i full størrelse (lysboksen), og det ble uskarpt.
+ */
 export function byggSrcset(kilde: Image, maksBredde = 2000): string {
-  return BREDDER
-    .filter((b) => b <= maksBredde)
+  const bredder: number[] = BREDDER.filter((b) => b <= maksBredde);
+  if (maksBredde > (bredder.at(-1) ?? 0) && maksBredde <= Math.max(...BREDDER)) bredder.push(maksBredde);
+  return bredder
     .map((b) => `${bildeUrl(kilde, b)} ${b}w`)
     .join(", ");
 }

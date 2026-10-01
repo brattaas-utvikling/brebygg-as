@@ -263,6 +263,15 @@
     }
   }
 
+  /* Lave skjermer (mobil på tvers): heroen får innholdets høyde. Med 420 px
+     minimum på en 375 px høy skjerm ble teksten skjøvet ned mot bunnen og
+     knappene havnet under skjermkanten, med tomt bilde over. */
+  @media (max-height: 500px) {
+    :root {
+      --hero-min: 0px;
+    }
+  }
+
   /* --------------------------------------------------------------------------
          2. BASE RESET OG BOX MODEL
          -------------------------------------------------------------------------- */
@@ -1126,6 +1135,10 @@
     overflow: hidden;
   }
 
+  /* Virker bare for lokale bilder. Sanity-bilder må ha `fyll` på <Bilde>:
+     SanityBilde har en ulagdelt `height: auto` som slår denne regelen (den
+     ligger i @layer components). Uten fyll beholdt bildet eget format: NTOA
+     (2:1) ble lavere enn rammen, og stående bilder viste bare toppen. */
   .prosjekt-card__img img {
     width: 100%;
     height: 100%;
@@ -1450,7 +1463,7 @@
   }
 
   .strip__label {
-    font-size: 0.6875rem;
+    font-size: 0.75rem; /* 12 px. Var 11 px, for smått på mobil. */
     font-weight: 600;
     letter-spacing: 0.01em;
     color: var(--color-text-s);
@@ -2222,7 +2235,7 @@
   }
 
   .casestudie-kort__label {
-    font-size: 0.6875rem;
+    font-size: 0.75rem; /* 12 px. Var 11 px, for smått på mobil. */
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -2368,6 +2381,9 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
 
   @media (max-width: 767px) {
@@ -2387,13 +2403,23 @@
     grid-column: 1 / -1;
   }
 
+  /* Lenke til bildet i lysboksen (ProsjektLysboks). Lukk fører tilbake hit;
+     scroll-margin legger miniatyren et stykke ned på skjermen i stedet for
+     helt øverst, nær der man klikket. */
   .casestudie-galleri__item {
     position: relative;
+    display: block;
     border-radius: var(--r-md);
     overflow: hidden;
     aspect-ratio: 16 / 10;
     background-color: var(--color-bg-section);
     cursor: zoom-in;
+    scroll-margin-top: 25vh;
+  }
+
+  .casestudie-galleri__item:focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 3px;
   }
 
   /* Første bilde: bredere aspect-ratio */
@@ -2411,7 +2437,6 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.5s var(--ease-out);
     display: block;
   }
 
@@ -2770,6 +2795,14 @@
     padding-block: clamp(3rem, 8vw, 6rem);
     background-color: var(--color-bg-dark);
   }
+  /* Mobil på tvers: mindre luft over innholdet, så knappene kommer innenfor
+     skjermen (sammen med --hero-min: 0px i :root). */
+  @media (max-height: 500px) {
+    .tjeneste-hero {
+      padding-top: 1.5rem;
+    }
+  }
+
 
   .tjeneste-hero__bg {
     position: absolute;
@@ -3104,7 +3137,8 @@
 
     /* Gjør plass til baren så den ikke dekker footeren. */
     body:has(.kontaktbar.is-synlig) {
-      padding-bottom: 52px;
+      /* Knappen (52 px) + kantlinja (1 px) + eventuell safe area. */
+      padding-bottom: calc(53px + env(safe-area-inset-bottom));
     }
   }
 

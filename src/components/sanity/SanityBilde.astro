@@ -57,6 +57,17 @@ const lqip   = meta?.lqip;
 // fit=max skalerer aldri opp, så det gir ingen mening å be om bredder over
 // originalen.
 const maksBredde = dim?.width ?? 2000;
+
+// Fokuspunktet kunden setter i Studio (hotspot). Gjelder bare når bildet
+// fyller en ramme med annet format og må beskjæres. Uten det sentreres bildet.
+const hotspot = (kilde as { hotspot?: { x?: number; y?: number } } | undefined)?.hotspot;
+// `forhold` gir også beskjæring: bildet tvinges inn i et annet format, og
+// uten object-fit: cover ble det strukket (3:2-bildet i «Bærekraft 2026» på
+// forsiden ble klemt til 4:3).
+const beskjaeres = fyll || Boolean(forhold);
+const fokus = beskjaeres && typeof hotspot?.x === "number" && typeof hotspot?.y === "number"
+  ? `${(hotspot.x * 100).toFixed(1)}% ${(hotspot.y * 100).toFixed(1)}%`
+  : undefined;
 ---
 
 <img
@@ -73,7 +84,8 @@ const maksBredde = dim?.width ?? 2000;
   data-fyll={fyll ? "" : undefined}
   style={{
     ...(lqip ? { backgroundImage: `url(${lqip})` } : {}),
-    ...(forhold ? { aspectRatio: forhold } : {}),
+    ...(forhold ? { aspectRatio: forhold, objectFit: "cover", width: "100%" } : {}),
+    ...(fokus ? { objectPosition: fokus } : {}),
   }}
 />
 

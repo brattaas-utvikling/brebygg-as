@@ -70,7 +70,7 @@ function antall(id: string): number {
         <div role="listitem" data-kategori={entry.data.kategori}>
           <a href={`/prosjekter/${entry.id}/`} class="prosjekt-card">
             <div class="prosjekt-card__img">
-              <Bilde kilde={entry.data.heroImage} alt={entry.data.heroImage.alt} bredde={800} hoyde={500} />
+              <Bilde kilde={entry.data.heroImage} alt={entry.data.heroImage.alt} bredde={800} hoyde={500} fyll sizes="(max-width: 639px) 100vw, 420px" />
             </div>
 
             <div class="prosjekt-card__body">

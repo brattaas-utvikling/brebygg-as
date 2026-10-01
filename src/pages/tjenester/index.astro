@@ -137,6 +137,14 @@ const schema = komponerGraf(
     text-decoration: none;
   }
 
+  /* Mobil på tvers: én dør skal ikke være høyere enn skjermen. Teksten står
+     på .slor-tekst, som holder kontrasten uansett høyde. */
+  @media (max-height: 500px) {
+    .dor {
+      min-height: min(440px, 85svh);
+    }
+  }
+
   @media (min-width: 800px) {
     .dor {
       flex: 1 1 360px;
