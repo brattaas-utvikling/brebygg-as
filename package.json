@@ -1,6 +1,6 @@
 {
   "name": "brebygg-no",
-  "version": "2.5.0",
+  "version": "2.6.0",
   "private": true,
   "type": "module",
   "engines": {
@@ -23,7 +23,9 @@
     "fjern-naeringsbygg": "tsx scripts/fjern-naeringsbygg.ts",
     "fjern-naeringsbygg:torr": "tsx scripts/fjern-naeringsbygg.ts --torrkjor",
     "opprett-sider": "tsx scripts/opprett-sider.ts",
-    "opprett-sider:torr": "tsx scripts/opprett-sider.ts --torrkjor"
+    "opprett-sider:torr": "tsx scripts/opprett-sider.ts --torrkjor",
+    "oppdater-seo": "tsx scripts/oppdater-seo.ts",
+    "oppdater-seo:torr": "tsx scripts/oppdater-seo.ts --torrkjor"
   },
   "dependencies": {
     "@astrojs/react": "^6.0.2",

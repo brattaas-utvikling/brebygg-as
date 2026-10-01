@@ -75,12 +75,12 @@ const FALLBACK = {
   tjenesterSide: {
     hero: {
       tittel: "To måter vi bygger på",
-      ingress: `BRE Bygg er totalentreprenør i ${HOVEDKOMMUNER.join(", ")} og omegn. Du har én avtale og én prosjektleder, uansett hvilken av de to du trenger.`,
+      ingress: `BRE Bygg er totalentreprenør i ${HOVEDKOMMUNER.join(", ")} og omegn. Vi bygger nytt og rehabiliterer eldre bygg, og du har samme prosjektleder hele veien.`,
       bilde: lokalt("/images/tjenester/nybygg.jpg", "Byggeplass i Vestfold", 1069, 559),
     },
     cta: {
       overskrift: "Usikker på hvilken av dem du trenger?",
-      tekst: `Ring ${NAP.phoneDisplay}, så finner vi ut av det sammen. Vi sier fra hvis vi ikke er riktig entreprenør for jobben.`,
+      tekst: `Ring ${NAP.phoneDisplay} og fortell hva du skal gjøre. Er vi ikke riktig entreprenør for jobben, sier vi det.`,
     },
     seksjoner: [],
   } satisfies TjenesterSide,
@@ -88,7 +88,7 @@ const FALLBACK = {
   prosjekterSide: {
     hero: {
       tittel: "Prosjekter i Vestfold",
-      ingress: "Her er prosjektene vi har levert og jobber med nå. For hvert prosjekt skriver vi hva som var krevende og hvordan vi løste det.",
+      ingress: "Dette er prosjekter vi har levert eller holder på med. Under hvert av dem står det hva som var krevende, og hvordan vi løste det.",
       bilde: lokalt("/images/prosjekter-hero.webp", "Byggeplass i Vestfold med kran og stålkonstruksjon"),
     },
     // Var «Prosjekter i Vestfold», altså identisk med H1.
@@ -100,7 +100,7 @@ const FALLBACK = {
     hero: {
       tittel: "Totalentreprenør i Vestfold og Telemark",
       // Antall ansatte settes inn i hentOmOssSide, fra Innstillinger.
-      ingress: "BRE Bygg er {ansatte} personer med kontor i Sandefjord. Vi er totalentreprenør for nybygg og rehabilitering i Tønsberg, Sandefjord, Larvik og Horten, og hvert oppdrag har én prosjektleder fra start til slutt.",
+      ingress: "Vi er {ansatte} personer med kontor i Sandefjord. BRE Bygg tar på seg nybygg og rehabilitering i Tønsberg, Sandefjord, Larvik og Horten, og hvert oppdrag har samme prosjektleder hele veien.",
       bilde: lokalt("/images/om-oss-hero.webp", "BRE Bygg-team på byggeplass i Vestfold"),
       sitat: "Vi lever av anbefalinger. Det er det ærligste kvalitetsbeviset vi kan ha.",
       sitatKilde: "Rudi, BRE Bygg AS",
@@ -111,15 +111,15 @@ const FALLBACK = {
       // kombinasjonsbygg til leilighetskomplekser» er tatt ut: kontor- og
       // lagerbygg er næringsbygg, som BRE Bygg ikke tilbyr foreløpig.
       tekst: [
-        avsnitt("Her er de du møter i prosjektfasen. Noen kamerater starter band, andre drømmer om en kaffebar. Vi? Vi startet et entreprenørfirma. Med solid erfaring fra byggebransjen og en felles forståelse av hva som virkelig betyr noe – kvalitet, sikkerhet og godt samarbeid – var det en selvfølge å bygge noe eget. ", { kursiv: "Bokstavelig talt." }),
+        avsnitt("Her er de du møter i prosjektene. Noen kamerater starter band, andre drømmer om en kaffebar. Vi startet et entreprenørfirma. Vi hadde alle jobbet i byggebransjen og var enige om hvordan ting bør gjøres, så det var naturlig å bygge noe eget. ", { kursiv: "Bokstavelig talt." }),
         avsnitt("BRE Bygg er en totalentreprenør som leverer nøkkelferdige bygg."),
-        avsnitt("Hos oss handler det ikke bare om stål, betong og stramme tidsfrister. Det handler om å gjøre ting ordentlig fra start til slutt. Vi vet at gode prosjekter ikke bare bygges med dyktige fagfolk og riktige materialer, men også med tillit, tydelig kommunikasjon og en dose godt humør underveis."),
-        avsnitt("Kort sagt: Vi tar jobben på alvor, men oss selv akkurat passe uhøytidelig."),
+        avsnitt("Jobben handler om stål, betong og tidsfrister, men vel så mye om å gjøre ting ordentlig fra første dag. Et prosjekt går bedre når byggherren stoler på oss og vet hva som skjer. Litt godt humør underveis skader heller ikke."),
+        avsnitt("Vi tar jobben på alvor, og oss selv passe uhøytidelig."),
       ] as RikTekst,
     },
     verdier: {
-      overskrift: "Det vi faktisk mener",
-      ingress: "Dette er fire prinsipper vi styrer etter i hvert prosjekt.",
+      overskrift: "Det vi står for",
+      ingress: "Fire prinsipper vi følger i hvert prosjekt. Du kan holde oss til dem.",
       punkter: VERDIER.map((v) => ({
         kategori: v.kategori, tittel: v.tittel, tekst: v.tekst,
         bilde: lokalt(v.bilde, v.bildeAlt, 600, 400),
@@ -128,12 +128,11 @@ const FALLBACK = {
     hms: {
       overskrift: "Helse, miljø og sikkerhet",
       tekst: [
-        avsnitt("Vi følger byggherreforskriften. Alle prosjekter får en SHA-plan, og vi har vernerunde hver uke på byggeplassene som er i gang."),
-        avsnitt("Underentreprenører må levere gyldig HMS-egenerklæring før de kan jobbe for oss."),
+        avsnitt("Vi følger byggherreforskriften på alle prosjektene våre. Dette er rutinene på byggeplassen:"),
       ] as RikTekst,
       punkter: [...HMS_PUNKTER],
       boksTittel: "Slik jobber vi med sikkerhet",
-      boksTekst: "Dokumentasjon på godkjenninger sendes på forespørsel.",
+      boksTekst: "Vi sender dokumentasjonen når du ber om den.",
       boksSporsmaal: "Trenger du HMS-egenerklæring eller sentralgodkjenningsbevis for et anbud?",
       boksKnapp: "Send forespørsel",
     },
@@ -147,14 +146,14 @@ const FALLBACK = {
   baerekraftSide: {
     hero: {
       tittel: "Bærekraft og miljø",
-      ingress: "Her samler vi hvordan BRE Bygg jobber med miljø i prosjektene. Siden oppdateres med konkrete tiltak og tall.",
+      ingress: "Her samler vi det BRE Bygg gjør for miljøet i prosjektene. Vi fyller på med konkrete tiltak og tall etter hvert.",
     },
     seksjoner: [
       {
         _type: "tekstBilde", _key: "b1", tema: "hvit", layout: "full",
         overskrift: "Slik jobber vi",
         tekst: [
-          avsnitt("Denne delen beskriver hvordan vi håndterer avfall, materialvalg og energi på byggeplassen. Innholdet legges inn når dokumentasjonen er klar."),
+          avsnitt("Her kommer en beskrivelse av hvordan vi håndterer avfall, materialer og energi på byggeplassen. Vi legger den inn når dokumentasjonen er klar."),
         ],
       },
       {
@@ -169,18 +168,18 @@ const FALLBACK = {
   kontaktSide: {
     hero: {
       tittel: "Ta kontakt",
-      ingress: "Vi svarer på henvendelser om byggeprosjekter i Vestfold og Telemark innen én arbeidsdag. Ring eller send en e-post, så avtaler vi et uforpliktende møte.",
+      ingress: "Ring eller send en e-post om byggeprosjektet ditt i Vestfold eller Telemark. Vi svarer innen én arbeidsdag og avtaler et uforpliktende møte.",
     },
     some: {
       overskrift: "Følg oss i sosiale medier",
-      ingress: "Vi deler bilder og oppdateringer fra prosjektene underveis.",
+      ingress: "Vi legger ut bilder fra byggeplassene mens prosjektene pågår.",
     },
     kartOverskrift: `Vi holder til i ${NAP.address.city}`,
     steg: {
-      overskrift: "Hva skjer etter du tar kontakt?",
+      overskrift: "Hva skjer når du har tatt kontakt?",
       punkter: [
         { tittel: "Vi svarer innen én arbeidsdag", tekst: "Vi svarer på samme måte som du tok kontakt, på telefon eller e-post." },
-        { tittel: "Møte på stedet eller digitalt", tekst: "Vi gjennomgår prosjektet ditt og avklarer omfang og tidsplan." },
+        { tittel: "Møte på stedet eller digitalt", tekst: "Vi ser på prosjektet sammen med deg og blir enige om omfang og tidsplan." },
         { tittel: "Konkret tilbud", tekst: "Du får et skriftlig tilbud med fast pris eller en prisramme." },
       ],
     },

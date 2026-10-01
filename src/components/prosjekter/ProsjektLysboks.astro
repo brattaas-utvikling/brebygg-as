@@ -1,0 +1,291 @@
+---
+// src/components/prosjekter/ProsjektLysboks.astro
+//
+// Lysboks for bildegalleriet på prosjektsidene. Ren CSS, ingen JavaScript.
+//
+// Slik virker den:
+//   · Hver miniatyr i galleriet er en lenke til #bilde-N. Når adressen peker
+//     dit, matcher :target, og .lysboks:has(:target) viser lysboksen.
+//   · Bildene ligger i én vannrett rad med scroll-snap. Nettleseren ruller
+//     raden til #bilde-N av seg selv, så lysboksen åpner på riktig bilde.
+//     På mobil sveiper man mellom bildene.
+//   · Forrige/neste er vanlige lenker til nabobildet. Lukk og bakgrunnen er
+//     lenker tilbake til miniatyren, så man havner der man klikket.
+//
+// Begrensninger som følger av at det er CSS:
+//   · Esc lukker ikke (krever en tastaturlytter). Kryss, klikk utenfor bildet
+//     og tilbake-knappen gjør det.
+//   · Hvert klikk blir et steg i nettleserhistorikken. Tilbake-knappen går
+//     derfor bakover gjennom bildene og lukker til slutt lysboksen. Det er
+//     slik tilbake oppfører seg i bildevisninger på mobil uansett.
+//
+// Må rendres UTENFOR .reveal: et element som animeres med translate blir
+// innholdsblokk for position: fixed, og da ville lysboksen ligget fast i
+// galleriet i stedet for over hele skjermen.
+
+import Bilde from "@components/sanity/Bilde.astro";
+import { bildeTekst, type Bilde as BildeType } from "@/content.config";
+
+interface Props {
+  bilder: BildeType[];
+  tittel: string;
+}
+
+const { bilder, tittel } = Astro.props;
+const antall = bilder.length;
+const forrige = (i: number) => ((i - 1 + antall) % antall) + 1; // 1-basert, går rundt
+const neste   = (i: number) => ((i + 1) % antall) + 1;
+---
+
+{antall > 0 && (
+  <div class="lysboks" data-lysboks role="region" aria-label={`Bilder fra ${tittel} i stor størrelse`}>
+    <ul class="lysboks__spor" role="list" tabindex="0" aria-label="Bla mellom bildene med piltastene">
+      {bilder.map((bilde, i) => {
+        const tekst = bildeTekst(bilde);
+        return (
+          <li class="lysboks__side" id={`bilde-${i + 1}`}>
+            {/* Bakgrunnen: klikk utenfor bildet lukker. Skjult for skjermleser
+                og tastatur, de har Lukk-lenken. */}
+            <a class="lysboks__bakgrunn" href={`#miniatyr-${i + 1}`} tabindex="-1" aria-hidden="true"></a>
+
+            <figure class="lysboks__figur">
+              <Bilde kilde={bilde} alt={bilde.alt} sizes="100vw" />
+              <figcaption class="lysboks__tekst">
+                <span class="lysboks__teller">{i + 1} / {antall}</span>
+                {tekst && <span>{tekst}</span>}
+              </figcaption>
+            </figure>
+
+            <a class="lysboks__lukk" href={`#miniatyr-${i + 1}`}>
+              <span class="sr-only">Lukk bildevisningen</span>
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+              </svg>
+            </a>
+
+            {antall > 1 && (
+              <>
+                <a class="lysboks__pil lysboks__pil--forrige" href={`#bilde-${forrige(i)}`}>
+                  <span class="sr-only">Forrige bilde</span>
+                  <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+                    <path d="M14 4l-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </a>
+                <a class="lysboks__pil lysboks__pil--neste" href={`#bilde-${neste(i)}`}>
+                  <span class="sr-only">Neste bilde</span>
+                  <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+                    <path d="M8 4l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </a>
+              </>
+            )}
+          </li>
+        );
+      })}
+    </ul>
+  </div>
+)}
+
+<style>
+  .lysboks {
+    display: none;
+  }
+
+  /* Åpen så lenge et av bildene er :target. */
+  .lysboks:has(:target) {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background-color: rgb(var(--rgb-dark-2));
+    color: var(--color-text-inv);
+  }
+
+  /* Siden bak skal ikke rulle mens lysboksen er åpen. */
+  :global(html:has([data-lysboks] :target)) {
+    overflow: hidden;
+  }
+
+  .lysboks__spor {
+    display: flex;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+  }
+  .lysboks__spor::-webkit-scrollbar {
+    display: none;
+  }
+  .lysboks__spor:focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: -3px;
+  }
+
+  .lysboks__side {
+    position: relative;
+    flex: 0 0 100%;
+    display: flex;
+    justify-content: center;
+    padding: 4rem 1rem 1.5rem;
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
+    /* Ingen avstand fra toppen når adressen peker hit: [id] har ellers
+       scroll-margin-top for headeren. */
+    scroll-margin: 0;
+  }
+
+  .lysboks__bakgrunn {
+    position: absolute;
+    inset: 0;
+    cursor: zoom-out;
+  }
+
+  /* Figuren fyller plassen mellom knappene. Bildet krymper innenfor den
+     (flex-kolonne, min-height: 0), og teksten står rett under bildet. Da
+     passer det på alle skjermer, også mobil på tvers, uten en fast formel
+     for hvor mye høyde knappene og teksten tar. */
+  .lysboks__figur {
+    position: relative;
+    margin: 0;
+    height: 100%;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.75rem;
+    /* Tom flate rundt bildet slipper klikket gjennom til bakgrunnslenken
+       (lukker). Bildet og teksten tar imot klikk selv, så et klikk på
+       bildet lukker ikke. */
+    pointer-events: none;
+  }
+  .lysboks__figur > :global(*) {
+    pointer-events: auto;
+  }
+
+  /* Bildet i sin helhet, aldri beskåret. :global fordi <img> rendres av
+     Bilde/SanityBilde og ikke får denne komponentens scope-attributt. */
+  .lysboks__figur :global(img) {
+    flex: 0 1 auto;
+    min-height: 0;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: var(--r-sm);
+  }
+
+  .lysboks__tekst {
+    flex: none;
+  }
+
+  .lysboks__tekst {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.25rem 1rem;
+    max-width: 60ch;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    text-align: center;
+    color: rgba(var(--rgb-inv), 0.85);
+  }
+
+  .lysboks__teller {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    color: var(--color-text-inv);
+  }
+
+  /* Knappene: hvit ikon på mørk flate, 44 px klikkflate. */
+  .lysboks__lukk,
+  .lysboks__pil {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--r-sm);
+    background-color: rgba(var(--rgb-inv), 0.1);
+    color: var(--color-text-inv);
+    transition: background-color var(--transition-fast);
+  }
+  .lysboks__lukk:hover,
+  .lysboks__pil:hover {
+    background-color: rgba(var(--rgb-inv), 0.2);
+  }
+  .lysboks__lukk:focus-visible,
+  .lysboks__pil:focus-visible {
+    outline: 3px solid var(--color-link-inv);
+    outline-offset: 2px;
+  }
+
+  .lysboks__lukk {
+    top: 0.75rem;
+    right: 0.75rem;
+  }
+
+  /* Pilene: på mobil sveiper man, så de ligger nederst for tommelen.
+     Fra 768 px står de midt på sidene. */
+  .lysboks__pil {
+    bottom: 0.75rem;
+  }
+  .lysboks__pil--forrige { left: 0.75rem; }
+  .lysboks__pil--neste   { right: 0.75rem; }
+
+  @media (max-width: 767px) {
+    .lysboks__side {
+      padding-bottom: 4.25rem;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .lysboks__side {
+      padding: 4rem 5rem 2rem;
+    }
+    .lysboks__pil {
+      top: 50%;
+      bottom: auto;
+      translate: 0 -50%;
+    }
+    .lysboks__pil--forrige { left: 1rem; }
+    .lysboks__pil--neste   { right: 1rem; }
+  }
+
+  /* Lave skjermer (mobil på tvers): knappene flyttes ut på sidene, så
+     bildet får hele høyden. Med knapper over og under ble bildet 158 px
+     høyt på 667×375. */
+  @media (max-height: 500px) {
+    .lysboks__side {
+      padding: 0.75rem 4rem;
+    }
+    .lysboks__pil {
+      top: 50%;
+      bottom: auto;
+      translate: 0 -50%;
+    }
+    .lysboks__pil--forrige { left: 0.5rem; }
+    .lysboks__pil--neste   { right: 0.5rem; }
+    .lysboks__lukk {
+      top: 0.5rem;
+      right: 0.5rem;
+    }
+  }
+
+  /* Kort inntoning av bildet man går til med lenkene. */
+  @media (prefers-reduced-motion: no-preference) {
+    .lysboks__side:target .lysboks__figur {
+      animation: lysboks-inn 0.2s ease-out;
+    }
+  }
+
+  @keyframes lysboks-inn {
+    from { opacity: 0; }
+  }
+</style>

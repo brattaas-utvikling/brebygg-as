@@ -23,6 +23,7 @@ import { getProsjektSlugSchema }    from "@lib/seo/jsonld";
 import { KATEGORI_LABEL, STATUS_LABEL, bildeSrc, bildeTekst } from "@/content.config";
 import RikTekst from "@components/ui/RikTekst.astro";
 import Bilde from "@components/sanity/Bilde.astro";
+import ProsjektLysboks from "@components/prosjekter/ProsjektLysboks.astro";
 
 // --------------------------------------------------------------------------
 // getStaticPaths — genererer én URL per prosjekt
@@ -67,7 +68,7 @@ const erPågående = data.status === "pagaende";
 const canonicalPath = `/prosjekter/${entry.id}/`;
 const canonical = `${SITE_URL}${canonicalPath}`;
 
-const seoTitle       = data.seoTitle       ?? `${data.title} — ${NAP.name}`;
+const seoTitle       = data.seoTitle       ?? `${data.title} | ${NAP.name}`;
 const seoDescription = data.seoDescription ?? data.description;
 // Article-schema trenger en dato — bruk 1. januar i prosjektåret
 const datePublished = `${data.aar}-01-01`;
@@ -281,24 +282,32 @@ const harCasestudie  = data.utfordring  || data.losning  || data.resultat;
                 <h2 class="casestudie-galleri__heading">
                   Bilder fra prosjektet
                 </h2>
-                <div class="casestudie-galleri__grid" role="list">
-                  {(data.galleri ?? []).map((bilde) => (
-                    <div
-                      class="casestudie-galleri__item"
-                      role="listitem"
-                    >
-                      <Bilde kilde={bilde} alt={bilde.alt} />
-                      {bildeTekst(bilde) && (
-                        <div
-                          class="casestudie-galleri__caption slor"
-                          aria-label={bildeTekst(bilde)}
-                        >
-                          {bildeTekst(bilde)}
-                        </div>
-                      )}
-                    </div>
+                {/* Hver miniatyr er en lenke til bildet i lysboksen (ren CSS,
+                    se ProsjektLysboks). id-en er dit Lukk fører tilbake. */}
+                <ul class="casestudie-galleri__grid" role="list">
+                  {(data.galleri ?? []).map((bilde, i) => (
+                    <li>
+                      <a
+                        href={`#bilde-${i + 1}`}
+                        id={`miniatyr-${i + 1}`}
+                        class="casestudie-galleri__item"
+                      >
+                        <Bilde
+                          kilde={bilde}
+                          alt={bilde.alt}
+                          fyll
+                          sizes={i === 0 ? "(max-width: 1023px) 100vw, 60vw" : "(max-width: 479px) 100vw, (max-width: 1023px) 50vw, 20vw"}
+                        />
+                        <span class="sr-only"> (vis i stor størrelse)</span>
+                        {bildeTekst(bilde) && (
+                          <span class="casestudie-galleri__caption slor" aria-hidden="true">
+                            {bildeTekst(bilde)}
+                          </span>
+                        )}
+                      </a>
+                    </li>
                   ))}
-                </div>
+                </ul>
               </div>
             )}
 
@@ -413,7 +422,7 @@ const harCasestudie  = data.utfordring  || data.losning  || data.resultat;
                 aria-label={`${p.data.title}, ${p.data.location}, ${p.data.aar}`}
               >
                 <div class="prosjekt-card__img">
-                  <Bilde kilde={p.data.heroImage} alt={p.data.heroImage.alt} bredde={800} hoyde={500} />
+                  <Bilde kilde={p.data.heroImage} alt={p.data.heroImage.alt} bredde={800} hoyde={500} fyll sizes="(max-width: 639px) 100vw, 420px" />
                 </div>
                 <div class="prosjekt-card__body">
                   <span class="prosjekt-card__tag">
@@ -452,5 +461,6 @@ const harCasestudie  = data.utfordring  || data.losning  || data.resultat;
       </section>
     )}
 
+    {harGalleri && <ProsjektLysboks bilder={data.galleri!} tittel={data.title} />}
   </main>
 </PageLayout>

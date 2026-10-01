@@ -2,6 +2,7 @@
 import SeksjonsSkall from "../SeksjonsSkall.astro";
 import { erMorkt } from "@lib/sanity/tema";
 import TekstMedTelefon from "@components/ui/TekstMedTelefon.astro";
+import { erEkstern, lenkeAttr } from "@lib/lenke";
 interface Props { blokk: Record<string, any> }
 const { blokk } = Astro.props;
 const tema = blokk.tema ?? "mork";
@@ -16,8 +17,9 @@ const knapper = Array.isArray(blokk.knapper) ? blokk.knapper : [];
       {knapper.map((c: any) => (
         <a
           href={c.url}
+          {...lenkeAttr(c.url)}
           class:list={["btn", c.stil === "outline" ? (mork ? "btn--ghost-inv" : "btn--outline") : "btn--primary"]}
-        >{c.tekst}</a>
+        >{c.tekst}{erEkstern(c.url) && <span class="sr-only"> (åpnes i ny fane)</span>}</a>
       ))}
     </div>
   </div>

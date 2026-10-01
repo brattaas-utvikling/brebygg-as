@@ -2,6 +2,7 @@
 import SeksjonsSkall from "../SeksjonsSkall.astro";
 import Bilde from "@components/sanity/Bilde.astro";
 import RikTekst from "@components/ui/RikTekst.astro";
+import { erEkstern, lenkeAttr } from "@lib/lenke";
 interface Props { blokk: Record<string, any> }
 const { blokk } = Astro.props;
 const layout = blokk.layout ?? "bildeHoyre";
@@ -15,8 +16,9 @@ const cta = blokk.cta;
           gjennom RikTekst — før ble arrayet skrevet ut som «[object Object]». */}
       <RikTekst verdi={blokk.tekst} class="section-desc mt-3" />
       {cta && (
-        <a href={cta.url} class:list={["btn", "mt-5", cta.stil === "outline" ? "btn--outline" : "btn--primary"]}>
+        <a href={cta.url} {...lenkeAttr(cta.url)} class:list={["btn", "mt-5", cta.stil === "outline" ? "btn--outline" : "btn--primary"]}>
           {cta.tekst}
+          {erEkstern(cta.url) && <span class="sr-only"> (åpnes i ny fane)</span>}
         </a>
       )}
     </div>

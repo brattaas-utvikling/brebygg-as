@@ -29,17 +29,24 @@ const { overskrift, ingress, punkter } = Astro.props;
     </div>
 
     {/* Kortgrid */}
-    <div class="vd-grid reveal" role="list" aria-label="Verdier og arbeidsprinsipper">
+    <div
+      class="vd-grid reveal"
+      role="list"
+      aria-label="Verdier og arbeidsprinsipper"
+    >
       {
         punkter.map((v) => (
-          <article
-            class="vd-kort"
-            role="listitem"
-            aria-label={v.tittel}
-          >
+          <article class="vd-kort" role="listitem" aria-label={v.tittel}>
             {/* Bilde — klippet med diagonal, gylne snitt-bredde */}
             <div class="vd-bilde" aria-hidden="true">
-              <Bilde kilde={v.bilde} alt="" fyll bredde={600} hoyde={400} sizes="(max-width: 768px) 40vw, 300px" />
+              <Bilde
+                kilde={v.bilde}
+                alt=""
+                fyll
+                bredde={600}
+                hoyde={400}
+                sizes="(max-width: 768px) 40vw, 300px"
+              />
               {/* ruststrek langs diagonalkanten */}
               <div class="vd-diagonal-linje" aria-hidden="true" />
             </div>
@@ -95,7 +102,11 @@ const { overskrift, ingress, punkter } = Astro.props;
       var(--color-signature) 40%,
       transparent
     );
-    --vd-linje-slutt: color-mix(in srgb, var(--color-signature) 25%, transparent);
+    --vd-linje-slutt: color-mix(
+      in srgb,
+      var(--color-signature) 25%,
+      transparent
+    );
 
     background-color: var(--color-bg-dark);
     position: relative;
@@ -104,9 +115,13 @@ const { overskrift, ingress, punkter } = Astro.props;
     overflow: clip;
   }
 
+  /* min-height og ikke height: kortet vokser med teksten. Med fast høyde og
+     line-clamp ble verditekstene kuttet midt i en setning, og det fantes
+     ingen måte å lese resten på. Kortene i samme rad blir like høye av
+     rutenettet (stretch). */
   .vd-kort {
     display: flex;
-    height: clamp(170px, 18vw, 220px);
+    min-height: clamp(170px, 18vw, 220px);
     border-radius: var(--r-lg);
     overflow: hidden;
     background-color: var(--vd-kort-bg); /* var #243545 */
@@ -140,15 +155,18 @@ const { overskrift, ingress, punkter } = Astro.props;
 
   /* :global — bildet rendres av <Bilde>, som ikke får denne komponentens
      scope-attributt. Uten det traff regelen bare lokale <img>. */
+  /* Absolutt: bildet fyller kolonnen uten å bestemme høyden. I flyt satte
+     et stående bilde høyden på hele kortet (353 px mot 220 px i raden over),
+     nå som kortet har min-height og ikke fast høyde. Teksten bestemmer. */
   .vd-bilde :global(img) {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
     object-position: center;
     display: block;
-    transition: transform 0.55s var(--ease-out);
   }
-
 
   /* Overgang fra bildet inn mot teksten til høyre. Samme system som .slor
      (warm dark, mørkest på tekstsiden), men svakere: teksten står ikke over
@@ -203,7 +221,7 @@ const { overskrift, ingress, punkter } = Astro.props;
   }
 
   .vd-kategori {
-    font-size: 0.6875rem;
+    font-size: 0.75rem; /* 12 px. Var 11 px. */
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -229,20 +247,17 @@ const { overskrift, ingress, punkter } = Astro.props;
     color: var(--color-text-inv-m);
     margin: 0;
     max-width: none;
-    /* Klem teksten hvis kortet er lavt */
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
   }
 
-  /* Mobil: litt mer plass til tekst */
+  /* Mobil: mer plass til tekst, så kortene ikke blir unødig høye. */
   @media (max-width: 767px) {
     .vd-bilde {
       width: 38%;
     }
-    .vd-body {
-      -webkit-line-clamp: 4;
+  }
+  @media (max-width: 400px) {
+    .vd-bilde {
+      width: 32%;
     }
   }
 </style>
