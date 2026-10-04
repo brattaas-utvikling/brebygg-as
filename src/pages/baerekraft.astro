@@ -33,6 +33,6 @@ const schema = getBaerekraftSchema(PAGE_META.baerekraft.canonical, meta.title, m
 
     <Seksjoner seksjoner={side.seksjoner} />
 
-    <CtaSeksjon variant="dark" />
+    <CtaSeksjon variant="dark" heading={side.cta.overskrift} sub={side.cta.tekst} />
   </main>
 </PageLayout>

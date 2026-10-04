@@ -207,6 +207,9 @@
 
     /* --- Nav --- */
     --nav-height: 72px;
+    /* Logoens høyde. Headeren følger den på større skjermer (se under), så
+       logoen alltid har luft over og under. */
+    --logo-h: clamp(40px, 4vw, 72px);
 
     /* --- Hero ---
        Én høyde for alle heroene på undersidene (Tjenester, Prosjekter, Om oss,
@@ -269,6 +272,18 @@
   @media (max-height: 500px) {
     :root {
       --hero-min: 0px;
+    }
+  }
+
+  /* Headeren på nettbrett og PC: logoens høyde pluss 14 px luft over og
+     under. Var fast 72 px, og fra ca. 1800 px bredde er logoen selv 72 px
+     høy, så den fylte hele headeren uten luft. Nå: 79 px ved 1280 px bredde,
+     100 px fra 1800 px. Mobil (under 768 px) beholder 72 px. Alt som
+     avhenger av headerhøyden (mobilmeny, forsidehero, ankerlenker, faste
+     sidekolonner) bruker --nav-height og følger med. */
+  @media (min-width: 768px) {
+    :root {
+      --nav-height: calc(var(--logo-h) + 1.75rem);
     }
   }
 

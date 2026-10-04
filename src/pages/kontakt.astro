@@ -15,13 +15,13 @@ import PageLayout from "@layouts/PageLayout.astro";
 import KontaktStrip from "@components/sections/KontaktStrip.astro";
 import KartSeksjon from "@components/sections/KartSeksjon.astro";
 import SomeBlokk from "@components/forside/blokker/SomeBlokk.astro";
-import Breadcrumbs from "@components/seo/Breadcrumbs.astro";
+import HeroPage from "@components/sections/HeroPage.astro";
 
 import Seksjoner from "@components/forside/Seksjoner.astro";
 
 import { PAGE_META, NAP, AREA_SERVED } from "@config/site";
 import { getKontaktSchema } from "@lib/seo/jsonld";
-import { hentKontaktSide, medSeo } from "@lib/sanity/sider";
+import { hentKontaktSide, medSeo, heroPreloadBilde, SIDEHERO_SIZES } from "@lib/sanity/sider";
 
 // Tekstene redigeres i Studio under Sider → Kontakt. Kontaktinfo, adresse og
 // områder kommer fra Innstillinger.
@@ -30,32 +30,29 @@ const meta = medSeo(PAGE_META.kontakt, side.seo);
 const schema = getKontaktSchema(PAGE_META.kontakt.canonical);
 ---
 
-<PageLayout meta={meta} schema={schema}>
+<PageLayout
+  meta={meta}
+  schema={schema}
+  heroImage={heroPreloadBilde(side.hero.bilde)}
+  heroSizes={SIDEHERO_SIZES}
+>
   <main id="main-content">
-    {/* 2. Kompakt page-banner — mørk, ingen bilde, H1 + ingress */}
-    <section class="kontakt-banner fjellkant" aria-labelledby="kontakt-h1">
-      <div class="container kontakt-banner__inner">
-        {/* Brødsti */}
-        <Breadcrumbs variant="inv" />
-
-        {/* Innhold */}
-        <div class="kontakt-banner__content">
-          <h1 class="kontakt-banner__heading" id="kontakt-h1">{side.hero.tittel}</h1>
-
-          <p class="kontakt-banner__lead">{side.hero.ingress}</p>
-
-          {/* Nøkkelinfo: geografi */}
-          <ul class="kontakt-banner__areas" aria-label="Områder vi dekker">
-            {
-              AREA_SERVED.filter(
-                (a) => a !== "Vestfold" && a !== "Stokke" && a !== "Andebu"
-              ).map((sted) => <li class="kontakt-banner__area-tag">{sted}</li>)
-            }
-          </ul>
-        </div>
-      </div>
-
-    </section>
+    {/* Samme toppseksjon som de andre undersidene: tekst til venstre, bilde
+        til høyre. Bildet redigeres i Studio (Sider → Kontakt). Områdene vi
+        dekker står under ingressen. */}
+    <HeroPage
+      heading={side.hero.tittel}
+      lead={side.hero.ingress}
+      bilde={side.hero.bilde}
+    >
+      <ul class="kontakt-omrader" aria-label="Områder vi dekker">
+        {
+          AREA_SERVED.filter(
+            (a) => a !== "Vestfold" && a !== "Stokke" && a !== "Andebu"
+          ).map((sted) => <li class="kontakt-omrader__sted">{sted}</li>)
+        }
+      </ul>
+    </HeroPage>
 
     {/* 3. Strip: 4 kontaktpunkter */}
     <KontaktStrip />
@@ -169,66 +166,17 @@ const schema = getKontaktSchema(PAGE_META.kontakt.canonical);
 </PageLayout>
 
 <style>
-  /* ── Page-banner: kompakt mørk header ─────────────────────────────── */
-  .kontakt-banner {
-    min-height: var(--hero-min);
-    /* margin-bottom settes av .fjellkant (overlapp med seksjonen under). */
-    display: flex;
-    align-items: center;
-    background-color: var(--color-bg-dark);
-    position: relative;
-    overflow: hidden;
-    /* Ikke nav-høyde i padding-top: headeren er sticky og ligger over. */
-    padding-top: clamp(2.5rem, 5vw, 4rem);
-    padding-bottom: clamp(3.5rem, 6vw, 4.5rem);
-  }
-
-  /* Felles høyde med de andre undersidenes heroer — se --hero-hoyde. */
-  @media (min-width: 1024px) {
-    .kontakt-banner {
-      min-height: var(--hero-hoyde);
-    }
-  }
-
-  .kontakt-banner__inner {
-    position: relative;
-    z-index: 1;
-  }
-
-  .kontakt-banner__content {
-    max-width: 680px;
-  }
-
-  .kontakt-banner__heading {
-    font-size: var(--hero-tittel);
-    font-weight: 700;
-    letter-spacing: -0.03em;
-    line-height: 1.08;
-    color: var(--color-text-inv);
-    margin-top: 0.875rem;
-    margin-bottom: 1.25rem;
-    /* Fade-in */
-  }
-
-  .kontakt-banner__lead {
-    font-size: clamp(1rem, 1.8vw, 1.125rem);
-    line-height: 1.7;
-    color: var(--color-text-inv-m);
-    margin: 0 0 1.75rem;
-    max-width: 560px;
-  }
-
-  /* Geografi-tags */
-  .kontakt-banner__areas {
+  /* Områdene vi dekker, under ingressen i toppseksjonen. */
+  .kontakt-omrader {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
     list-style: none;
     padding: 0;
-    margin: 0;
+    margin: 1.5rem 0 0;
   }
 
-  .kontakt-banner__area-tag {
+  .kontakt-omrader__sted {
     padding: 0.3rem 0.75rem;
     border: 1px solid rgba(var(--rgb-inv), 0.3);
     border-radius: var(--r-sm);
@@ -238,11 +186,6 @@ const schema = getKontaktSchema(PAGE_META.kontakt.canonical);
     letter-spacing: 0.02em;
   }
 
-  .kontakt-banner__area-tag--more {
-    color: var(--color-text-inv-m);
-    background-color: transparent;
-    border-color: rgba(245, 243, 239, 0.12);
-  }
 
   /* ── Avslutningsblokk: prosess + NAP-kort ────────────────────────── */
   .kontakt-avslutning {

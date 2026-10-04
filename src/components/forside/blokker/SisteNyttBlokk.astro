@@ -7,13 +7,15 @@
 // er filtrert bort i spørringen; de forsvinner derfor ved neste bygg, ikke på
 // dagen. Uten publiserte saker rendres ingenting — ingen tom seksjon.
 //
-// Ingen JavaScript. Sakene står under hverandre på mobil og i et rutenett på
-// større skjermer. En sak med flere bilder får en bildekarusell med
-// scroll-snap, som kan sveipes eller scrolles med tastatur (tabindex).
+// Karusell som prosjektkarusellen på forsiden: sakene står på én rad som
+// går ut til skjermkanten, med piler og fremdriftslinje under. Samme
+// oppførsel (dra med mus, sveip, piltaster) fra src/scripts/karusell.ts.
+// Maks 10 saker.
 //
-// Ikke en sidelengs rad på mobil: da lå bildekarusellen inni en annen
-// sidelengs scrollflate, og sveip i bildet og sveip i lista kjempet om samme
-// bevegelse.
+// Bare første bilde vises i saken. En bildekarusell inni en sak lå tidligere
+// inni lista, men inni en sidelengs karusell ville to sveip i samme retning
+// kjempet om samme bevegelse. Resten av bildene står i innlegget lenken går
+// til.
 //
 // Sakene står uten kortramme, rett på seksjonsflaten. Da følger tekstfargene
 // temaet kunden velger (lys eller mørk), og siden får ikke enda et
@@ -48,7 +50,8 @@ interface Props {
 }
 
 const { blokk } = Astro.props;
-const antall = Math.min(8, Math.max(1, Number(blokk.antall) || 4));
+const antall = Math.min(10, Math.max(1, Number(blokk.antall) || 10));
+const karusellId = `nytt-karusell-${blokk._key ?? "forside"}`;
 const idag = new Date().toISOString().slice(0, 10);
 
 const nyheter: Nyhet[] =
@@ -72,32 +75,26 @@ const mork = erMorkt(blokk.tema ?? "lys");
 ---
 
 {synlige.length > 0 && (
-  <SeksjonsSkall tema={blokk.tema} overskrift={blokk.overskrift ?? "Siste nytt"} ingress={blokk.ingress} class="siste-nytt">
-    <ul class="nytt-liste reveal" role="list">
-      {synlige.map((n) => {
-        const flere = n.bilder.length > 1;
-        return (
-          <li class="nytt">
-            <div class="nytt__media">
-              <div
-                class="nytt__bilder"
-                tabindex={flere ? 0 : undefined}
-                role={flere ? "region" : undefined}
-                aria-label={flere ? `Bilder: ${n.tittel}, ${n.bilder.length} bilder` : undefined}
-              >
-                {n.bilder.map((b) => (
-                  <div class="nytt__bilde">
-                    <Bilde
-                      kilde={b}
-                      fyll
-                      sizes="(min-width: 1024px) 25vw, (min-width: 640px) 45vw, 85vw"
-                      bredde={800}
-                      hoyde={600}
-                    />
-                  </div>
-                ))}
-              </div>
-              {flere && <span class="nytt__antall" aria-hidden="true">{n.bilder.length} bilder</span>}
+  <SeksjonsSkall tema={blokk.tema} overskrift={blokk.overskrift ?? "Siste nytt"} ingress={blokk.ingress} class="siste-nytt karusell-skall">
+    <div
+      class="karusell karusell--bleed reveal"
+      id={karusellId}
+      role="region"
+      aria-roledescription="karusell"
+      aria-label={blokk.overskrift ?? "Siste nytt"}
+      tabindex="0"
+    >
+      <ul class="karusell__track" role="list">
+        {synlige.map((n) => (
+          <li class="karusell__item nytt">
+            <div class="nytt__bilde">
+              <Bilde
+                kilde={n.bilder[0]!}
+                fyll
+                sizes="(max-width: 639px) 85vw, 380px"
+                bredde={800}
+                hoyde={600}
+              />
             </div>
 
             <div class="nytt__tekst">
@@ -112,9 +109,28 @@ const mork = erMorkt(blokk.tema ?? "lys");
               )}
             </div>
           </li>
-        );
-      })}
-    </ul>
+        ))}
+      </ul>
+    </div>
+
+    {/* Kontroller. hidden til skriptet har sett at det er mer å bla i. */}
+    <div class="karusell-kontroller" data-karusell-kontroller hidden>
+      <div class="karusell-fremdrift" aria-hidden="true">
+        <span class="karusell-fremdrift__tommel" data-tommel></span>
+      </div>
+      <div class="karusell-knapper">
+        <button type="button" class="karusell-pil" data-retning="-1" aria-controls={karusellId} aria-label="Forrige sak">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M16 10H4m5-5-5 5 5 5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </button>
+        <button type="button" class="karusell-pil" data-retning="1" aria-controls={karusellId} aria-label="Neste sak">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M4 10h12m-5-5 5 5-5 5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
 
     {visSome && (
       <ul class="nytt-some" role="list" aria-label="Følg oss">
@@ -138,70 +154,27 @@ const mork = erMorkt(blokk.tema ?? "lys");
 )}
 
 <style>
-  /* Én kolonne på mobil, rutenett fra 640 px. */
-  .nytt-liste {
+  /* Karusellen selv (bredde, snap, piler) er felles med prosjektkarusellen:
+     .karusell* i globals.css. Her bare selve saken. */
+  .karusell__track {
+    margin: 0;
     list-style: none;
-    padding: 0;
-    margin: 2rem 0 0;
-    display: grid;
-    gap: 2rem 1.5rem;
   }
 
-  @media (min-width: 640px) {
-    .nytt-liste {
-      grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
-    }
-  }
-
+  /* Saken: bilde øverst, tekst under, lenken nederst. Kortene i raden er
+     like høye (flex-raden strekker dem), så lenkene står på linje. */
   .nytt {
     display: flex;
     flex-direction: column;
     min-width: 0;
   }
 
-  .nytt__media {
-    position: relative;
-  }
-
-  /* Bildekarusell inne i saken. */
-  .nytt__bilder {
-    display: flex;
-    overflow-x: auto;
-    scroll-snap-type: inline mandatory;
-    border-radius: var(--r-md);
-    aspect-ratio: 4 / 3;
-    scrollbar-width: none;
-  }
-  .nytt__bilder::-webkit-scrollbar {
-    display: none;
-  }
-  .nytt__bilder:focus-visible {
-    outline: 3px solid var(--color-focus);
-    outline-offset: 3px;
-  }
-
   .nytt__bilde {
-    flex: 0 0 100%;
-    scroll-snap-align: start;
     aspect-ratio: 4 / 3;
+    border-radius: var(--r-md);
+    overflow: hidden;
   }
 
-  /* Liten merkelapp på ensfarget flate, så teksten er lesbar på alle bilder. */
-  .nytt__antall {
-    position: absolute;
-    right: 0.5rem;
-    bottom: 0.5rem;
-    padding: 0.2rem 0.5rem;
-    border-radius: var(--r-sm);
-    background-color: rgb(var(--rgb-dark-2));
-    color: var(--color-text-inv);
-    font-size: 0.75rem;
-    font-weight: 600;
-  }
-
-  /* Teksten fyller resten av saken, og lenken står nederst. Sakene i samme
-     rad er like høye (rutenettet strekker dem), så lenkene havner på linje
-     uansett hvor lang teksten er. */
   .nytt__tekst {
     flex: 1;
     display: flex;
@@ -263,3 +236,8 @@ const mork = erMorkt(blokk.tema ?? "lys");
     height: 16px;
   }
 </style>
+
+<script>
+  // Felles med prosjektkarusellen: se src/scripts/karusell.ts.
+  import "@/scripts/karusell";
+</script>

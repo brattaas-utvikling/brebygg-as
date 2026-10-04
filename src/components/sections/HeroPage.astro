@@ -14,6 +14,7 @@
 //   sitatKilde? — hvem siterte
 //   bilde     — Sanity-bilde eller lokal fil ({ src, alt, width, height })
 //   stats?    — valgfri array av { num, label }
+//   <slot />  — valgfritt innhold under ingressen (Kontakt: områdene vi dekker)
 
 import Bilde from "@components/sanity/Bilde.astro";
 import type { Bilde as BildeType } from "@/content.config";
@@ -54,6 +55,8 @@ const {
       <div class="page-hero__divider" aria-hidden="true"></div>
 
       <p class="page-hero__lead">{lead}</p>
+
+      <slot />
 
       {/* Sitat (valgfritt) */}
       {

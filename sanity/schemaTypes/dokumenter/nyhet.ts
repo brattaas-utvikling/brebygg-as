@@ -24,7 +24,7 @@ export const nyhet = defineType({
     }),
     defineField({
       name: "bilder", title: "Bilder", type: "array", of: [{ type: "bilde" }],
-      description: "Ett til ti bilder. Flere bilder blir en bildekarusell i saken.",
+      description: "Ett til ti bilder. På forsiden vises det første; legg det beste bildet først.",
       options: { layout: "grid" },
       validation: (r) => r.required().min(1).max(10),
     }),
