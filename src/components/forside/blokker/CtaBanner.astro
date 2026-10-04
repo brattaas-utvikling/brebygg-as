@@ -18,7 +18,7 @@ const knapper = Array.isArray(blokk.knapper) ? blokk.knapper : [];
         <a
           href={c.url}
           {...lenkeAttr(c.url)}
-          class:list={["btn", c.stil === "outline" ? (mork ? "btn--ghost-inv" : "btn--outline") : "btn--primary"]}
+          class:list={["btn", c.stil === "outline" ? (mork ? "btn--outline-inv" : "btn--outline") : "btn--primary"]}
         >{c.tekst}{erEkstern(c.url) && <span class="sr-only"> (åpnes i ny fane)</span>}</a>
       ))}
     </div>
