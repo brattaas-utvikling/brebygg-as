@@ -94,6 +94,13 @@ const schema = getTjenesteSchema(
   ],
   data.faq.map((f) => ({ question: f.sporsmaal, answer: f.svar }))
 );
+
+// Sammensatte ord i ett, med binde-s der det trengs. Før ble teksten bygd som
+// «${kategori}-prosjekter», som ga «rehabilitering-prosjekter».
+const PROSJEKTORD: Record<string, string> = {
+  nybygg: "nybyggprosjekter",
+  rehabilitering: "rehabiliteringsprosjekter",
+};
 ---
 
 <PageLayout
@@ -131,11 +138,17 @@ const schema = getTjenesteSchema(
             <a href={NAP.phoneHref} class="btn btn--primary">
               Ring {NAP.phoneDisplay}
             </a>
+            {/* Samme sekundærknapp som forsidens hero: kantlinje og pil.
+                Var btn--ghost-inv, en klasse uten CSS, så knappen så ut som
+                en tekstlenke. */}
             <a
               href={`/prosjekter/?kategori=${data.kategori}`}
-              class="btn btn--ghost-inv"
+              class="btn btn--outline-inv"
             >
-              Se {KATEGORI_LABEL[data.kategori].toLowerCase()}-prosjekter
+              Se {PROSJEKTORD[data.kategori] ?? "prosjektene"}
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
             </a>
           </div>
         </div>

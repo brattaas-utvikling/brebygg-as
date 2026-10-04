@@ -2950,6 +2950,23 @@
     margin-top: 2rem;
   }
 
+  /* Mobil: knappeparene i heroene stables i full bredde, som i avslutningen
+     (CtaSeksjon). Før fikk hver knapp innholdets bredde, og den andre
+     knappen («Se prosjekter →») ble bredere enn hovedknappen: 203 mot 183 px
+     på forsiden, 220 mot 174 px på tjenestesidene. Lik bredde lar fargen
+     (fylt gull mot kantlinje) vise hva som er viktigst. */
+  @media (max-width: 599px) {
+    .hero__actions,
+    .tjeneste-hero__knapper {
+      flex-direction: column;
+    }
+    .hero__actions .btn,
+    .tjeneste-hero__knapper .btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
   /* Felles høyde på desktop for alle undersidenes heroer. Står etter
      grunnreglene til .slug-hero og .tjeneste-hero, ellers vinner deres
      min-height på rekkefølge. .page-hero og .kontakt-banner er scoped i sine
