@@ -362,6 +362,21 @@
     max-width: var(--reading-width);
   }
 
+  /* Ingen dobbelttrykk-zoom på det man trykker på. På iPhone ble to raske
+     trykk på karusellpilene tolket som dobbelttrykk: Safari zoomet inn, og
+     siden kunne dras rundt i det innzoomede utsnittet. manipulation slår av
+     bare dobbelttrykket; knipezoom virker fortsatt (WCAG 1.4.4). Fjerner også
+     den lille forsinkelsen nettleseren legger på trykk mens den venter på et
+     mulig andre trykk. */
+  a,
+  button,
+  [role="button"],
+  label,
+  summary,
+  .karusell {
+    touch-action: manipulation;
+  }
+
   a {
     /* Lenkefarge er tekstfarge, ikke gull: gull er 2,03:1 på lys bunn.
        Lenker i løpende tekst får understrek i .rik-tekst og .tel-lenke, så de
