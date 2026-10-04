@@ -175,15 +175,16 @@ export const sisteNytt = defineType({
     defineField({ name: "overskrift", title: "Overskrift", type: "string", initialValue: "Siste nytt", validation: (r) => r.required() }),
     defineField({ name: "ingress", title: "Ingress", type: "text", rows: 2 }),
     defineField({
-      name: "antall", title: "Antall saker", type: "number", initialValue: 4,
-      validation: (r) => r.required().min(1).max(8),
+      name: "antall", title: "Antall saker", type: "number", initialValue: 10,
+      description: "De nyeste sakene vises i en karusell. Maks 10.",
+      validation: (r) => r.required().min(1).max(10),
     }),
     defineField({
       name: "visSome", title: "Vis lenker til sosiale medier under", type: "boolean", initialValue: true,
       description: "Lenkene hentes fra Innstillinger. Slå av hvis siden allerede har blokken «Sosiale medier».",
     }),
   ],
-  preview: { select: { subtitle: "overskrift", antall: "antall" }, prepare: ({ subtitle, antall }) => ({ title: "Siste nytt", subtitle: `${subtitle ?? ""} · ${antall ?? 4} saker` }) },
+  preview: { select: { subtitle: "overskrift", antall: "antall" }, prepare: ({ subtitle, antall }) => ({ title: "Siste nytt", subtitle: `${subtitle ?? ""} · ${antall ?? 10} saker` }) },
 });
 
 export const alleBlokker = [

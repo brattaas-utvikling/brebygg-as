@@ -33,14 +33,16 @@ export type SideSeo = { tittel?: string | null; beskrivelse?: string | null; skj
 
 type Felles = { hero: SideHero; seksjoner: Seksjon[]; seo?: SideSeo | null };
 
-export type TjenesterSide = Felles & { cta: { overskrift: string; tekst: string } };
+type Avslutning = { cta: { overskrift: string; tekst: string } };
+
+export type TjenesterSide = Felles & Avslutning;
 export type ProsjekterSide = Felles & { galleriOverskrift: string };
 export type OmOssSide = Felles & {
   team:    { overskrift: string; tekst: RikTekst };
   verdier: { overskrift: string; ingress: string; punkter: { kategori: string; tittel: string; tekst: string; bilde: SanityBildeObj }[] };
   hms:     { overskrift: string; tekst: RikTekst; punkter: string[]; boksTittel: string; boksTekst: string; boksSporsmaal: string; boksKnapp: string };
 };
-export type BaerekraftSide = Felles;
+export type BaerekraftSide = Felles & Avslutning;
 export type KontaktSide = Felles & {
   some: { overskrift: string; ingress: string; bilde?: SanityBildeObj | null };
   kartOverskrift: string;
@@ -148,6 +150,11 @@ const FALLBACK = {
       tittel: "Bærekraft og miljø",
       ingress: "Her samler vi det BRE Bygg gjør for miljøet i prosjektene. Vi fyller på med konkrete tiltak og tall etter hvert.",
     },
+    // Samme tekst som CtaSeksjon hadde som standard før feltet kom.
+    cta: {
+      overskrift: "Har du et prosjekt i Vestfold?",
+      tekst: "Ring eller send en e-post. Vi svarer innen én arbeidsdag.",
+    },
     seksjoner: [
       {
         _type: "tekstBilde", _key: "b1", tema: "hvit", layout: "full",
@@ -168,6 +175,8 @@ const FALLBACK = {
   kontaktSide: {
     hero: {
       tittel: "Ta kontakt",
+      // Teambildet, til kunden laster opp et eget i Studio.
+      bilde: lokalt("/images/om-oss-teaser.webp", "Teamet i BRE Bygg", 1024, 683),
       ingress: "Ring eller send en e-post om byggeprosjektet ditt i Vestfold eller Telemark. Vi svarer innen én arbeidsdag og avtaler et uforpliktende møte.",
     },
     some: {

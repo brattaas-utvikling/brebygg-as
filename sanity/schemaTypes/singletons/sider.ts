@@ -23,7 +23,7 @@ import { rikTekstBlokker } from "../objekter/rikTekst";
 
 const TOM = "Står feltet tomt, vises standardteksten fra koden.";
 
-/** Hero øverst på en underside. `medBilde: false` for Kontakt, som ikke har bilde. */
+/** Hero øverst på en underside. `medBilde: false` gir hero uten bilde. */
 const heroFelt = ({ medBilde = true, medSitat = false } = {}) =>
   defineField({
     name: "hero", title: "Toppseksjon", type: "object", group: "hero",
@@ -166,7 +166,7 @@ export const kontaktSide = defineType({
   name: "kontaktSide", title: "Kontakt", type: "document",
   groups: grupper,
   fields: [
-    heroFelt({ medBilde: false }),
+    heroFelt(),
     defineField({
       name: "some", title: "Sosiale medier", type: "object", group: "innhold",
       description: `Lenkene hentes fra Innstillinger. ${TOM}`,
@@ -210,9 +210,10 @@ export const kontaktSide = defineType({
  */
 export const baerekraftSide = defineType({
   name: "baerekraftSide", title: "Bærekraft", type: "document",
-  groups: grupper.filter((g) => g.name !== "innhold"),
+  groups: grupper,
   fields: [
     heroFelt(),
+    ctaFelt(),
     defineField({
       name: "seksjoner", title: "Seksjoner", type: "array", group: "seksjoner",
       description: "Innholdet på siden. Miljøpåstander må kunne dokumenteres (markedsføringsloven § 7 og Forbrukertilsynets veiledning): skriv konkrete tiltak og tall, ikke «grønnere fremtid». Dra for å endre rekkefølge, og veksle mellom lys og mørk bakgrunn.",
