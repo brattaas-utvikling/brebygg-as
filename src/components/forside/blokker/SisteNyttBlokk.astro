@@ -199,7 +199,13 @@ const mork = erMorkt(blokk.tema ?? "lys");
     font-weight: 600;
   }
 
+  /* Teksten fyller resten av saken, og lenken står nederst. Sakene i samme
+     rad er like høye (rutenettet strekker dem), så lenkene havner på linje
+     uansett hvor lang teksten er. */
   .nytt__tekst {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
     padding-top: 1rem;
   }
 
@@ -222,9 +228,21 @@ const mork = erMorkt(blokk.tema ?? "lys");
     line-height: 1.6;
   }
 
+  /* Tre linjer når saken har lenke: hele teksten står i innlegget lenken
+     går til. Uten lenke vises alt, ellers ville resten vært umulig å lese.
+     Klippingen er bare visuell; skjermlesere får hele teksten. */
+  .nytt:has(.nytt__lenke) .nytt__ingress {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow: hidden;
+  }
+
   .nytt__lenke {
-    display: inline-block;
-    margin-top: 0.75rem;
+    align-self: flex-start;
+    margin-top: auto;
+    padding-top: 0.75rem;
     min-height: 24px;
     font-weight: 600;
     text-decoration: underline;

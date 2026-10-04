@@ -30,7 +30,7 @@ export const nyhet = defineType({
     }),
     defineField({
       name: "tekst", title: "Tekst", type: "text", rows: 4,
-      description: "Kort — to–tre setninger. Vises i kortet på forsiden.",
+      description: "To–tre setninger. Har saken lenke, vises bare de tre første linjene på forsiden; hele teksten står i innlegget lenken går til.",
       validation: (r) => r.max(300).warning("Over 300 tegn blir lang i kortet."),
     }),
     defineField({
