@@ -1,5 +1,4 @@
 ---
-import { bildeSrc } from "@/content.config";
 // src/components/sections/TjenesterBento.astro
 // Tjeneste-seksjon med bento-grid layout på mørk bakgrunn.
 //
@@ -12,6 +11,7 @@ import { bildeSrc } from "@/content.config";
 // Bildene er herobildet til hver tjeneste i Sanity.
 
 import { getCollection } from "astro:content";
+import Bilde from "@components/sanity/Bilde.astro";
 
 // Leser fra tjenester-collection. v1 hadde TJENESTER duplisert i site.ts og
 // plukket dem ut med TJENESTER[0]! — posisjonsavhengig og med non-null-
@@ -25,6 +25,15 @@ const STORRELSE_KLASSE = {
   third: "tjeneste-card--full",
 } as const;
 
+// Hvor bredt kortet vises, i takt med kolonnene i .tjeneste-grid (7/5/12 av
+// 12, én kolonne under 1024 px). Før gikk bildet rett til originalfila i
+// Sanity, uten srcset: 175–190 KiB JPG per kort også på mobil.
+const SIZES = {
+  large: "(max-width: 1023px) 100vw, min(58vw, 750px)",
+  small: "(max-width: 1023px) 100vw, min(42vw, 540px)",
+  third: "(max-width: 1280px) 100vw, 1280px",
+} as const;
+
 const cards = (await getCollection("tjenester"))
   .sort((a, b) => a.data.sortOrder - b.data.sortOrder)
   .map((t) => ({
@@ -32,9 +41,9 @@ const cards = (await getCollection("tjenester"))
     title: t.data.kortTittel ?? t.data.title,
     description: t.data.description,
     slug: `/tjenester/${t.id}/`,
-    imgSrc: bildeSrc(t.data.heroImage),
-    imgAlt: t.data.heroImage.alt,
+    bilde: t.data.heroImage,
     cardClass: STORRELSE_KLASSE[t.data.bentoStorrelse],
+    sizes: SIZES[t.data.bentoStorrelse],
   }));
 
 /**
@@ -74,24 +83,18 @@ const { skjulTopp = false } = Astro.props;
     }
 
     {/* Bento-grid */}
-    <div class="tjeneste-grid reveal" role="list" aria-label="Tjenester">
+    {/* Ingen role="list": listitem er ikke lov på <article> (ARIA in HTML),
+        og en innpakning ville flyttet kortene ut av rutenettet. */}
+    <div class="tjeneste-grid reveal">
       {
         cards.map((card) => (
           <article
             class={`tjeneste-card ${card.cardClass}`}
-            role="listitem"
             aria-label={card.title}
           >
             {/* Bakgrunnsbilde med parallax-hint */}
             <div class="tjeneste-card__img-wrap" aria-hidden="true">
-              <img
-                src={card.imgSrc}
-                alt={card.imgAlt}
-                loading="lazy"
-                decoding="async"
-                width="1200"
-                height="800"
-              />
+              <Bilde kilde={card.bilde} alt="" sizes={card.sizes} fyll bredde={1200} hoyde={800} />
             </div>
 
             {/* Kortinnhold. Sløret ligger på selve tekstblokken, se

@@ -10,11 +10,13 @@
 import { createImageUrlBuilder } from "@sanity/image-url";
 import type { Image } from "@sanity/types";
 import { SANITY_PROJECT_ID, SANITY_DATASET } from "./client";
+import { erSanityBilde, type Bilde } from "@/content/skjema";
 
 const bygger = createImageUrlBuilder({ projectId: SANITY_PROJECT_ID, dataset: SANITY_DATASET });
 
-/** Standardbredder for srcset. Dekker mobil til 2× på store skjermer. */
-export const BREDDER = [400, 800, 1200, 1600, 2000] as const;
+/** Standardbredder for srcset. Dekker mobil til 2× på store skjermer. 600 fordi
+    karusellkortene (280 px) på 2×-mobil ellers hoppet fra 400 rett til 800. */
+export const BREDDER = [400, 600, 800, 1200, 1600, 2000] as const;
 
 export function bildeUrl(kilde: Image, bredde: number, kvalitet = 78): string {
   return bygger
@@ -82,4 +84,20 @@ export function heroPreload(
     imagesrcset: byggSrcset(kilde, maksBredde),
     imagesizes:  sizes,
   };
+}
+
+/**
+ * Delingsbilde (og:image, twitter:image, JSON-LD) i 1200×630, som Facebook og
+ * LinkedIn forventer. Beskåret rundt hotspot. JPG og ikke auto=format: noen
+ * delingstjenester viser ikke WebP/AVIF.
+ *
+ * Erstatter `${SITE_URL}${bildeSrc(...)}`. bildeSrc gir en full cdn.sanity.io-
+ * adresse for Sanity-bilder, så resultatet ble «https://brebygg.nohttps://cdn…»
+ * og delinger fikk ikke bilde.
+ */
+export function delingsbildeUrl(b: Bilde, siteUrl: string): string {
+  if (erSanityBilde(b)) {
+    return bygger.image(b as unknown as Image).width(1200).height(630).fit("crop").format("jpg").quality(80).url();
+  }
+  return b.src.startsWith("http") ? b.src : `${siteUrl.replace(/\/$/, "")}${b.src}`;
 }

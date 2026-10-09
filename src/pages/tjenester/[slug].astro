@@ -15,8 +15,9 @@ import Breadcrumbs from "@components/seo/Breadcrumbs.astro";
 import CtaSeksjon from "@components/sections/CtaSeksjon.astro";
 import { SITE_URL, NAP, HOVEDKOMMUNER, type PageMeta } from "@config/site";
 import { getTjenesteSchema } from "@lib/seo/jsonld";
-import { KATEGORI_LABEL, bildeSrc } from "@/content.config";
+import { KATEGORI_LABEL } from "@/content.config";
 import Bilde from "@components/sanity/Bilde.astro";
+import { delingsbildeUrl } from "@lib/sanity/image";
 import RikTekst from "@components/ui/RikTekst.astro";
 
 export async function getStaticPaths() {
@@ -77,7 +78,7 @@ const pageMeta: PageMeta = {
   title: data.seoTitle ?? `${data.title} | ${NAP.name}`,
   description: data.seoDescription ?? data.description,
   canonical,
-  ogImage: `${SITE_URL}${bildeSrc(data.heroImage)}`,
+  ogImage: delingsbildeUrl(data.heroImage, SITE_URL),
 };
 
 const schema = getTjenesteSchema(
@@ -106,7 +107,7 @@ const PROSJEKTORD: Record<string, string> = {
 <PageLayout
   meta={pageMeta}
   schema={schema}
-  heroImage={bildeSrc(data.heroImage)}
+  heroImage={data.heroImage}
 >
   <main id="main-content">
     {/* Hero */}
@@ -115,6 +116,7 @@ const PROSJEKTORD: Record<string, string> = {
         <Bilde
           kilde={data.heroImage}
           alt=""
+          sizes="100vw"
           prioritet
           fyll
           bredde={1600}
