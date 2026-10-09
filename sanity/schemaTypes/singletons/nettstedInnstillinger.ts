@@ -65,10 +65,12 @@ export const nettstedInnstillinger = defineType({
     defineField({
       name: "aapningstider", title: "Åpningstider (visning)", type: "string", group: "kontakt",
       initialValue: "Man–fre: 07:00–16:00",
+      // Fjernet 09.10 etter ønske fra kunden; se prosjektdokumentasjonen for gjenoppretting.
+      hidden: true,
     }),
     defineField({
       name: "omraader", title: "Områder vi dekker", type: "array", of: [{ type: "string" }], group: "kontakt",
-      description: "Går inn i areaServed i JSON-LD og i llms.txt. Konkrete kommuner, ikke «hele Østlandet».",
+      description: "Vises ikke på nettsiden. Lista forteller Google (og AI-søk) hvilke steder dere dekker. Bruk konkrete kommuner, ikke «hele Østlandet».",
       options: { layout: "tags" },
     }),
     defineField({

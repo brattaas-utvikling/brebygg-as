@@ -6,7 +6,6 @@
 import {
   SITE_URL,
   NAP,
-  OPENING_HOURS,
   AREA_SERVED,
   HOVEDKOMMUNER,
   FAKTA_BEKREFTET,
@@ -60,7 +59,6 @@ export function buildLocalBusiness() {
       "longitude": NAP.geo.longitude,
     },
     "areaServed": AREA_SERVED.map((navn) => ({ "@type": "City", "name": navn })),
-    "openingHoursSpecification": OPENING_HOURS.schema,
     "hasMap":     MAPS.directUrl,
     "sameAs":     [SOCIAL.facebook, SOCIAL.instagram, SOCIAL.linkedin],
 

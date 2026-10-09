@@ -9,7 +9,7 @@
 // Stilene står i globals.css (seksjon 14), ikke her: SomeIkon får klassen sin
 // som prop, og scoped CSS herfra ville ikke nådd <svg>-en den rendrer.
 
-import { NAP, OPENING_HOURS, SOME_KANALER } from "@config/site";
+import { NAP, SOME_KANALER } from "@config/site";
 import { FOOTER_NAV } from "@config/navigation";
 import SomeIkon from "@components/ui/SomeIkon.astro";
 
@@ -28,11 +28,11 @@ const currentYear = new Date().getFullYear();
           /* alt="" — <a> har allerede aria-label, og den vinner over alt-teksten. */
         }
         <img
-          src="/images/logo/bre-bygg-logo-negativ.webp"
+          src="/images/logo/bre-bygg-logo-negativ.svg"
           alt=""
           class="footer__logo-img"
-          width="353"
-          height="216"
+          width="2866"
+          height="1753"
           loading="lazy"
           decoding="async"
         />
@@ -106,20 +106,6 @@ const currentYear = new Date().getFullYear();
               >
             </li>
 
-            <li class="footer__rad">
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 14 14"
-                fill="none"
-                aria-hidden="true"
-              >
-                <path
-                  d="M7 0.33C3.32 0.33 0.33 3.32 0.33 7C0.33 10.68 3.32 13.67 7 13.67C10.68 13.67 13.67 10.68 13.67 7C13.67 3.32 10.68 0.33 7 0.33ZM7.67 10.33H6.33V6.33H7.67V10.33ZM7.67 5H6.33V3.67H7.67V5Z"
-                  fill="currentColor"></path>
-              </svg>
-              <span>{OPENING_HOURS.display}</span>
-            </li>
           </ul>
         </address>
       </div>

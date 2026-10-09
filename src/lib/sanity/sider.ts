@@ -40,10 +40,11 @@ export type ProsjekterSide = Felles & { galleriOverskrift: string };
 export type OmOssSide = Felles & {
   team:    { overskrift: string; tekst: RikTekst };
   verdier: { overskrift: string; ingress: string; punkter: { kategori: string; tittel: string; tekst: string; bilde: SanityBildeObj }[] };
-  hms:     { overskrift: string; tekst: RikTekst; punkter: string[]; boksTittel: string; boksTekst: string; boksSporsmaal: string; boksKnapp: string };
+  hms:     { overskrift: string; tekst: RikTekst; punkter: string[]; boksTittel: string; boksTekst: string; boksSporsmaal: string; boksKnapp: string; bilde?: SanityBildeObj | null };
 };
 export type BaerekraftSide = Felles & Avslutning;
 export type KontaktSide = Felles & {
+  stripe: { telefon: string; epost: string; adresse: string };
   some: { overskrift: string; ingress: string; bilde?: SanityBildeObj | null };
   kartOverskrift: string;
   steg: { overskrift: string; punkter: { tittel: string; tekst: string }[] };
@@ -179,6 +180,13 @@ const FALLBACK = {
       bilde: lokalt("/images/om-oss-teaser.webp", "Teamet i BRE Bygg", 1024, 683),
       ingress: "Ring eller send en e-post om byggeprosjektet ditt i Vestfold eller Telemark. Vi svarer innen én arbeidsdag og avtaler et uforpliktende møte.",
     },
+    // Teksten under telefon, e-post og adresse i stripa under heroen.
+    // Selve nummeret, e-posten og adressen kommer fra Innstillinger.
+    stripe: {
+      telefon: "Ring oss direkte",
+      epost: "Svar innen én arbeidsdag",
+      adresse: `${NAP.address.region}, ${NAP.address.countryFull}`,
+    },
     some: {
       overskrift: "Følg oss i sosiale medier",
       ingress: "Vi legger ut bilder fra byggeplassene mens prosjektene pågår.",
@@ -230,6 +238,32 @@ export function flett<T>(fallback: T, data: unknown): T {
   return ut as T;
 }
 
+/**
+ * Felt der tomt betyr «skjul», ikke «standardtekst». Gjelder valgfrie
+ * undertekster kunden skal kunne fjerne. Uten dette tømte kunden «Slik
+ * jobber vi med sikkerhet» i HMS-boksen (05.10), og siden fylte den inn igjen
+ * fra standardteksten. Standardteksten brukes fortsatt når hele dokumentet
+ * mangler i Sanity, så siden aldri står tom.
+ */
+const TOMT_ER_SKJULT: Partial<Record<SideId, string[]>> = {
+  omOssSide: ["hms.boksTittel", "hms.boksTekst"],
+};
+
+function hentSti(o: unknown, sti: string): unknown {
+  return sti.split(".").reduce<unknown>((v, k) => (v && typeof v === "object" ? (v as Record<string, unknown>)[k] : undefined), o);
+}
+
+function settSti(o: Record<string, unknown>, sti: string, verdi: unknown) {
+  const deler = sti.split(".");
+  const siste = deler.pop()!;
+  let mål: Record<string, unknown> = o;
+  for (const k of deler) {
+    if (!mål[k] || typeof mål[k] !== "object") return;
+    mål = mål[k] as Record<string, unknown>;
+  }
+  mål[siste] = verdi;
+}
+
 async function hentSide<K extends SideId>(id: K): Promise<(typeof FALLBACK)[K]> {
   const fallback = FALLBACK[id];
   if (!BRUKER_SANITY) return fallback;
@@ -240,8 +274,13 @@ async function hentSide<K extends SideId>(id: K): Promise<(typeof FALLBACK)[K]> 
       `[sider] Fant ikke «${id}» i Sanity — bruker standardteksten fra koden.\n` +
       `        Publiser siden i /studio (Sider), eller kjør \`npm run opprett-sider\`.`
     );
+    return fallback;
   }
-  return flett(fallback, data);
+  const side = flett(fallback, data) as Record<string, unknown>;
+  for (const sti of TOMT_ER_SKJULT[id] ?? []) {
+    if (tom(hentSti(data, sti))) settSti(side, sti, "");
+  }
+  return side as (typeof FALLBACK)[K];
 }
 
 export const hentTjenesterSide  = () => hentSide("tjenesterSide")  as Promise<TjenesterSide>;

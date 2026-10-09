@@ -62,16 +62,22 @@ const seksjonerFelt = () =>
     of: alleBlokker.map((b) => defineArrayMember({ type: b.name })),
   });
 
-/** Avslutningen nederst på siden, før footeren. */
-const ctaFelt = () =>
+/**
+ * Avslutningen nederst på siden, før footeren. Egen fane («Avslutning»), og
+ * standardteksten vises i grått i feltet, så kunden ser hva som står der når
+ * feltet er tomt. Før lå den i fanen «Innhold» og ble ikke funnet.
+ */
+const ctaFelt = (standard: { overskrift: string; tekst: string }) =>
   defineField({
-    name: "cta", title: "Avslutning", type: "object", group: "innhold",
-    description: `Den mørke oppfordringen nederst på siden. Knappene («Ta kontakt» og telefon) er faste. ${TOM}`,
+    name: "cta", title: "Avslutning", type: "object", group: "avslutning",
+    description: "Den mørke boksen nederst på siden. Knappene («Ta kontakt» og telefon) er faste. Tomt felt viser teksten som står i grått.",
     fields: [
-      defineField({ name: "overskrift", title: "Overskrift", type: "string", validation: (r) => r.max(80) }),
-      defineField({ name: "tekst", title: "Tekst", type: "text", rows: 2, description: "Telefonnummeret blir automatisk en lenke." }),
+      defineField({ name: "overskrift", title: "Overskrift", type: "string", placeholder: standard.overskrift, validation: (r) => r.max(80) }),
+      defineField({ name: "tekst", title: "Tekst", type: "text", rows: 2, placeholder: standard.tekst, description: "Telefonnummeret blir automatisk en lenke." }),
     ],
   });
+
+const avslutningsfane = { name: "avslutning", title: "Avslutning" };
 
 const grupper = [
   { name: "hero",      title: "Toppseksjon", default: true },
@@ -86,8 +92,16 @@ const seoFelt = () => defineField({ name: "seo", title: "SEO", type: "seo", grou
 
 export const tjenesterSide = defineType({
   name: "tjenesterSide", title: "Tjenester (oversiktssiden)", type: "document",
-  groups: grupper,
-  fields: [heroFelt(), ctaFelt(), seksjonerFelt(), seoFelt()],
+  groups: [...grupper.filter((g) => g.name !== "innhold" && g.name !== "seo"), avslutningsfane, ...grupper.filter((g) => g.name === "seo")],
+  fields: [
+    heroFelt(),
+    ctaFelt({
+      overskrift: "Usikker på hvilken av dem du trenger?",
+      tekst: "Ring 452 22 385 og fortell hva du skal gjøre. Er vi ikke riktig entreprenør for jobben, sier vi det.",
+    }),
+    seksjonerFelt(),
+    seoFelt(),
+  ],
   preview: { prepare: () => ({ title: "Tjenester", subtitle: "/tjenester/" }) },
 });
 
@@ -97,7 +111,7 @@ export const prosjekterSide = defineType({
   fields: [
     heroFelt(),
     defineField({
-      name: "galleriOverskrift", title: "Overskrift over prosjektlista", type: "string", group: "hero",
+      name: "galleriOverskrift", title: "Overskrift over prosjektlista", type: "string", group: "hero", placeholder: "Alle prosjekter",
       description: `Bør ikke være lik overskriften i toppseksjonen. ${TOM}`,
     }),
     seksjonerFelt(),
@@ -150,8 +164,12 @@ export const omOssSide = defineType({
         defineField({ name: "overskrift", title: "Overskrift", type: "string" }),
         defineField({ name: "tekst", title: "Tekst", type: "array", of: rikTekstBlokker() }),
         defineField({ name: "punkter", title: "Tiltak (punktliste)", type: "array", of: [{ type: "string" }], description: "Konkrete tiltak dere faktisk gjennomfører." }),
-        defineField({ name: "boksTittel", title: "Boks: overskrift", type: "string" }),
-        defineField({ name: "boksTekst", title: "Boks: undertekst", type: "string" }),
+        defineField({
+          name: "bilde", title: "Bilde", type: "bilde",
+          description: "Valgfritt. Vises over forespørselsboksen. Bruk et ekte bilde fra deres egne byggeplasser (verneutstyr, vernerunde, oppstartsmøte), ikke et stockfoto. Uten bilde står boksen alene.",
+        }),
+        defineField({ name: "boksTittel", title: "Boks: overskrift", type: "string", placeholder: "Tomt felt: ingen overskrift i boksen", description: "Valgfri. Står feltet tomt, vises ingen overskrift." }),
+        defineField({ name: "boksTekst", title: "Boks: undertekst", type: "string", placeholder: "Tomt felt: ingen undertekst", description: "Valgfri. Står feltet tomt, vises ingen undertekst." }),
         defineField({ name: "boksSporsmaal", title: "Boks: spørsmål", type: "text", rows: 2 }),
         defineField({ name: "boksKnapp", title: "Boks: knappetekst", type: "string", description: "Knappen går til kontaktsiden." }),
       ],
@@ -168,6 +186,15 @@ export const kontaktSide = defineType({
   fields: [
     heroFelt(),
     defineField({
+      name: "stripe", title: "Kontaktpunktene under toppseksjonen", type: "object", group: "innhold",
+      description: "Telefonnummer, e-post og adresse endres under Innstillinger, så de blir like i header, footer og Google. Her skriver du den lille teksten under hver av dem. Tomt felt viser teksten i grått.",
+      fields: [
+        defineField({ name: "telefon", title: "Under telefon", type: "string", placeholder: "Ring oss direkte", validation: (r) => r.max(60) }),
+        defineField({ name: "epost", title: "Under e-post", type: "string", placeholder: "Svar innen én arbeidsdag", validation: (r) => r.max(60) }),
+        defineField({ name: "adresse", title: "Under adresse", type: "string", placeholder: "Vestfold, Norge", validation: (r) => r.max(60) }),
+      ],
+    }),
+    defineField({
       name: "some", title: "Sosiale medier", type: "object", group: "innhold",
       description: `Lenkene hentes fra Innstillinger. ${TOM}`,
       fields: [
@@ -177,7 +204,7 @@ export const kontaktSide = defineType({
       ],
     }),
     defineField({
-      name: "kartOverskrift", title: "Overskrift over kartet", type: "string", group: "innhold",
+      name: "kartOverskrift", title: "Overskrift over kartet", type: "string", group: "innhold", placeholder: "Vi holder til i Sandefjord",
       description: `Adressen under kartet hentes fra Innstillinger. ${TOM}`,
     }),
     defineField({
@@ -210,10 +237,13 @@ export const kontaktSide = defineType({
  */
 export const baerekraftSide = defineType({
   name: "baerekraftSide", title: "Bærekraft", type: "document",
-  groups: grupper,
+  groups: [...grupper.filter((g) => g.name !== "innhold" && g.name !== "seo"), avslutningsfane, ...grupper.filter((g) => g.name === "seo")],
   fields: [
     heroFelt(),
-    ctaFelt(),
+    ctaFelt({
+      overskrift: "Har du et prosjekt i Vestfold?",
+      tekst: "Ring eller send en e-post. Vi svarer innen én arbeidsdag.",
+    }),
     defineField({
       name: "seksjoner", title: "Seksjoner", type: "array", group: "seksjoner",
       description: "Innholdet på siden. Miljøpåstander må kunne dokumenteres (markedsføringsloven § 7 og Forbrukertilsynets veiledning): skriv konkrete tiltak og tall, ikke «grønnere fremtid». Dra for å endre rekkefølge, og veksle mellom lys og mørk bakgrunn.",

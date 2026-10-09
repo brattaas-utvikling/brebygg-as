@@ -80,6 +80,10 @@ export const ADRESSE_EN_LINJE =
 // Åpningstider
 // --------------------------------------------------------------------------
 
+// IKKE I BRUK siden 09.10.2026: kunden vil ikke vise åpningstider. De er tatt
+// ut av kontaktstripa, kartet, footeren, JSON-LD og llms.txt. Konstanten står
+// igjen så de enkelt kan settes tilbake (se prosjektdokumentasjonen,
+// 07-plan-tilbakemeldinger-uke41.md, «Gjenoppretting»).
 export const OPENING_HOURS = {
   // Visningsteksten kan endres i Studio. Klokkeslettene under går i JSON-LD
   // og ligger i koden — endres åpningstidene, må begge oppdateres.
