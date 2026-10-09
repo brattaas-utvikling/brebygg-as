@@ -2220,6 +2220,11 @@
   .nokkeltall-item {
     text-align: center;
     position: relative;
+    /* Verdiene kommer fra Sanity og kan være lange enkeltord
+       («Energieffektivisering»). Uten deling presset de kolonnen bredere
+       enn skjermen på mobil. lang="nb" gir norsk orddeling. */
+    overflow-wrap: break-word;
+    hyphens: auto;
   }
 
   .nokkeltall-item + .nokkeltall-item::before {
@@ -2237,7 +2242,8 @@
       display: none;
     }
     .nokkeltall-strip__grid {
-      grid-template-columns: repeat(2, 1fr);
+      /* minmax(0, …): 1fr alene krymper ikke under det lengste ordet. */
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 1.25rem;
     }
   }
@@ -2592,7 +2598,7 @@
      forstørres svakt mens heroen scrolles ut. Bare dekor — tekst beveger seg
      aldri med scroll.
 
-     scroll(root) og ikke view(): heroene har overflow: hidden, og view() ville
+     scroll(root) og ikke view(): heroene klipper (hidden/clip), og view() ville
      koblet seg til heroen selv, som aldri scroller. Rotens tidslinje over
      heroens høyde gir samme effekt uten den fella. Skrevet med longhands, så
      lightningcss ikke slår dem sammen til en forkortelse Chrome avviser. */
@@ -2875,6 +2881,10 @@
     align-items: flex-end;
     padding-block: clamp(3rem, 8vw, 6rem);
     background-color: var(--color-bg-dark);
+    /* Bildet forstørres 8 % ved scroll (hero-dybde). Uten klipp stakk det
+       ut på sidene, og siden kunne dras sidelengs på mobil. clip og ikke
+       hidden: heroen blir ikke en scroll-container. */
+    overflow: clip;
   }
   /* Mobil på tvers: mindre luft over innholdet, så knappene kommer innenfor
      skjermen (sammen med --hero-min: 0px i :root). */
