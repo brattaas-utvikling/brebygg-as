@@ -38,4 +38,9 @@ const cta = blokk.cta;
     .tekstbilde--bildeVenstre .tekstbilde__tekst { order: 2; }
   }
   .tekstbilde__bilde :global(img) { border-radius: var(--r-lg); width: 100%; }
+  /* Mobil og nettbrett (én kolonne): bildet over teksten, uansett oppsett.
+     Før kom teksten først og bildet under, fordi det er rekkefølgen i HTML. */
+  @media (max-width: 899px) {
+    .tekstbilde__bilde { order: -1; }
+  }
 </style>
