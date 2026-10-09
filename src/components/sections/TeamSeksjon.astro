@@ -261,6 +261,10 @@ const visInitialer =
     border-radius: var(--r-xl);
     background-color: var(--color-bg-dark-2);
     color: var(--color-text-inv);
+    /* Teksten glir ±40 px sidelengs ved bytte, og forrige panel blir liggende
+       forskjøvet (skjult, men det teller i sidebredden). Uten klipp ble siden
+       noen piksler bredere enn skjermen, og kunne dras sidelengs på mobil. */
+    overflow: clip;
   }
 
   @media (min-width: 640px) {
