@@ -20,9 +20,10 @@ import Breadcrumbs                  from "@components/seo/Breadcrumbs.astro";
 
 import { SITE_URL, NAP, type PageMeta } from "@config/site";
 import { getProsjektSlugSchema }    from "@lib/seo/jsonld";
-import { KATEGORI_LABEL, STATUS_LABEL, bildeSrc, bildeTekst } from "@/content.config";
+import { KATEGORI_LABEL, STATUS_LABEL, bildeTekst } from "@/content.config";
 import RikTekst from "@components/ui/RikTekst.astro";
 import Bilde from "@components/sanity/Bilde.astro";
+import { delingsbildeUrl } from "@lib/sanity/image";
 import ProsjektLysboks from "@components/prosjekter/ProsjektLysboks.astro";
 
 // --------------------------------------------------------------------------
@@ -78,7 +79,7 @@ const schema = getProsjektSlugSchema(
     title:         seoTitle,
     description:   seoDescription,
     canonical,
-    imageUrl:      `${SITE_URL}${bildeSrc(data.heroImage)}`,
+    imageUrl:      delingsbildeUrl(data.heroImage, SITE_URL),
     datePublished,
   },
   data.title
@@ -88,7 +89,7 @@ const pageMeta: PageMeta = {
   title:       seoTitle,
   description: seoDescription,
   canonical,
-  ogImage:     `${SITE_URL}${bildeSrc(data.heroImage)}`,
+  ogImage:     delingsbildeUrl(data.heroImage, SITE_URL),
   // Nå mulig fordi PageMeta bærer pageType. I v1 manglet feltet på typen, så
   // og:type sto på "website" på alle prosjektsider selv om Article-schema var
   // korrekt — schema og OG-tagger fortalte ulike ting om samme side.
@@ -130,7 +131,7 @@ const harCasestudie  = data.utfordring  || data.losning  || data.resultat;
 <PageLayout
   meta={pageMeta}
   schema={schema}
-  heroImage={bildeSrc(data.heroImage)}
+  heroImage={data.heroImage}
 >
   <main id="main-content">
 
@@ -141,7 +142,7 @@ const harCasestudie  = data.utfordring  || data.losning  || data.resultat;
 
       {/* Bakgrunnsbilde — preloadet via heroImage-prop i PageLayout */}
       <div class="slug-hero__bg" aria-hidden="true">
-        <Bilde kilde={data.heroImage} alt="" prioritet fyll bredde={1600} hoyde={900} />
+        <Bilde kilde={data.heroImage} alt="" sizes="100vw" prioritet fyll bredde={1600} hoyde={900} />
       </div>
 
       {/* Gradient-overlay */}
