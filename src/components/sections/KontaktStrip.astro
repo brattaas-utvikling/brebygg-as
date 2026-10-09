@@ -1,6 +1,14 @@
 ---
 // src/components/sections/KontaktStrip.astro
-// Fire kontaktpunkter: telefon, e-post, adresse, åpningstider.
+// Tre kontaktpunkter: telefon, e-post og adresse.
+//
+// Verdiene (nummer, e-post, adresse) kommer fra Innstillinger i Sanity via
+// NAP, samme kilde som header, footer og Google-dataene. Den lille teksten
+// under hver verdi redigeres på Kontakt-siden (tekster-prop).
+//
+// Åpningstidene (fjerde punkt) er fjernet 09.10 etter ønske fra kunden. Se
+// prosjektdokumentasjonen (07-plan / endringslogg) for hvordan de settes
+// tilbake.
 //
 // Regler:
 //   - NAP hentes utelukkende fra site.ts — aldri hardkodes her
@@ -8,7 +16,13 @@
 //   - schema.org microdata på <address>-elementet
 //   - Identisk med Footer NAP og LocalBusiness-schema
 
-import { NAP, OPENING_HOURS } from "@config/site";
+import { NAP } from "@config/site";
+
+interface Props {
+  tekster: { telefon: string; epost: string; adresse: string };
+}
+
+const { tekster } = Astro.props;
 ---
 
 <div
@@ -49,7 +63,7 @@ import { NAP, OPENING_HOURS } from "@config/site";
         >
           {NAP.phoneDisplay}
         </a>
-        <p class="strip__sub">Vi svarer i kontortiden</p>
+        {tekster.telefon && <p class="strip__sub">{tekster.telefon}</p>}
       </div>
     </div>
 
@@ -79,7 +93,7 @@ import { NAP, OPENING_HOURS } from "@config/site";
         >
           {NAP.email}
         </a>
-        <p class="strip__sub">Svar innen én arbeidsdag</p>
+        {tekster.epost && <p class="strip__sub">{tekster.epost}</p>}
       </div>
     </div>
 
@@ -114,40 +128,7 @@ import { NAP, OPENING_HOURS } from "@config/site";
           <meta itemprop="addressRegion" content={NAP.address.region} />
           <meta itemprop="addressCountry" content={NAP.address.country} />
         </address>
-        <p class="strip__sub">
-          {NAP.address.region}, {NAP.address.countryFull}
-        </p>
-      </div>
-    </div>
-
-    {/* 4. Åpningstider */}
-    <div class="strip__item">
-      <div class="strip__icon-wrap" aria-hidden="true">
-        <svg
-          width="20"
-          height="20"
-          viewBox="0 0 20 20"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          aria-hidden="true"
-        >
-          <path
-            d="M10 1.67a8.33 8.33 0 1 0 0 16.66A8.33 8.33 0 0 0 10 1.67Zm.83 9.16H9.17V5.84h1.66v5Zm0-6.66H9.17V2.5h1.66v1.67Z"
-            fill="currentColor"></path>
-        </svg>
-      </div>
-      <div class="strip__text">
-        <p class="strip__label">Åpningstider</p>
-        <meta itemprop="openingHours" content="Mo-Fr 07:00-16:00" />
-        <p
-          class="strip__value strip__value--small"
-          style="display: block; text-decoration: none;"
-        >
-          Man–fre
-        </p>
-        <p class="strip__sub">
-          {OPENING_HOURS.display.replace("Man–fre: ", "")}
-        </p>
+        {tekster.adresse && <p class="strip__sub">{tekster.adresse}</p>}
       </div>
     </div>
   </div>

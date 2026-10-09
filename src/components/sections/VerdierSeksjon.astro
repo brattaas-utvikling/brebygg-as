@@ -5,7 +5,7 @@
 // Design:
 //   Bildebredde = 38.2 % av kortet (det gylne snitt: 1/φ²)
 //   Diagonal clip-path: topp 100% → bunn 84% — ca. 16 % skrå
-//   rustlinje langs diagonalkanten
+//   gullinje langs diagonalkanten
 //   Hover: bilde zoomer lett inn
 //
 // Innhold og bilder kommer fra «Om oss» i Sanity. Standardverdiene (med
@@ -47,7 +47,7 @@ const { overskrift, ingress, punkter } = Astro.props;
                 hoyde={400}
                 sizes="(max-width: 768px) 40vw, 300px"
               />
-              {/* ruststrek langs diagonalkanten */}
+              {/* gullstrek langs diagonalkanten */}
               <div class="vd-diagonal-linje" aria-hidden="true" />
             </div>
 

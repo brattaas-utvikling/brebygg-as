@@ -13,7 +13,7 @@ import type { APIRoute } from "astro";
 import { getCollection } from "astro:content";
 import {
   SITE_URL, NAP, ADRESSE_EN_LINJE, AREA_SERVED, HOVEDKOMMUNER,
-  OPENING_HOURS, FAKTA_BEKREFTET, FAQ_ITEMS,
+  FAKTA_BEKREFTET, FAQ_ITEMS,
 } from "@config/site";
 import { TEAM } from "@config/om-oss";
 import { KATEGORI_LABEL } from "@/content.config";
@@ -47,7 +47,6 @@ export const GET: APIRoute = async () => {
     `- E-post: ${NAP.email}`,
     `- Telefon: ${NAP.phoneDisplay} (${NAP.phone})`,
     `- Adresse: ${ADRESSE_EN_LINJE}, ${NAP.address.countryFull}`,
-    `- Åpningstider: ${OPENING_HOURS.display}`,
     `- Ingen kontaktskjema. Henvendelser skjer per telefon eller e-post.`,
     ``,
     `## Personer`,

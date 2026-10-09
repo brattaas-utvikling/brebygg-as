@@ -5,7 +5,7 @@
 // Seksjonsrekkefølge (fra spec):
 //   1. Header          (i PageLayout)
 //   2. Page-banner     — kompakt mørk seksjon med H1 + ingress
-//   3. KontaktStrip    — 4 kontaktpunkter
+//   3. KontaktStrip    — 3 kontaktpunkter (telefon, e-post, adresse)
 //   4. KartSeksjon     — Google Maps embed
 //   5. Footer          (i PageLayout)
 //
@@ -19,7 +19,7 @@ import HeroPage from "@components/sections/HeroPage.astro";
 
 import Seksjoner from "@components/forside/Seksjoner.astro";
 
-import { PAGE_META, NAP, AREA_SERVED } from "@config/site";
+import { PAGE_META, NAP } from "@config/site";
 import { getKontaktSchema } from "@lib/seo/jsonld";
 import { hentKontaktSide, medSeo, heroPreloadBilde, SIDEHERO_SIZES } from "@lib/sanity/sider";
 
@@ -38,24 +38,17 @@ const schema = getKontaktSchema(PAGE_META.kontakt.canonical);
 >
   <main id="main-content">
     {/* Samme toppseksjon som de andre undersidene: tekst til venstre, bilde
-        til høyre. Bildet redigeres i Studio (Sider → Kontakt). Områdene vi
-        dekker står under ingressen. */}
+        til høyre. Bildet redigeres i Studio (Sider → Kontakt). Byknappene
+        under ingressen er fjernet 09.10; områdelista i Innstillinger går nå
+        bare til Google (areaServed i JSON-LD). */}
     <HeroPage
       heading={side.hero.tittel}
       lead={side.hero.ingress}
       bilde={side.hero.bilde}
-    >
-      <ul class="kontakt-omrader" aria-label="Områder vi dekker">
-        {
-          AREA_SERVED.filter(
-            (a) => a !== "Vestfold" && a !== "Stokke" && a !== "Andebu"
-          ).map((sted) => <li class="kontakt-omrader__sted">{sted}</li>)
-        }
-      </ul>
-    </HeroPage>
+    />
 
     {/* 3. Strip: 4 kontaktpunkter */}
-    <KontaktStrip />
+    <KontaktStrip tekster={side.stripe} />
 
     {/* 4. Kart */}
     <KartSeksjon overskrift={side.kartOverskrift} />
@@ -166,25 +159,6 @@ const schema = getKontaktSchema(PAGE_META.kontakt.canonical);
 </PageLayout>
 
 <style>
-  /* Områdene vi dekker, under ingressen i toppseksjonen. */
-  .kontakt-omrader {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    list-style: none;
-    padding: 0;
-    margin: 1.5rem 0 0;
-  }
-
-  .kontakt-omrader__sted {
-    padding: 0.3rem 0.75rem;
-    border: 1px solid rgba(var(--rgb-inv), 0.3);
-    border-radius: var(--r-sm);
-    font-size: 0.8125rem;
-    font-weight: 600;
-    color: var(--color-primary-l);
-    letter-spacing: 0.02em;
-  }
 
 
   /* ── Avslutningsblokk: prosess + NAP-kort ────────────────────────── */

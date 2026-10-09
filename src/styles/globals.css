@@ -108,11 +108,18 @@
        link             warm-dark 13,23 + u.   gull-l 5,56 (#444431) / 8,11
        focus            warm-dark              gull-l
        uthev            leaf-d1 9,08           gull-l 5,56 (#444431) / 8,11
-       signature        kobber (dekor)         kobber (dekor)
+       signature        gull-d (dekor)         gull (dekor)
+       varsel           kobber                 kobber
 
      uthev er for tall, ikoner, nummerering og små etiketter — det som før
      var rust-tekst. På mørk bunn er den gull-l og ikke gull: gull er 4,47 på
      #444431, som ikke holder for små etiketter (.eyebrow er 0,75rem).
+
+     signature er strekene (under overskrifter, kanter, sitatlinje). Var
+     kobber fram til 09.10; kunden ville ha én aksentfarge, gull. På lys bunn
+     er den gull-d (kanten på hovedknappen): vanlig gull er 2,03:1 der og
+     forsvinner nesten, gull-d er 2,57. På mørk bunn er den gull (4,47 / 6,52).
+     Kobber er nå bare varselfarge (--color-varsel), ikke i bruk ennå.
 
      Headeren er Green Leaf, der gull er 1,79:1. Header-CTA bruker derfor
      .btn--pa-gronn (nesten svart), ikke gull. */
@@ -125,7 +132,8 @@
     --color-link-inv: var(--gull-l); /* tekstlenker på mørk bunn */
     --color-focus: var(--warm-dark);
     --color-uthev: var(--leaf-d1);
-    --color-signature: var(--kobber);
+    --color-signature: var(--gull-d);
+    --color-varsel: var(--kobber);
 
     /* Beholdt som alias for komponenter som ikke er skrevet om. primary-l er
        lys-varianten for mørke flater og ER tekstfarge (gull-l, 5,56 / 8,11). */
@@ -161,7 +169,7 @@
     --rgb-dark: 68, 68, 49; /* leaf-d1 — MÅ følge --color-bg-dark */
     --rgb-dark-2: 44, 41, 38; /* warm-dark — MÅ følge --color-bg-dark-2 */
     --rgb-deepest: 13, 13, 8; /* B950 — bunnen av hero-gradienten */
-    --rgb-primary: 181, 90, 44; /* Kobber — kun dekor (glød, ramme, tint) */
+    --rgb-primary: 217, 166, 58; /* Gull — kun dekor (glød, ramme, tint). Var kobber. */
     --rgb-gull: 217, 166, 58;
     --rgb-inv: 249, 250, 249; /* B50 */
     --rgb-khaki: 30, 30, 21; /* B900 */
@@ -1472,55 +1480,33 @@
     /* border-top: 1px solid var(--color-border); */
   }
 
+  /* Tre like kolonner med innholdet sentrert (fire før åpningstidene ble
+     fjernet 09.10). Under 640 px stablet, med ikonet til venstre. */
   .strip__grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 0;
   }
 
-  @media (max-width: 900px) {
-    .strip__grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
-  @media (max-width: 479px) {
-    .strip__grid {
-      grid-template-columns: 1fr;
-    }
-  }
-
   .strip__item {
-    padding: clamp(1.75rem, 3.5vw, 2.75rem) clamp(1.25rem, 2.5vw, 2.25rem);
+    padding: clamp(1.75rem, 3.5vw, 2.75rem) clamp(1rem, 2.5vw, 2.25rem);
     display: flex;
     flex-direction: column;
+    align-items: center;
+    text-align: center;
     gap: 0.375rem;
-    /* border-right: 1px solid var(--color-border); */
-    /* transition: background-color var(--transition-fast); */
     position: relative;
   }
 
-  .strip__item:last-child {
-    border-right: none;
-  }
-
-  /* Tablet 2×2: fjern border på annenhvert + legg bunnborder på øvre rad */
-  @media (max-width: 900px) {
-    .strip__item:nth-child(2n) {
-      border-right: none;
+  @media (max-width: 639px) {
+    .strip__grid {
+      grid-template-columns: 1fr;
     }
-    .strip__item:nth-child(-n + 2) {
-      border-bottom: 1px solid var(--color-border);
-    }
-  }
-
-  /* Mobil: horisontal layout, bunnborder unntatt siste */
-  @media (max-width: 479px) {
     .strip__item {
-      border-right: none;
       border-bottom: 1px solid var(--color-border);
       flex-direction: row;
       align-items: flex-start;
+      text-align: left;
       gap: 1rem;
     }
     .strip__item:last-child {
@@ -1535,14 +1521,15 @@
     flex-shrink: 0;
     display: flex;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
     /* Bare ikonet, ingen tonet flate bak. */
     color: var(--color-uthev);
     margin-bottom: 0.25rem;
   }
 
-  @media (max-width: 479px) {
+  @media (max-width: 639px) {
     .strip__icon-wrap {
+      justify-content: flex-start;
       margin-bottom: 0;
       margin-top: 0.125rem;
       width: 40px;
@@ -2776,6 +2763,7 @@
       .casestudie-meta-kort__header
     ) {
     --color-uthev: var(--gull-l);
+    --color-signature: var(--gull);
     --color-primary: var(--gull-l);
     --color-link: var(--gull-l);
     --color-focus: var(--gull-l);

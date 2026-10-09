@@ -3,17 +3,20 @@
 // HMS og sertifiseringer — lys seksjon.
 //
 // Venstre: introduksjon + HMS-punktliste (hva vi faktisk gjør)
-// Høyre:   sertifiseringsbadges + nedlastingslenke til HMS-egenerklæring
+// Høyre:   valgfritt bilde (Studio: Om oss → HMS → Bilde) og forespørselsboksen.
+//          Med bilde fyller høyre kolonne samme høyde som venstre: bildet
+//          tar plassen, boksen står nederst på linje med slutten av lista.
 
 // Tekstene kommer fra «Om oss» i Sanity (HMS). Standardtekstene ligger i
 // src/lib/sanity/sider.ts.
 
 import RikTekst from "@components/ui/RikTekst.astro";
+import Bilde from "@components/sanity/Bilde.astro";
 import type { OmOssSide } from "@lib/sanity/sider";
 
 type Props = OmOssSide["hms"];
 
-const { overskrift, tekst, punkter, boksTittel, boksTekst, boksSporsmaal, boksKnapp } = Astro.props;
+const { overskrift, tekst, punkter, boksTittel, boksTekst, boksSporsmaal, boksKnapp, bilde } = Astro.props;
 ---
 
 <section
@@ -58,12 +61,21 @@ const { overskrift, tekst, punkter, boksTittel, boksTekst, boksSporsmaal, boksKn
            Tiltaksklasse 2» og «Godkjent lærebedrift» uten at noen av dem var
            verifisert. Det er lovregulerte påstander, ikke markedsføring.
            Sett inn igjen når SERTIFISERINGER er bekreftet i om-oss.ts. */}
-      <div class="hms-sertifiseringer reveal">
+      <div class:list={["hms-sertifiseringer", "reveal", bilde && "hms-sertifiseringer--med-bilde"]}>
 
-        <div class="sert-header">
-          <h3 class="sert-tittel">{boksTittel}</h3>
-          <p class="sert-sub">{boksTekst}</p>
-        </div>
+        {/* Overskrift og undertekst er valgfrie: tomt felt i Studio = skjult. */}
+        {(boksTittel || boksTekst) && (
+          <div class="sert-header">
+            {boksTittel && <h3 class="sert-tittel">{boksTittel}</h3>}
+            {boksTekst && <p class="sert-sub">{boksTekst}</p>}
+          </div>
+        )}
+
+        {bilde && (
+          <div class="hms-bilde">
+            <Bilde kilde={bilde} fyll sizes="(max-width: 767px) 100vw, 50vw" />
+          </div>
+        )}
 
         {/* Kontaktoppfordring for HMS-dokumentasjon */}
         <div class="sert-forespørsel">
@@ -133,6 +145,43 @@ const { overskrift, tekst, punkter, boksTittel, boksTekst, boksSporsmaal, boksKn
     display:     flex;
     align-items: center;
     justify-content: center;
+  }
+
+  /* ── Høyre kolonne ────────────────────────────────────────────────
+     Med bilde strekkes kolonnen til samme høyde som teksten til venstre.
+     Bildet tar plassen som er igjen (minst 220 px), og forespørselsboksen
+     står nederst. På mobil står bildet i 4:3 over boksen. */
+  .hms-sertifiseringer--med-bilde {
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hms-bilde {
+    position: relative;
+    flex: 1;
+    min-height: 220px;
+    border-radius: var(--r-md);
+    overflow: hidden;
+    background-color: var(--color-bg-white);
+  }
+
+  /* Bildet ligger absolutt, så det fyller boksen uten å bestemme høyden.
+     Høyden kommer fra teksten i venstre kolonne. */
+  .hms-bilde :global(img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  @media (max-width: 767px) {
+    .hms-bilde {
+      flex: none;
+      aspect-ratio: 4 / 3;
+      min-height: 0;
+    }
   }
 
   /* ── Sertifiseringer (høyre kolonne) ─────────────────────────────── */

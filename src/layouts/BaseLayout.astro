@@ -87,8 +87,11 @@ const ogImageUrl   = absoluteUrl(resolved.ogImage);
 
     {/* Faviconet er fjellmerket alene, hvitt på Green Leaf som banneret i
         HMS-appen. Hele ordmerket blir uleselig i en 16 px fane. Ikonene er
-        generert fra kundens logofil (september 2026). */}
+        generert fra kundens originale SVG-logo (oktober 2026): fjellet hvitt
+        på Green Leaf. SVG-varianten er skarp i alle størrelser; .ico og PNG
+        er reserve for eldre nettlesere og Windows. */}
     <link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/png" href="/favicon-96.png" sizes="96x96" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
