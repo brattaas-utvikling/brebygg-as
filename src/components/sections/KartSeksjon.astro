@@ -27,7 +27,8 @@ const { overskrift = `Vi holder til i ${NAP.address.city}` } = Astro.props;
 >
   <div class="container">
 
-    {/* Header: kort introduksjon + lenke */}
+    {/* Header: bare overskriften. «Åpne i kart»-knappen her er fjernet
+        (09.10): «Veibeskrivelse» under kartet gjør samme jobb. */}
     <div class="kart-header">
       <div class="kart-header__inner">
         <div>
@@ -38,19 +39,6 @@ const { overskrift = `Vi holder til i ${NAP.address.city}` } = Astro.props;
             {overskrift}
           </h2>
         </div>
-        <a
-          href={MAPS.directUrl}
-          class="btn btn--outline btn--sm kart-header__cta"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Åpne adressen i Google Maps (åpnes i ny fane)"
-        >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-            <path d="M7 .58A5.25 5.25 0 0 0 1.75 5.83c0 3.5 5.25 7.58 5.25 7.58s5.25-4.08 5.25-7.58A5.25 5.25 0 0 0 7 .58Zm0 7.13a1.88 1.88 0 1 1 0-3.75 1.88 1.88 0 0 1 0 3.75Z"
-              fill="currentColor"/>
-          </svg>
-          Åpne i kart
-        </a>
       </div>
     </div>
 
