@@ -109,7 +109,7 @@ if (likeTall) {
     "\n" +
     "  Vanligste årsak er punktum i _id. Sanity leser punktum som en sti-\n" +
     "  separator, og kun rot-stien er lesbar uten token — også på et offentlig\n" +
-    "  datasett. Kjør «npm run rett-id-er:torr» for å se om det er tilfellet."
+    "  datasett. Se etter _id med punktum i Vision (/studio)."
   );
   feil++;
 }

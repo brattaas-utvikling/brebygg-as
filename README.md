@@ -83,11 +83,11 @@ All synlig tekst og alle bilder redigeres i Studio (`/studio`):
 - **Siste nytt**: nyhetssaker med bilde(r), kort tekst og lenke til innlegget på sosiale medier. Vises med blokken «Siste nytt» på forsiden (legg den til under Sider → Forside → Seksjoner). En sak med «Vis til»-dato forsvinner ved neste bygg etter datoen — sett opp en daglig bygging (Vercel Deploy Hook via cron) hvis det skal skje på dagen.
 - **Innstillinger**: navn, adresse, telefon, e-post, åpningstider, områder og SoMe-lenker. Brukes i header, footer, JSON-LD og llms.txt.
 
-Engangsskript (kjør tørt først, skriving krever `SANITY_API_WRITE_TOKEN` med rollen Editor):
+Kontroll av Sanity-oppsettet (bare lesing):
 
 ```bash
-npm run opprett-sider:torr       # oppretter sidedokumentene med dagens tekster
-npm run fjern-naeringsbygg:torr  # fjerner «næringsbygg» fra kundens tekster
+npm run sjekk:sanity  # samme spørring med og uten token
+npm run test:skjema   # GROQ-svar mot Zod-skjemaene, uten nettverk
 ```
 
 ---

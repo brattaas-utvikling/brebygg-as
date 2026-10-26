@@ -5,8 +5,8 @@
 //
 // Fallback per felt, ikke per dokument. Forsiden stopper bygget hvis
 // dokumentet mangler, fordi den ble migrert og alltid skal finnes. Disse
-// sidene er nye, og dokumentene opprettes først når kunden publiserer dem
-// (eller `npm run opprett-sider` kjøres). Å stoppe bygget i mellomtiden ville
+// sidene er nye, og dokumentene opprettes først når kunden publiserer dem.
+// Å stoppe bygget i mellomtiden ville
 // tatt ned hele nettstedet for en side som fungerer fint med standardteksten.
 //
 // Standardtekstene er det som sto hardkodet i sidene før. Nettstedet ser
@@ -206,9 +206,6 @@ const FALLBACK = {
 
 export type SideId = keyof typeof FALLBACK;
 
-/** Standardtekstene, eksportert for scripts/opprett-sider.ts. */
-export const STANDARDTEKSTER = FALLBACK;
-
 // ---------------------------------------------------------------------------
 // Fletting
 // ---------------------------------------------------------------------------
@@ -272,7 +269,7 @@ async function hentSide<K extends SideId>(id: K): Promise<(typeof FALLBACK)[K]> 
   if (!data) {
     console.warn(
       `[sider] Fant ikke «${id}» i Sanity — bruker standardteksten fra koden.\n` +
-      `        Publiser siden i /studio (Sider), eller kjør \`npm run opprett-sider\`.`
+      `        Publiser siden i /studio (Sider).`
     );
     return fallback;
   }

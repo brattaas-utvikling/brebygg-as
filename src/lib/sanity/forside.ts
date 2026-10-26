@@ -70,7 +70,7 @@ export async function hentForside(): Promise<ForsideData> {
     if (import.meta.env.DEV) {
       console.warn(
         "\n[forside] Fant ingen publisert forside i Sanity — viser fallbacken fra koden.\n" +
-        "          Kjør `npm run migrer`, eller opprett dokumentet «Forside» i /studio.\n"
+        "          Opprett dokumentet «Forside» i /studio.\n"
       );
       return fallback();
     }
@@ -80,8 +80,7 @@ export async function hentForside(): Promise<ForsideData> {
     // ikke vises, uten at noen får vite det.
     throw new Error(
       "Fant ingen publisert forside i Sanity.\n" +
-      "Opprett dokumentet «Forside» i /studio og fyll ut hero-feltene, kjør " +
-      "`npm run migrer`, eller fjern PUBLIC_SANITY_PROJECT_ID for å bygge fra markdown."
+      "Opprett dokumentet «Forside» i /studio og fyll ut hero-feltene, eller fjern PUBLIC_SANITY_PROJECT_ID for å bygge fra markdown."
     );
   }
 

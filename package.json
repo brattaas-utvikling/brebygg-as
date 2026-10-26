@@ -13,19 +13,9 @@
     "astro": "astro",
     "check": "astro check",
     "lint": "tsc --noEmit",
-    "migrer": "tsx scripts/migrer-innhold.ts",
-    "migrer:torr": "tsx scripts/migrer-innhold.ts --torrkjor",
-    "rett-id-er": "tsx scripts/rett-id-er.ts",
-    "rett-id-er:torr": "tsx scripts/rett-id-er.ts --torrkjor",
     "studio": "sanity dev",
     "test:skjema": "tsx scripts/test-skjema.ts",
-    "sjekk:sanity": "tsx scripts/sjekk-sanity.ts",
-    "fjern-naeringsbygg": "tsx scripts/fjern-naeringsbygg.ts",
-    "fjern-naeringsbygg:torr": "tsx scripts/fjern-naeringsbygg.ts --torrkjor",
-    "opprett-sider": "tsx scripts/opprett-sider.ts",
-    "opprett-sider:torr": "tsx scripts/opprett-sider.ts --torrkjor",
-    "oppdater-seo": "tsx scripts/oppdater-seo.ts",
-    "oppdater-seo:torr": "tsx scripts/oppdater-seo.ts --torrkjor"
+    "sjekk:sanity": "tsx scripts/sjekk-sanity.ts"
   },
   "dependencies": {
     "@astrojs/react": "^6.0.2",
@@ -45,7 +35,6 @@
     "@astrojs/check": "^0.9.5",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
-    "gray-matter": "^4.0.3",
     "tsx": "^4.23.12",
     "typescript": "^5.9.3"
   }
