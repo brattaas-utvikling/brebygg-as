@@ -69,6 +69,11 @@
       "permanent": true
     },
     {
+      "source": "/kontak-oss/",
+      "destination": "/kontakt/",
+      "permanent": true
+    },
+    {
       "source": "/tjenester/naeringsbygg/",
       "destination": "/tjenester/",
       "permanent": true
